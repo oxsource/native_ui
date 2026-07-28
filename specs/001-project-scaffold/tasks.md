@@ -84,8 +84,8 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Create `src/spike/skia_spike.cc` with minimal Skia surface creation, canvas draw (red rectangle), and PNG encode via `SkPngEncoder`
-- [ ] T021 [US3] Create `src/spike/BUILD.bazel` as `cc_binary` depending on `@skia//:skia`
+- [x] T020 [US3] Create `src/spike/skia_spike.cc` with minimal Skia surface creation, canvas draw (red rectangle), and PNG encode via `SkPngEncoder`
+- [x] T021 [US3] Create `src/spike/BUILD.bazel` as `cc_binary` depending on `@skia//:skia`
 
 **Checkpoint**: `bazel run //src/spike:skia_spike` produces a valid PNG with the expected drawn content.
 

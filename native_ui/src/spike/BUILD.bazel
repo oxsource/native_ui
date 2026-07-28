@@ -1,0 +1,5 @@
+cc_binary(
+    name = "skia_spike",
+    srcs = ["skia_spike.cc"],
+    deps = ["@skia//:skia"],
+)
