@@ -7,6 +7,7 @@ def _skia():
         sha256 = "801f902c7d867783950fd2c12f7416b55f06a8129e2247b245389b6d3c3b158a",
         strip_prefix = "skia-fdbe14582b177785e0e77c938277ef332d45636f",
         build_file = "//third_party/skia:BUILD.bazel",
+        patch_cmds = ["find . -mindepth 2 -name BUILD.bazel -delete"],
     )
 
 def _yoga():

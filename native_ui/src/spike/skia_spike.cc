@@ -1,16 +1,16 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
-#include "SkPngEncoder.h"
+#include "SkImage.h"
 #include "SkPaint.h"
-#include "SkData.h"
+#include "SkGraphics.h"
 
 #include <cstdio>
 
 int main() {
-    auto imageInfo = SkImageInfo::MakeN32Premul(200, 200);
-    auto surface = SkSurfaces::Raster(imageInfo);
+    SkGraphics::Init();
+        auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(200, 200));
     if (!surface) {
-        std::fprintf(stderr, "Failed to create SkSurface\n");
+        std::fprintf(stderr, "FAIL: SkSurface::Raster returned null\n");
         return 1;
     }
 
@@ -23,24 +23,17 @@ int main() {
 
     auto image = surface->makeImageSnapshot();
     if (!image) {
-        std::fprintf(stderr, "Failed to snapshot image\n");
+        std::fprintf(stderr, "FAIL: makeImageSnapshot returned null\n");
         return 1;
     }
 
-    auto data = SkPngEncoder::Encode(nullptr, image.get(), {});
-    if (!data) {
-        std::fprintf(stderr, "Failed to encode PNG\n");
+    uint32_t pixel = 0;
+    SkImageInfo pixelInfo = SkImageInfo::MakeN32Premul(1, 1);
+    if (!image->readPixels(pixelInfo, &pixel, 4, 75, 75)) {
+        std::fprintf(stderr, "FAIL: readPixels failed\n");
         return 1;
     }
 
-    FILE* fp = std::fopen("skia_spike_output.png", "wb");
-    if (!fp) {
-        std::fprintf(stderr, "Failed to open output file\n");
-        return 1;
-    }
-    std::fwrite(data->data(), 1, data->size(), fp);
-    std::fclose(fp);
-
-    std::printf("Skia spike passed — output written to skia_spike_output.png\n");
+    std::printf("Skia spike passed — pixel at (75,75) = 0x%08x\n", pixel);
     return 0;
 }
