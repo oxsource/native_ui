@@ -1,0 +1,5 @@
+cc_binary(
+    name = "verify_dep",
+    srcs = ["verify_dep.cc"],
+    deps = ["@native_ui//:native_ui"],
+)

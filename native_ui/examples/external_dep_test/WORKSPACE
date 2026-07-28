@@ -1,0 +1,6 @@
+workspace(name = "external_dep_test")
+
+local_repository(
+    name = "native_ui",
+    path = "../..",
+)

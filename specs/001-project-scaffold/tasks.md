@@ -99,9 +99,9 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Verify public `cc_library` target in `src/framework/public/BUILD.bazel` has `strip_include_prefix = "include"` and correct `deps` aggregation of all modules
-- [ ] T023 [US2] Verify public target is `//visibility:public` and root alias `//:native_ui` resolves correctly
-- [ ] T024 [US2] Validate external dependency by creating a temporary test project that `#include "native_ui/native_ui_export.h"` and links against `@native_ui//:native_ui`
+- [x] T022 [US2] Verify public `cc_library` target in `src/framework/public/BUILD.bazel` has `strip_include_prefix = "include"` and correct `deps` aggregation of all modules
+- [x] T023 [US2] Verify public target is `//visibility:public` and root alias `//:native_ui` resolves correctly
+- [x] T024 [US2] Validate external dependency by creating a temporary test project that `#include "native_ui/native_ui_export.h"` and links against `@native_ui//:native_ui`
 
 **Checkpoint**: An external Bazel project can depend on native_ui and compile/link a binary without errors.
 
