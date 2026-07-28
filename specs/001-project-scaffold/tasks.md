@@ -62,15 +62,15 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Create root `BUILD.bazel` with `alias` target `//:native_ui` pointing to `//src/framework/public:native_ui`
-- [ ] T012 [P] [US1] Create `src/framework/core/BUILD.bazel` as empty `cc_library` target
-- [ ] T013 [P] [US1] Create `src/framework/layout/BUILD.bazel` as empty `cc_library` target
-- [ ] T014 [P] [US1] Create `src/framework/render/BUILD.bazel` as empty `cc_library` target
-- [ ] T015 [P] [US1] Create `src/framework/surface/BUILD.bazel` as empty `cc_library` target
-- [ ] T016 [P] [US1] Create `src/framework/widgets/BUILD.bazel` as empty `cc_library` target
-- [ ] T017 [P] [US1] Create `src/framework/event/BUILD.bazel` as empty `cc_library` target
-- [ ] T018 [US1] Create `src/framework/public/BUILD.bazel` as umbrella `cc_library` aggregating all module targets
-- [ ] T019 [US1] Create `src/framework/public/include/native_ui/native_ui_export.h` with `NATIVE_UI_API` visibility macro
+- [x] T011 [P] [US1] Create root `BUILD.bazel` with `alias` target `//:native_ui` pointing to `//src/framework/public:native_ui`
+- [x] T012 [P] [US1] Create `src/framework/core/BUILD.bazel` as empty `cc_library` target
+- [x] T013 [P] [US1] Create `src/framework/layout/BUILD.bazel` as empty `cc_library` target
+- [x] T014 [P] [US1] Create `src/framework/render/BUILD.bazel` as empty `cc_library` target
+- [x] T015 [P] [US1] Create `src/framework/surface/BUILD.bazel` as empty `cc_library` target
+- [x] T016 [P] [US1] Create `src/framework/widgets/BUILD.bazel` as empty `cc_library` target
+- [x] T017 [P] [US1] Create `src/framework/event/BUILD.bazel` as empty `cc_library` target
+- [x] T018 [US1] Create `src/framework/public/BUILD.bazel` as umbrella `cc_library` aggregating all module targets
+- [x] T019 [US1] Create `src/framework/public/include/native_ui/native_ui_export.h` with `NATIVE_UI_API` visibility macro
 
 **Checkpoint**: `bazel build //...` succeeds. All module stubs compile. Root alias resolves correctly.
 

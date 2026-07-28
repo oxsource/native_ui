@@ -1,0 +1,4 @@
+cc_library(
+    name = "layout",
+    visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
+)

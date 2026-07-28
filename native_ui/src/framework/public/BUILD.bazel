@@ -1,0 +1,20 @@
+cc_library(
+    name = "native_ui",
+    hdrs = glob(["include/native_ui/*.h"]),
+    strip_include_prefix = "include",
+    copts = [
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
+        "-DNATIVE_UI_SHARED_LIBRARY",
+    ],
+    alwayslink = 1,
+    deps = [
+        "//src/framework/core",
+        "//src/framework/layout",
+        "//src/framework/render",
+        "//src/framework/surface",
+        "//src/framework/widgets",
+        "//src/framework/event",
+    ],
+    visibility = ["//visibility:public"],
+)
