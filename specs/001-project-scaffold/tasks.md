@@ -30,10 +30,10 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Purpose**: Initialize Bazel workspace and build system configuration
 
-- [ ] T001 Create workspace root `native_ui/` directory structure with all module subdirectories
-- [ ] T002 Create `.bazelversion` with content `6.5.0` at workspace root
-- [ ] T003 Create `.bazelignore` to ignore example workspaces at workspace root
-- [ ] T004 Create `.bazelrc` with C++17 standard, hidden visibility, platform aliases, and test config at workspace root
+- [x] T001 Create workspace root `native_ui/` directory structure with all module subdirectories
+- [x] T002 Create `.bazelversion` with content `6.5.0` at workspace root
+- [x] T003 Create `.bazelignore` to ignore example workspaces at workspace root
+- [x] T004 Create `.bazelrc` with C++17 standard, hidden visibility, platform aliases, and test config at workspace root
 
 ---
 
@@ -43,12 +43,12 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `WORKSPACE` with `workspace(name = "native_ui")` and `native_ui_setup()` call at workspace root
-- [ ] T006 [P] Create `native_ui_deps.bzl` with `native_ui_setup()` function declaring Skia, caflex, googletest, and bazel_skylib dependencies
-- [ ] T007 [P] Create `platforms/platforms.bzl` with `config_setting_and_platform` helper macro
-- [ ] T008 [P] Create `platforms/BUILD` with `config_setting_and_platform` targets for `macos_arm64` and `linux_x86_64`
-- [ ] T009 Create `third_party/skia/BUILD.bazel` as `cc_library` wrapper for Skia with platform-specific linkopts
-- [ ] T010 Create `third_party/caflex/BUILD.bazel` as `cc_library` wrapper for caflex
+- [x] T005 [P] Create `WORKSPACE` with `workspace(name = "native_ui")` and `native_ui_setup()` call at workspace root
+- [x] T006 [P] Create `native_ui_deps.bzl` with `native_ui_setup()` function declaring Skia, caflex, googletest, and bazel_skylib dependencies
+- [x] T007 [P] Create `platforms/platforms.bzl` with `config_setting_and_platform` helper macro
+- [x] T008 [P] Create `platforms/BUILD` with `config_setting_and_platform` targets for `macos_arm64` and `linux_x86_64`
+- [x] T009 Create `third_party/skia/BUILD.bazel` as `cc_library` wrapper for Skia with platform-specific linkopts
+- [x] T010 Create `third_party/caflex/BUILD.bazel` as `cc_library` wrapper for caflex
 
 **Checkpoint**: Foundation ready — user story implementation can now begin in parallel
 

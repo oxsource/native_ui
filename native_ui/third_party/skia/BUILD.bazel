@@ -1,0 +1,29 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "skia",
+    hdrs = glob(["include/**/*.h"]),
+    srcs = glob([
+        "src/**/*.cc",
+        "src/**/*.cpp",
+    ]),
+    includes = [
+        "include",
+        "include/core",
+        "include/gpu",
+        "include/config",
+    ],
+    copts = [
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+    ],
+    linkopts = select({
+        "//platforms:macos_arm64_setting": [
+            "-framework ApplicationServices",
+            "-framework CoreGraphics",
+            "-framework CoreText",
+            "-framework Metal",
+        ],
+        "//conditions:default": [],
+    }),
+)

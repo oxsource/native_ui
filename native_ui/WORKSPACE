@@ -1,0 +1,5 @@
+workspace(name = "native_ui")
+
+load("//:native_ui_deps.bzl", "native_ui_setup")
+
+native_ui_setup()
