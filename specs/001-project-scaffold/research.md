@@ -40,6 +40,12 @@ All technical decisions for P1 are documented in `project_bootstrap.md` and `roa
 - **Rationale**: Validates the full compile-link-execute pipeline for the most complex dependency; exercises Skia's include paths, linkopts, and runtime library loading
 - **Alternatives considered**: Compile-only test (rejected: doesn't validate linking or runtime); no spike (rejected: highest risk item must be validated before P2)
 
+### Layout Engine: Yoga (replacing caflex)
+
+- **Decision**: Use Facebook Yoga v3.2.1 as the flexbox layout engine
+- **Rationale**: Yoga is the industry-standard flexbox implementation, maintained by Meta, used in React Native. caflex was initially chosen but does not exist as a maintained library.
+- **Alternatives considered**: caflex (rejected: unmaintained/not found); custom implementation (rejected: unnecessary effort when Yoga is battle-tested)
+
 ### Dependency Management: Single deps.bzl
 
 - **Decision**: Centralize all external dependency declarations in `native_ui_deps.bzl` with a single `native_ui_setup()` call

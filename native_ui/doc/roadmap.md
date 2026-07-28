@@ -48,7 +48,7 @@ Phase 1 ──→ Phase 2 ──→ Phase 3 ──→ ... ──→ Phase 8 ─�
 | File | Purpose |
 |------|---------|
 | `WORKSPACE` | `workspace(name = "native_ui")` + `native_ui_setup()` call |
-| `native_ui_deps.bzl` | External dep bootstrap: Skia, caflex, googletest, skylib |
+| `native_ui_deps.bzl` | External dep bootstrap: Skia, Yoga, googletest, skylib |
 | `.bazelversion` | `6.5.0` |
 | `.bazelrc` | C++17, visibility=hidden, platform aliases |
 | `.bazelignore` | Ignore example workspaces |
@@ -56,7 +56,7 @@ Phase 1 ──→ Phase 2 ──→ Phase 3 ──→ ... ──→ Phase 8 ─�
 | `platforms/BUILD` | `config_setting` + `platform` for macos_arm64, linux_x86_64 |
 | `platforms/platforms.bzl` | Helper macros |
 | `third_party/skia/BUILD.bazel` | Skia `cc_library` wrapper |
-| `third_party/caflex/BUILD.bazel` | caflex `cc_library` wrapper |
+| `third_party/yoga/BUILD.bazel` | Yoga `cc_library` wrapper |
 
 ### Source Stubs
 
@@ -241,7 +241,7 @@ CI checks at minimum:
 
 # Phase 4: Flexbox Layout Engine
 
-**Goal**: Wrap caflex into `FlexLayout` with tagged-parameter API. Implement measure + arrange pipeline.
+**Goal**: Wrap Yoga into `FlexLayout` with tagged-parameter API. Implement measure + arrange pipeline.
 
 ## Dependencies
 
@@ -576,7 +576,7 @@ W1  W2  W3  W4  W5  W6  W7  W8  W9  W10 W11 W12 W13 W14 W15 W16
 |------|--------|------------|------------|
 | Skia build integration failure | Blocks P5–P8 | High | Spike in P1; stop-gate before P2 |
 | Skia API surface changes | Render wrapper rewrite | Low | Pin specific Skia commit |
-| caflex incompatibility | Layout engine rework | Low | caflex is header-only, simple API |
+| Yoga API changes | Layout engine rework | Low | Yoga is well-established with stable API |
 | Cross-platform Skia linkopts | CI red on Linux | Medium | Spike tests both platforms in CI |
 | TextLayout complexity | Feature creep | High (deferred) | Explicitly deferred post-MVP |
 | Performance (full re-layout on every add) | UI jank | Low | RequestLayout batching planned |

@@ -19,7 +19,7 @@ A logical grouping of source code within the framework. Each module is a Bazel p
 | Module | Path | Visibility | Dependencies |
 |--------|------|------------|--------------|
 | core | `src/framework/core` | `__subpackages__`, `tests` | None |
-| layout | `src/framework/layout` | `__subpackages__`, `tests` | core, @caflex |
+| layout | `src/framework/layout` | `__subpackages__`, `tests` | core, @yoga |
 | render | `src/framework/render` | `__subpackages__`, `tests` | core, @skia |
 | surface | `src/framework/surface` | `__subpackages__`, `tests` | core, @skia, platform headers |
 | widgets | `src/framework/widgets` | `__subpackages__`, `tests` | core, layout, render, event |
@@ -48,7 +48,7 @@ An external library fetched and managed by the build system, not part of project
 | Name | Type | Source | Purpose |
 |------|------|--------|---------|
 | skia | http_archive | GitHub | 2D graphics rendering library |
-| caflex | http_archive | GitHub | Flexbox layout engine (header-only) |
+| yoga | http_archive | GitHub | Flexbox layout engine |
 | googletest | http_archive | GitHub | Unit testing framework |
 | bazel_skylib | http_archive | GitHub | Bazel helper library |
 

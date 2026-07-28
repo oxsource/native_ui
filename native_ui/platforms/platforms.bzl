@@ -1,10 +1,10 @@
 def config_setting_and_platform(name, constraint_values, parents = None):
     native.config_setting(
-        name = name + "_setting",
+        name = name,
         constraint_values = constraint_values,
     )
     native.platform(
-        name = name,
+        name = name + "_platform",
         constraint_values = constraint_values,
         parents = parents,
     )

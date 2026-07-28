@@ -90,7 +90,7 @@ A developer runs all project tests to confirm the test infrastructure works, eve
 - **FR-005**: Module source directories must exist as stubs for: core types, layout engine, render wrapper, surface, widgets, event, and public API
 - **FR-006**: Each module stub must be independently compilable as an empty library target
 - **FR-007**: The project root must provide a convenient alias that resolves to the public API target
-- **FR-008**: Third-party dependencies (Skia, caflex, googletest, skylib) must be fetchable and resolvable via the build system
+- **FR-008**: Third-party dependencies (Skia, Yoga, googletest, skylib) must be fetchable and resolvable via the build system
 - **FR-009**: Platform-specific build settings (compiler flags, link options) must be correctly applied per target platform
 - **FR-010**: The Skia spike binary must use Skia's canvas API to draw content and encode the result as a PNG file
 

@@ -14,7 +14,7 @@ Establish Bazel workspace, platform definitions, dependency management, and vali
 
 **Build System**: Bazel 6.5.0
 
-**Primary Dependencies**: Skia (rendering), caflex (flexbox layout), googletest (testing), bazel_skylib (build helpers)
+**Primary Dependencies**: Skia (rendering), Yoga (flexbox layout), googletest (testing), bazel_skylib (build helpers)
 
 **Storage**: N/A
 
@@ -75,8 +75,8 @@ native_ui/                          # Bazel workspace root
 ├── third_party/
 │   ├── skia/
 │   │   └── BUILD.bazel             # Skia cc_library wrapper
-│   └── caflex/
-│       └── BUILD.bazel             # caflex cc_library wrapper
+│   └── yoga/
+│       └── BUILD.bazel             # Yoga cc_library wrapper
 ├── src/
 │   └── framework/
 │       ├── core/

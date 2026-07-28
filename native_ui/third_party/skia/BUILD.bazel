@@ -12,13 +12,18 @@ cc_library(
         "include/core",
         "include/gpu",
         "include/config",
+        "include/encode",
+        "include/effects",
+        "include/pathops",
+        "include/utils",
+        "include/codec",
     ],
     copts = [
         "-Wno-unused-parameter",
         "-Wno-deprecated-declarations",
     ],
     linkopts = select({
-        "//platforms:macos_arm64_setting": [
+        "@native_ui//platforms:macos_arm64": [
             "-framework ApplicationServices",
             "-framework CoreGraphics",
             "-framework CoreText",

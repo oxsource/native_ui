@@ -1,0 +1,5 @@
+cc_test(
+    name = "infra_test",
+    srcs = ["infra_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
+)

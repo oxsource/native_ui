@@ -1,0 +1,47 @@
+# Build conventions for native_ui agents
+# Agents MUST follow these rules when adding/modifying BUILD files.
+
+build:
+  language: c++17
+  system: bazel
+  bazel_version: 6.5.0
+
+  platform_defaults:
+    - macos_arm64
+    - linux_x86_64
+
+  visibility:
+    internal: ["//src/framework:__subpackages__", "//tests:__subpackages__"]
+    public: ["//visibility:public"]
+
+  rules:
+    # All modules except public/ use internal visibility
+    - path: "src/framework/*/"
+      visibility: internal
+
+    # public/ module has public visibility
+    - path: "src/framework/public/"
+      visibility: public
+
+    # third_party wrappers have public visibility
+    - path: "third_party/*/"
+      visibility: public
+
+  constraints:
+    # No module outside render/ or surface/ may depend on Skia directly
+    skia_isolation:
+      allow_direct_skia_dep:
+        - "//src/framework/render"
+        - "//src/framework/surface"
+      query: "somepath(//src/framework/..., @skia//:skia)"
+
+  copts:
+    standard: ["-std=c++17"]
+    shared_lib: ["-fvisibility=hidden", "-fvisibility-inlines-hidden"]
+
+  linkopts:
+    macos_arm64:
+      - "-framework ApplicationServices"
+      - "-framework CoreGraphics"
+      - "-framework CoreText"
+      - "-framework Metal"

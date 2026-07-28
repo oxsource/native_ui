@@ -1,11 +1,14 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkPngEncoder.h"
+#include "SkPaint.h"
+#include "SkData.h"
 
 #include <cstdio>
 
 int main() {
-    auto surface = SkSurface::MakeRasterN32Premul(200, 200);
+    auto imageInfo = SkImageInfo::MakeN32Premul(200, 200);
+    auto surface = SkSurfaces::Raster(imageInfo);
     if (!surface) {
         std::fprintf(stderr, "Failed to create SkSurface\n");
         return 1;

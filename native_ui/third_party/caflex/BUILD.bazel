@@ -1,8 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-cc_library(
-    name = "caflex",
-    hdrs = glob(["include/**/*.h", "src/**/*.h"]),
-    srcs = glob(["src/**/*.cc", "src/**/*.cpp"]),
-    includes = ["include"],
-)

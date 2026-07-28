@@ -179,7 +179,7 @@ native_ui/src/framework/
 | Module | Responsibility | External Deps |
 |--------|---------------|---------------|
 | `core` | 几何类型、颜色、矩阵运算、EdgeInsets | — |
-| `layout` | Flexbox measure/arrange 算法 | caflex |
+| `layout` | Flexbox measure/arrange 算法 | Yoga |
 | `render` | Skia Canvas 封装、Paint、Path、Text | Skia |
 | `surface` | 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory | Skia, platform headers |
 | `widgets` | 基础控件、Widget 基类、组合规则 | core, layout, render, event, surface |
@@ -224,8 +224,8 @@ native_ui/                        # Bazel workspace root
 ├── third_party/
 │   ├── skia/
 │   │   └── BUILD.bazel           # Skia cc_library wrapper
-│   └── caflex/
-│       └── BUILD.bazel           # caflex cc_library wrapper
+│   └── yoga/
+│       └── BUILD.bazel           # Yoga cc_library wrapper
 │
 ├── src/
 │   └── framework/
@@ -494,7 +494,7 @@ list.ClearChildren();
 
 ## 3.5 Flexbox Layout
 
-采用 **caflex** 作为 Flexbox 底层实现引擎，在其之上封装 `native::ui::FlexLayout`。
+采用 **Yoga** 作为 Flexbox 底层实现引擎，在其之上封装 `native::ui::FlexLayout`。
 
 ### FlexLayout API
 
@@ -685,11 +685,11 @@ build --host_cxxopt=-std=c++17
 build --features=visibility=hidden
 
 # Platform aliases
-build:macos_arm64 --platforms=//platforms:macos_arm64
-build:linux_x86_64 --platforms=//platforms:linux_x86_64
+build:macos_arm64 --platforms=//platforms:macos_arm64_platform
+build:linux_x86_64 --platforms=//platforms:linux_x86_64_platform
 
 # Default to macOS ARM64 for development
-build --platforms=//platforms:macos_arm64
+build --platforms=//platforms:macos_arm64_platform
 
 test --test_output=errors
 ```
@@ -731,13 +731,13 @@ def _skia():
         build_file = "//third_party/skia:BUILD.bazel",
     )
 
-def _caflex():
+def _yoga():
     http_archive(
-        name = "caflex",
-        urls = ["https://github.com/caiof/caflex/archive/<commit>.tar.gz"],
+        name = "yoga",
+        urls = ["https://github.com/facebook/yoga/archive/refs/tags/v3.2.1.tar.gz"],
         sha256 = "<sha256>",
-        strip_prefix = "caflex-<commit>",
-        build_file = "//third_party/caflex:BUILD.bazel",
+        strip_prefix = "yoga-3.2.1",
+        build_file = "//third_party/yoga:BUILD.bazel",
     )
 
 def _googletest():
@@ -761,8 +761,8 @@ def native_ui_setup():
         _bazel_skylib()
     if not native.existing_rule("skia"):
         _skia()
-    if not native.existing_rule("caflex"):
-        _caflex()
+    if not native.existing_rule("yoga"):
+        _yoga()
     if not native.existing_rule("com_google_googletest"):
         _googletest()
 ```
@@ -834,7 +834,7 @@ cc_library(
         "-Wno-deprecated-declarations",
     ],
     linkopts = select({
-        "//platforms:macos_arm64_setting": [
+        "@native_ui//platforms:macos_arm64": [
             "-framework ApplicationServices",
             "-framework CoreGraphics",
             "-framework CoreText",
@@ -846,13 +846,13 @@ cc_library(
 )
 ```
 
-### third_party/caflex/BUILD.bazel
+### third_party/yoga/BUILD.bazel
 
 ```python
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
-    name = "caflex",
+    name = "yoga",
     hdrs = glob(["include/**/*.h", "src/**/*.h"]),
     srcs = glob(["src/**/*.cc", "src/**/*.cpp"]),
     includes = ["include"],
@@ -878,7 +878,7 @@ cc_library(
     hdrs = glob(["*.h"]),
     deps = [
         "//src/framework/core",
-        "@caflex//:caflex",
+        "@yoga//:yoga",
     ],
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
 )
@@ -1209,7 +1209,7 @@ Agent 在实现时遵循：
 - [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [W3C Flexbox Specification](https://www.w3.org/TR/css-flexbox-1/)
-- [caflex - C++ Flexbox Library](https://github.com/caiof/caflex)
+- [Yoga - Cross-Platform Layout Engine](https://github.com/facebook/yoga)
 - [graph_runtime - Reference Project](${PROJECT_ROOT}/../graph_runtime/graph_runtime)
 
   本项目 Bazel 配置（WORKSPACE, .bazelrc, platforms, deps.bzl）和
