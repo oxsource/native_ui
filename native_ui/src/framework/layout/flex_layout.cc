@@ -36,7 +36,7 @@ void FlexLayout::ProcessArg(Margin tag) {
 }
 
 FlexLayout::~FlexLayout() {
-  if (root_) YGNodeFreeRecursive(root_);
+  YGNodeFreeRecursive(root_);
 }
 
 void FlexLayout::SetChildren(const std::vector<YGNodeRef>& children) {
@@ -44,7 +44,6 @@ void FlexLayout::SetChildren(const std::vector<YGNodeRef>& children) {
 }
 
 std::vector<MeasureResult> FlexLayout::Measure(Size available) {
-  if (!root_) root_ = YGNodeNew();
   YGNodeStyleSetWidth(root_, available.width);
   YGNodeStyleSetHeight(root_, available.height);
 

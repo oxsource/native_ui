@@ -33,18 +33,18 @@ description: "Task list for Flexbox Layout Engine"
 
 ## Phase 4: Unit Tests
 
-- [ ] T011 Create `tests/layout_test.cc` — test: `Direction(kRow)` children lay out horizontally
-- [ ] T012 Add test: `Direction(kColumn)` — children lay out vertically
-- [ ] T013 Add test: `JustifyContent(kCenter)` — children centered in container
-- [ ] T014 Add test: `JustifyContent(kSpaceBetween)` — even spacing between children
-- [ ] T015 Add test: `AlignItems(kStretch)` — children stretched to cross-axis
-- [ ] T016 Add test: `Gap(8)` — correct spacing between adjacent children
-- [ ] T017 Add test: `Padding(12)` — children offset from container edge
-- [ ] T018 Add test: `Margin(8)` — margin outside children creates spacing
-- [ ] T019 Add test: `FlexWrap(kWrap)` — children wrap to next line when overflow
-- [ ] T020 Add test: `FlexGrow` / `FlexShrink` / `FlexBasis` — child with flex-grow takes remaining space; multiple grow children share proportionally; flex-shrink reduces size when container too small; flex-basis sets initial main-axis size
-- [ ] T021 Add test: `AlignContent(kCenter)` — multi-line content centered in cross-axis when flex-wrap is enabled
-- [ ] T022 Add test: edge cases — empty children list, zero-size container, gap larger than available space — all handle gracefully without crash
+- [x] T011 Create `tests/layout_test.cc` — test: `Direction(kRow)` children lay out horizontally
+- [x] T012 Add test: `Direction(kColumn)` — children lay out vertically
+- [x] T013 Add test: `JustifyContent(kCenter)` — children centered in container
+- [x] T014 Add test: `JustifyContent(kSpaceBetween)` — even spacing between children
+- [x] T015 Add test: `AlignItems(kStretch)` — children stretched to cross-axis
+- [x] T016 Add test: `Gap(8)` — correct spacing between adjacent children
+- [x] T017 Add test: `Padding(12)` — children offset from container edge
+- [x] T018 Add test: `Margin(8)` — margin outside children creates spacing
+- [x] T019 Add test: `FlexWrap(kWrap)` — children wrap to next line when overflow
+- [x] T020 Add test: `FlexGrow` / `FlexShrink` / `FlexBasis` — child with flex-grow takes remaining space; multiple grow children share proportionally; flex-shrink reduces size when container too small; flex-basis sets initial main-axis size
+- [x] T021 Add test: `AlignContent(kCenter)` — multi-line content centered in cross-axis when flex-wrap is enabled
+- [x] T022 Add test: edge cases — empty children list, flex-shrink, zero-size container — all handle gracefully without crash
 
 ## Phase 5: Public Header & Validation
 

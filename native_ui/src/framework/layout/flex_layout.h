@@ -7,12 +7,45 @@
 
 namespace native::ui {
 
-// Tag types
+// Tag types with constants
 struct Direction { int value; };
-struct JustifyContent { int value; };
-struct AlignItems { int value; };
-struct AlignContent { int value; };
-struct FlexWrap { int value; };
+struct JustifyContent {
+  int value;
+  static constexpr int kFlexStart = 0;
+  static constexpr int kCenter = 1;
+  static constexpr int kFlexEnd = 2;
+  static constexpr int kSpaceBetween = 3;
+  static constexpr int kSpaceAround = 4;
+  static constexpr int kSpaceEvenly = 5;
+};
+struct AlignItems {
+  int value;
+  static constexpr int kAuto = 0;
+  static constexpr int kFlexStart = 1;
+  static constexpr int kCenter = 2;
+  static constexpr int kFlexEnd = 3;
+  static constexpr int kStretch = 4;
+  static constexpr int kBaseline = 5;
+  static constexpr int kSpaceBetween = 6;
+  static constexpr int kSpaceAround = 7;
+};
+struct AlignContent {
+  int value;
+  static constexpr int kAuto = 0;
+  static constexpr int kFlexStart = 1;
+  static constexpr int kCenter = 2;
+  static constexpr int kFlexEnd = 3;
+  static constexpr int kStretch = 4;
+  static constexpr int kBaseline = 5;
+  static constexpr int kSpaceBetween = 6;
+  static constexpr int kSpaceAround = 7;
+};
+struct FlexWrap {
+  int value;
+  static constexpr int kNoWrap = 0;
+  static constexpr int kWrap = 1;
+  static constexpr int kWrapReverse = 2;
+};
 struct Gap { float value; };
 struct Padding { float value; };
 struct Margin { float value; };
@@ -40,7 +73,7 @@ private:
   void ProcessArg(Padding tag);
   void ProcessArg(Margin tag);
 
-  YGNodeRef root_ = nullptr;
+  YGNodeRef root_ = YGNodeNew();
   std::vector<YGNodeRef> children_;
 };
 
