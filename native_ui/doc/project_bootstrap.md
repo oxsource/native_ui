@@ -167,7 +167,7 @@ native_ui/src/framework/
 │
 ├── core/          # 基础类型：Rect, Point, Size, Color, Matrix, EdgeInsets
 ├── layout/        # 布局引擎：Flexbox measure + arrange
-├── render/        # Skia 渲染封装：Canvas, Paint, Path, TextLayout
+├── render/        # Skia 渲染封装：Canvas, Paint, Path, Image (PNG/SVG/Buffer), TextLayout
 ├── surface/       # 平台 Buffer 封装：Surface, BufferHandle, SurfaceFactory
 ├── viewmodel/     # 数据绑定：State 基类、属性通知、Watch/Unwatch 生命周期
 ├── widgets/       # 基础控件：Text, Button, Image, Container, Stack, Surface
