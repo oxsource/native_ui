@@ -20,7 +20,7 @@
 │   │  ~Canvas() → auto restore to save state   │  │
 │   └───────────────────────────────────────────┘  │
 │                                                   │
-│  Surface::Present() → swap/flush to display       │
+│  Surface::Flush() → commit pixels to display      │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -31,7 +31,7 @@
 2. Attach Canvas           Canvas canvas(surface)
 3. Draw                    canvas.DrawRect(...); canvas.DrawText(...); canvas.DrawImage(...)
 4. Destroy Canvas          ~Canvas() → auto restore SkCanvas state
-5. Present                 surface.Present() → swap buffers / flush to display
+5. Flush                   surface.Flush() → commit pixels to display
 6. Repeat from step 2 for next frame
 ```
 
@@ -39,7 +39,7 @@
 
 | Role | Responsibility |
 |------|---------------|
-| `Surface` | Owns the pixel buffer; knows how to create from size or external `HardwareBuffer`; can `Present()` to display |
+| `Surface` | Owns the pixel buffer; knows how to create from size or external `HardwareBuffer`; `Flush()` to commit pixels |
 | `Canvas` | Lightweight RAII wrapper attached to a `Surface&`; provides all drawing APIs; auto save/restore on scope exit |
 | One Surface → one Canvas at a time | Canvas is not shared between threads; create/destroy per frame |
 
@@ -54,7 +54,7 @@ public:
   static std::unique_ptr<Surface> CreateFromBuffer(HardwareBuffer handle);
   ~Surface();
 
-  void Present();  // swap/flush for platform surfaces
+  void Flush();  // commit pixels / swap buffers for platform surfaces
   int width() const;
   int height() const;
 };

@@ -18,7 +18,7 @@
 │   │  ~Canvas() → auto restore                 │  │
 │   └───────────────────────────────────────────┘  │
 │                                                   │
-│  Surface::Present() → swap/flush                  │
+│  Surface::Flush() → commit pixels                 │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -29,7 +29,7 @@
 2. Attach Canvas           Canvas canvas(surface)
 3. Draw                    canvas.DrawRect(...); canvas.DrawText(...); canvas.DrawImage(...)
 4. Destroy Canvas          ~Canvas() → auto restore SkCanvas state
-5. Present                 surface.Present()
+5. Flush                   surface.Flush()
 6. Repeat from step 2 for next frame
 ```
 
@@ -37,7 +37,7 @@
 
 | Role | Responsibility |
 |------|---------------|
-| `Surface` | Owns pixel buffer; create from size or external `HardwareBuffer`; `Present()` to display |
+| `Surface` | Owns pixel buffer; create from size or external `HardwareBuffer`; `Flush()` to commit pixels |
 | `Canvas` | Lightweight RAII attached to `Surface&`; all drawing APIs; auto save/restore on scope |
 
 ## Surface (Backing Store)
@@ -56,7 +56,7 @@ public:
   ~Surface();
 
   // Present the rendered content (swap/flush for platform surfaces)
-  void Present();
+  void Flush();
 
   int width() const;
   int height() const;
