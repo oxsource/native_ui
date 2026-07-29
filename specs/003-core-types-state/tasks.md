@@ -73,9 +73,9 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:state_test` passes with Property tests
 
-- [ ] T013 [P] [US2] Create `src/framework/viewmodel/property_base.h` with `PropertyBase` abstract class — virtual `Signal()`, `key()` identity method
-- [ ] T014 [P] [US2] Create `src/framework/viewmodel/property.h` with `Property<T> : PropertyBase` template — constructor taking `State*`, `operator=` (triggers `before_set_` → value update → `Signal()` → `after_set_`), `value()`, `operator const T&()`, private `value_`, `before_set_` hook, `after_set_` hook
-- [ ] T015 [US2] Create `tests/property_test.cc` with unit tests: Property construction, operator= triggers Signal, value readback, multiple assignments in sequence
+- [x] T013 [P] [US2] Create `src/framework/viewmodel/property_base.h` with `PropertyBase` abstract class — virtual `Signal()`, `key()` identity method
+- [x] T014 [P] [US2] Create `src/framework/viewmodel/property.h` with `Property<T> : PropertyBase` template — constructor taking `State*`, `operator=` (triggers `before_set_` → value update → `Signal()` → `after_set_`), `value()`, `operator const T&()`, private `value_`, `before_set_` hook, `after_set_` hook
+- [x] T015 [US2] Create `tests/property_test.cc` with unit tests: Property construction, operator= triggers Signal, value readback, multiple assignments in sequence
 
 **Checkpoint**: `bazel test //tests:property_test` passes
 
