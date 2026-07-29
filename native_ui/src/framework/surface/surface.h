@@ -4,6 +4,8 @@
 
 #include "hardware_buffer.h"
 
+class SkCanvas;
+
 namespace native::ui {
 
 class SurfaceImpl;
@@ -18,7 +20,11 @@ public:
   int width() const;
   int height() const;
 
+  // Internal: accessed by Canvas
+  SkCanvas* sk_canvas() const;
+
 private:
+  friend class Canvas;
   Surface(SurfaceImpl* impl);
   SurfaceImpl* impl_ = nullptr;
 };

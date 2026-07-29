@@ -34,8 +34,8 @@ Path& Path::LineTo(Point p) {
   return *this;
 }
 
-Path& Path::CubicTo(Point c1, Point c2, Point end) {
-  impl_->sk_path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y);
+Path& Path::CubicTo(Point c1, Point c2, Point end_pt) {
+  impl_->sk_path.cubicTo(c1.x, c1.y, c2.x, c2.y, end_pt.x, end_pt.y);
   return *this;
 }
 
@@ -46,6 +46,10 @@ Path& Path::Close() {
 
 int Path::count_points() const {
   return impl_->sk_path.countPoints();
+}
+
+SkPath* Path::sk_path() const {
+  return &impl_->sk_path;
 }
 
 }  // namespace native::ui

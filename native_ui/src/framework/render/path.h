@@ -2,6 +2,8 @@
 
 #include "point.h"
 
+class SkPath;
+
 namespace native::ui {
 
 class PathImpl;
@@ -18,12 +20,16 @@ public:
 
   Path& MoveTo(Point p);
   Path& LineTo(Point p);
-  Path& CubicTo(Point c1, Point c2, Point end);
+  Path& CubicTo(Point c1, Point c2, Point end_pt);
   Path& Close();
 
   int count_points() const;
 
+  // Internal: accessed by Canvas
+  SkPath* sk_path() const;
+
 private:
+  friend class Canvas;
   PathImpl* impl_ = nullptr;
 };
 

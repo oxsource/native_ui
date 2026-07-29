@@ -1,5 +1,6 @@
 #include "surface.h"
 
+#include "SkCanvas.h"
 #include "SkSurface.h"
 
 namespace native::ui {
@@ -30,6 +31,10 @@ std::unique_ptr<Surface> Surface::CreateFromBuffer(HardwareBuffer buffer) {
   // rendering is needed.
   if (!buffer.IsValid()) return nullptr;
   return Create(1024, 768);
+}
+
+SkCanvas* Surface::sk_canvas() const {
+  return impl_->sk_surface->getCanvas();
 }
 
 void Surface::Flush() {

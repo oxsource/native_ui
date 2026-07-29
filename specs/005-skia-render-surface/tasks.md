@@ -31,7 +31,7 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 5: Canvas (RAII drawing context)
 
-- [ ] T010 Create `src/framework/render/canvas.h` and `canvas.cc` — `Canvas` class: constructor saves SkCanvas state, destructor restores, `DrawRect`, `DrawText`, `DrawPath`, `DrawImage`, `Save`, `Restore`, `ClipRect`, `Translate`
+- [x] T010 Create `src/framework/render/canvas.h` and `canvas.cc` — `Canvas` class: constructor saves SkCanvas state, destructor restores, `DrawRect`, `DrawText`, `DrawPath`, `DrawImage`, `Save`, `Restore`, `ClipRect`, `Translate`
 
 ## Phase 6: Unit Tests
 
