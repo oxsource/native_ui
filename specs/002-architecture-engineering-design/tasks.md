@@ -48,11 +48,11 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Purpose**: Define public API contracts for all 8 framework modules (core, layout, render, surface, viewmodel, widgets, event, public)
 
-- [ ] T010 [P] [US2] Create `native_ui/doc/api/widget-contract.md` with Widget virtual interface (Draw, ChildAt, ChildCount), extension points for custom widgets, tagged-parameter constructor convention, and RequestLayout/RequestRedraw invalidation protocol
-- [ ] T011 [P] [US2] Create `native_ui/doc/api/layout-contract.md` with FlexLayout interface, Measure/Arrange protocol, tagged parameters (Direction, JustifyContent, AlignItems, Gap, Padding, Margin), and guide for adding new layouts
-- [ ] T012 [P] [US2] Create `native_ui/doc/api/render-contract.md` with Canvas RAII wrapper (auto save/restore), Paint chainable builder, Path construction, and Skia isolation rules (only render/ + surface/ may depend on Skia)
-- [ ] T013 [P] [US2] Create `native_ui/doc/api/event-contract.md` with event types (Mouse, Key, Touch), DFS hit testing, bubble/capture dispatch protocol, and stop-propagation semantics
-- [ ] T014 [US2] Create `native_ui/doc/api/viewmodel-contract.md` with `State` base + `Property<T>` template, `Property<T>::operator=` trigger, `Watch(Property<T>&)` lifecycle, extension hooks (`OnBeforeSet`, `OnAfterSet`), thread-safe update contract, communication protocol between worker threads (assign Property) → main thread (notification + auto batch → RequestRedraw), and LogSlot registration API
+- [x] T010 [P] [US2] Create `native_ui/doc/api/widget-contract.md` with Widget virtual interface (Draw, ChildAt, ChildCount), extension points for custom widgets, tagged-parameter constructor convention, and RequestLayout/RequestRedraw invalidation protocol
+- [x] T011 [P] [US2] Create `native_ui/doc/api/layout-contract.md` with FlexLayout interface, Measure/Arrange protocol, tagged parameters (Direction, JustifyContent, AlignItems, Gap, Padding, Margin), and guide for adding new layouts
+- [x] T012 [P] [US2] Create `native_ui/doc/api/render-contract.md` with Canvas RAII wrapper (auto save/restore), Paint chainable builder, Path construction, and Skia isolation rules (only render/ + surface/ may depend on Skia)
+- [x] T013 [P] [US2] Create `native_ui/doc/api/event-contract.md` with event types (Mouse, Key, Touch), DFS hit testing, bubble/capture dispatch protocol, and stop-propagation semantics
+- [x] T014 [US2] Create `native_ui/doc/api/viewmodel-contract.md` with `State` base + `Property<T>` template, `Property<T>::operator=` trigger, `Watch(Property<T>&)` lifecycle, extension hooks (`OnBeforeSet`, `OnAfterSet`), thread-safe update contract, communication protocol between worker threads (assign Property) → main thread (notification + auto batch → RequestRedraw), and LogSlot registration API
 
 **Checkpoint**: A widget implementer can create a custom widget by following these contracts without consulting the architecture team.
 
