@@ -102,9 +102,9 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:widget_test` passes with Widget tests
 
-- [ ] T020 [P] [US3] Create `src/framework/widgets/widget.h` with `Widget` base class — `SetId`, `GetId`, `FindById`, `ChildAt`, `ChildCount`, `IndexOf`, `Watch(Property<T>&)`, `UnwatchAll`, `RequestLayout`, `RequestRedraw`, `OnMount`, `OnUnmount`, `Draw(Canvas&)`, private `id_`, `needs_layout_`, `needs_draw_`
-- [ ] T021 [P] [US3] Create `src/framework/widgets/widget.cc` with implementation — `FindById` DFS traversal, `RequestLayout` sets both `needs_layout_` and `needs_draw_`, `RequestRedraw` sets only `needs_draw_`, `Watch` calls `State::AddWatcher`, `UnwatchAll` calls `State::RemoveWatcher` for all watched properties
-- [ ] T022 [US3] Create `tests/widget_test.cc` with unit tests: `SetId`/`GetId` roundtrip, `FindById` finds correct child, `FindById` returns null for nonexistent ID, `ChildAt`/`ChildCount` for leaf widget, `RequestLayout` sets both dirty flags
+- [x] T020 [P] [US3] Create `src/framework/widgets/widget.h` with `Widget` base class — `SetId`, `GetId`, `FindById`, `ChildAt`, `ChildCount`, `IndexOf`, `Watch(Property<T>&)`, `UnwatchAll`, `RequestLayout`, `RequestRedraw`, `OnMount`, `OnUnmount`, `Draw(Canvas&)`, private `id_`, `needs_layout_`, `needs_draw_`
+- [x] T021 [P] [US3] Create `src/framework/widgets/widget.cc` with implementation — `FindById` DFS traversal, `RequestLayout` sets both `needs_layout_` and `needs_draw_`, `RequestRedraw` sets only `needs_draw_`, `Watch` calls `State::AddWatcher`, `UnwatchAll` calls `State::RemoveWatcher` for all watched properties
+- [x] T022 [US3] Create `tests/widget_test.cc` with unit tests: `SetId`/`GetId` roundtrip, `FindById` finds correct child, `FindById` returns null for nonexistent ID, `ChildAt`/`ChildCount` for leaf widget, `RequestLayout` sets both dirty flags
 
 **Checkpoint**: `bazel test //tests:widget_test` passes
 
