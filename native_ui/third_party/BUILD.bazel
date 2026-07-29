@@ -1,0 +1,1 @@
+# third_party — Bazel package marker only; individual deps are defined via http_archive BUILD files.

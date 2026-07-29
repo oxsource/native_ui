@@ -35,6 +35,19 @@ def _bazel_skylib():
         strip_prefix = "bazel-skylib-1.6.1",
     )
 
+def _stblib():
+    http_archive(
+        name = "stblib",
+        build_file = "//third_party:stblib.BUILD",
+        patch_cmds = [
+            "echo '#define STB_IMAGE_WRITE_IMPLEMENTATION' > stb_image_write.c",
+            "echo '#include \"stb_image_write.h\"' >> stb_image_write.c",
+        ],
+        sha256 = "13a99ad430e930907f5611325ec384168a958bf7610e63e60e2fd8e7b7379610",
+        strip_prefix = "stb-b42009b3b9d4ca35bc703f5310eedc74f584be58",
+        url = "https://github.com/nothings/stb/archive/b42009b3b9d4ca35bc703f5310eedc74f584be58.tar.gz",
+    )
+
 def native_ui_setup():
     if not native.existing_rule("bazel_skylib"):
         _bazel_skylib()
@@ -42,5 +55,7 @@ def native_ui_setup():
         _skia()
     if not native.existing_rule("yoga"):
         _yoga()
+    if not native.existing_rule("stblib"):
+        _stblib()
     if not native.existing_rule("com_google_googletest"):
         _googletest()
