@@ -117,18 +117,32 @@ This document defines the key entities in the native_ui framework architecture. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `properties` | Property[] | Observable properties with change notification |
+| `properties` | Property<T>[] | Typed observable properties, each with value storage and Signal |
 | `watching_widgets` | Widget[] (weak ref) | Widgets currently watching this State |
 | `state` | StateStatus | Idle → Notifying |
 
 **Relationships**:
-- State **notifies** watching Widgets on property change
-- State **bridges** worker threads → main thread (properties updated on worker, notification delivered on main)
+- State **owns** `Property<T>` members, each **signals** State on change
+- State **notifies** watching Widgets when any Property changes
+- State **bridges** worker threads → main thread (Property written on worker, notification delivered on main)
 
 **Validation Rules**:
 - Property updates must be thread-safe (lock-protected)
 - Widgets must unwatch before State destruction
 - Rapid property changes should batch-trigger a single RequestRedraw
+
+## Entity: Property<T>
+
+| Member | Description |
+|--------|-------------|
+| `value_` | Typed value storage |
+| `before_set_` | Pre-assignment hook for validation/interception |
+| `after_set_` | Post-assignment hook for side effects |
+
+**Relationships**:
+- Property<T> **belongs to** a State
+- Property<T> **signals** State on write via `operator=`
+- Property<T> **is watched by** Widget via `Watch(Property<T>&)`
 
 ---
 

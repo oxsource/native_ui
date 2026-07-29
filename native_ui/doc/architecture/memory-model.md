@@ -47,9 +47,9 @@ State objects may be shared between multiple widgets:
 
 ```cpp
 auto state = std::make_shared<CounterState>();
-// Both widgets watch the same State
-text1->Watch(state, "count");
-text2->Watch(state, "count");
+// Both widgets watch the same State via Property<T> reference
+text1->Watch(state->count);
+text2->Watch(state->count);
 ```
 
 This is one of the few legitimate uses of `shared_ptr` in the framework.

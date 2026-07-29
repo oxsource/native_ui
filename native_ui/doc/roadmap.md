@@ -121,7 +121,7 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 | `doc/architecture/error_handling.md` | Error propagation strategy (StatusOr, exceptions policy) |
 | `doc/architecture/memory_model.md` | Ownership model, WidgetPtr vs raw pointer conventions |
 | `doc/architecture/lifecycle_model.md` | Widget lifecycle state machine, mount/unmount semantics |
-| `doc/architecture/data_binding.md` | `State` pattern, property notification via `Set()`/`operator[]`, Watch/Unwatch lifecycle, batch RequestRedraw |
+| `doc/architecture/data_binding.md` | `State` + `Property<T>` pattern, typed `Watch(Property<T>&)`, extension hooks (`OnBeforeSet`, `OnAfterSet`), batch RequestRedraw |
 | `doc/architecture/threading.md` | Threading model: main thread (render/layout/event) + worker threads (logic/data), inter-thread communication via State |
 | `doc/architecture/logging_slot.md` | LogSink abstract interface (debug/info/warn/error), slot pattern, consumer-plugged implementation |
 
@@ -133,7 +133,7 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 | `doc/api/layout_contract.md` | FlexLayout interface, measure/arrange protocol, adding new layouts |
 | `doc/api/render_contract.md` | Canvas/Paint/Path contract, Skia isolation rules |
 | `doc/api/event_contract.md` | Event dispatch protocol, bubble/capture, adding event types |
-| `doc/api/viewmodel_contract.md` | `State` base class, property notification API (`Set()`/`operator[]`), Watch/Unwatch lifecycle, thread safety |
+| `doc/api/viewmodel_contract.md` | `State` + `Property<T>` template, `Property<T>::operator=`, `Watch(Property<T>&)`, extension hooks, thread safety |
 
 ### Engineering Standards
 
@@ -212,7 +212,7 @@ CI checks at minimum:
 | `src/framework/core/size.h / size.cc` | `Size` — width/height |
 | `src/framework/core/color.h / color.cc` | `Color` — RGBA, named colors (`kRed`, `kBlue`, etc.) |
 | `src/framework/core/edge_insets.h / edge_insets.cc` | `EdgeInsets` — symmetric, per-side |
-| `src/framework/viewmodel/state.h / state.cc` | `State` base — property change notification via `Set()`/`operator[]`, thread-safe update, Watch/Unwatch |
+| `src/framework/viewmodel/state.h / state.cc` | `State` base + `Property<T>` template — property change notification via `operator=`, thread-safe update, `Watch(Property<T>&)`, extension hooks |
 | `src/framework/widgets/widget.h / widget.cc` | `Widget` base — `SetId`, `FindById`, `RequestLayout`, `RequestRedraw`, `ChildAt`, `ChildCount` |
 | `src/framework/widgets/container.h / container.cc` | `Container` — tagged-parameter ctor, `AddChild`, `RemoveChild`, `ClearChildren` |
 

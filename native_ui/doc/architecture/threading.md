@@ -33,7 +33,7 @@
 │                                                                 │
 │  ┌────────────────────────────┐  ┌─────────────────────────┐   │
 │  │ Business Logic             │  │ Data Processing / I/O   │   │
-│  │  (State.Set / [])          │  │  (State.Set / [])     │   │
+│  │  (state->x = val)          │  │  (state->x = val)     │   │
 │  └────────────────────────────┘  └─────────────────────────┘   │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -62,7 +62,7 @@ The main thread runs a continuous frame loop:
 | Work | Thread | Must Not |
 |------|--------|----------|
 | Event dispatch | Main | Block on I/O |
-| Layout (Measure + Arrange) | Main | Call State.Set / operator[] |
+| Layout (Measure + Arrange) | Main | Assign State properties (state->x = val) |
 | Skia rendering (Draw) | Main | Mutate widget tree |
 | State property notification | Main (delivery) | — |
 | Business logic | Worker | Call Skia APIs |
@@ -82,10 +82,11 @@ The main thread runs a continuous frame loop:
 ```
 Worker Thread                     Main Thread
 ─────────────────                ─────────────────
-    vm["x"] = v  // or vm.Set("x", v)
+    state->count = 42;  // Property<T>::operator=
         │
         ▼
 Lock mutex, update value
+Signal(key)
 Queue notification
         │
         │  ─────────────────────►  Frame loop step 3:
@@ -97,7 +98,7 @@ Queue notification
 
 ## Thread Safety Rules
 
-1. `State::Set` / `operator[]` is thread-safe (mutex-protected)
+1. `Property<T>::operator=` is thread-safe (mutex-protected inside State)
 2. State property change notification is always delivered on the main thread
 3. Widget tree mutations (AddChild, RemoveChild) are main-thread only
 4. Skia APIs are main-thread only

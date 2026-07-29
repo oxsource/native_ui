@@ -71,7 +71,7 @@ native_ui/doc/architecture/
 ├── error-handling.md            # Error propagation strategy
 ├── memory-model.md              # Ownership model, WidgetPtr vs raw pointer conventions
 ├── lifecycle-model.md           # Widget lifecycle state machine
-├── data-binding.md              # State pattern, property notification, Watch/Unwatch lifecycle
+├── data-binding.md              # State + Property<T> pattern, typed Watch, extension hooks
 ├── threading.md                 # Threading model: main thread (render/layout/event) + worker threads (logic), State cross-thread bridge
 └── logging-slot.md              # LogSink abstract interface, slot pattern, plug-in by consumer
 
@@ -80,7 +80,7 @@ native_ui/doc/api/
 ├── layout-contract.md           # FlexLayout interface, measure/arrange protocol
 ├── render-contract.md           # Canvas/Paint/Path contract, Skia isolation rules
 ├── event-contract.md            # Event dispatch protocol, bubble/capture
-└── viewmodel-contract.md        # State base class, property notification, Watch API
+└── viewmodel-contract.md        # State + Property<T> API, typed Watch, extension hooks
 
 native_ui/doc/
 ├── testing-strategy.md          # Unit test structure, mock patterns, golden tests
@@ -118,7 +118,7 @@ graph TD
             RENDER["render<br/>Canvas, Paint, Path wrappers"]
             SURFACE["surface<br/>PlatformSurface, BufferHandle"]
             WIDGETS["widgets<br/>Widget, Container, Text, Button"]
-            VIEWMODEL["viewmodel<br/>State base, Watch"]
+            VIEWMODEL["viewmodel<br/>State + Property<T>"]
             EVENT["event<br/>HitTester, Event dispatch"]
             PUBLIC["public<br/>Umbrella header, export macro"]
         end
@@ -238,8 +238,8 @@ flowchart LR
 **Frame Loop (React-inspired batch model)**:
 
 ```
-state["count"] = 1;   // mark dirty, DON'T render yet
-state["count"] = 2;   // mark dirty, DON'T render yet
+state->count = 1;     // Property<int>::operator= → mark dirty
+state->count = 2;     // mark dirty, DON'T render yet
                        ↓  (end of event loop, batch flush)
                  batched RequestRedraw
                  Layout + Render (once)

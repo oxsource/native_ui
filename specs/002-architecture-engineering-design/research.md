@@ -93,8 +93,8 @@ This research consolidates architectural design decisions for the native_ui fram
 
 ### Data Binding: React-Inspired `State` Pattern
 
-- **Decision**: Adopt React-style unidirectional data flow (props ↓, events ↑) with a `native::ui::State` base class providing property change notification via `Set()` / `operator[]`. Widgets `Watch()` on State properties and auto-trigger `RequestRedraw` on change. No Vue-style computed properties or deep reactivity system.
-- **Rationale**: React's model aligns naturally with the existing tagged-parameter props pattern and event bubbling. Simpler to implement than Vue's proxy-based reactivity. Avoids template/DSL complexity — State objects are plain C++ objects. Named `State` (not ViewModel) to align with React terminology.
+- **Decision**: Adopt React-style unidirectional data flow (props ↓, events ↑) with a `native::ui::State` base class. Properties are typed `Property<T>` member variables — assignment via `operator=` triggers automatic batch notification. Widgets `Watch(Property<T>&)` without string keys, gaining compile-time type safety. Extension hooks `OnBeforeSet` / `OnAfterSet` enable value interception. No Vue-style computed properties or deep reactivity system.
+- **Rationale**: React's model aligns naturally with the existing tagged-parameter props pattern and event bubbling. `Property<T>` eliminates string-key errors and enables future proxy/intercept. Simpler to implement than Vue's proxy-based reactivity. Named `State` (not ViewModel) to align with React terminology.
 - **Alternatives considered**: Vue-style proxy reactivity (rejected: C++ lacks JS Proxy, complex metaprogramming required); No built-in state management (rejected: consumers would each create ad-hoc solutions); Full MVVM framework (rejected: over-engineering for initial scope)
 - **Reference**: React useState/useReducer pattern, unidirectional data flow
 

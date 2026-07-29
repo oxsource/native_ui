@@ -73,5 +73,5 @@ RequestRedraw()   → marks visual dirty → re-D only (same layout)
 |--------|-------------|-------------|
 | `OnMount()` | After Mount | Initialize resources, watch States |
 | `OnUnmount()` | Before Unmount | Release resources, unwatch States |
-| `OnLayoutRequested()` | When RequestLayout propagates | Custom invalidation logic |
+| `OnLayout()` | When RequestLayout propagates | Custom invalidation logic |
 | `Draw(Canvas&)` | Draw phase | Render widget content |
