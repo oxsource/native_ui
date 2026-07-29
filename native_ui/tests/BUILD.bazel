@@ -66,3 +66,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "layout_test",
+    srcs = ["layout_test.cc"],
+    deps = [
+        "//src/framework/layout",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

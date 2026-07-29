@@ -14,8 +14,8 @@ description: "Task list for Flexbox Layout Engine"
 
 ## Phase 1: BUILD Infrastructure
 
-- [ ] T001 Update `src/framework/layout/BUILD.bazel` with `cc_library` — `hdrs`, `srcs`, `includes = ["."]`, deps on `//src/framework/core` and `@yoga//:yoga`
-- [ ] T002 Add `cc_test` target `layout_test` to `tests/BUILD.bazel` — deps on `//src/framework/layout` and `@com_google_googletest//:gtest_main`
+- [x] T001 Update `src/framework/layout/BUILD.bazel` with `cc_library` — `hdrs`, `srcs`, `includes = ["."]`, deps on `//src/framework/core` and `@yoga//:yoga`
+- [x] T002 Add `cc_test` target `layout_test` to `tests/BUILD.bazel` — deps on `//src/framework/layout` and `@com_google_googletest//:gtest_main`
 
 ## Phase 2: Result Type & Header
 
