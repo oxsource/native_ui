@@ -40,6 +40,108 @@
 | `Surface` | Owns pixel buffer; create from size or external `HardwareBuffer`; `Flush()` to commit pixels |
 | `Canvas` | Lightweight RAII attached to `Surface&`; all drawing APIs; auto save/restore on scope |
 
+## Frame Pipeline: Change → Flush
+
+When a single property changes (e.g. `State` → `RequestRedraw`), the system does NOT redraw everything — it tracks dirty widgets and only repaints what changed.
+
+### Dirty Widget Tracking
+
+Each widget carries two flags:
+
+```cpp
+class Widget {
+  bool needs_layout_ = false;  // true → full re-measure + re-arrange + re-draw
+  bool needs_draw_ = false;    // true → re-draw only (layout unchanged)
+};
+```
+
+| Trigger | Flag Set | Next Frame Action |
+|---------|----------|-------------------|
+| `state->count = 42` (same size) | `needs_draw_ = true` | Draw only changed widgets |
+| `AddChild(widget)` (structure change) | `needs_layout_ = true` | Full Measure → Arrange → Draw |
+| `state->width = 200` (size change) | `needs_layout_ = true` | Full Measure → Arrange → Draw |
+
+### Batch Coalescing
+
+Multiple changes within one frame are coalesced — only one Flush at the end:
+
+```text
+Frame N:
+  Worker:  state->count = 1   → mark dirty
+  Worker:  state->count = 2   → still dirty (same widget)
+  Worker:  state->name = "x"  → mark dirty
+  Worker:  AddChild(new_btn)  → mark layout dirty
+           ↓ (end of frame, batch flush)
+  Main:    Measure() → Arrange() → Draw() → Surface::Flush()
+```
+
+### Full Sequence
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│  1. Change triggers                                                │
+│     state->count = 42                                               │
+│     Property<int>::operator= → Signal() → RequestRedraw()           │
+│         │                                                           │
+│         ▼                                                           │
+│  2. Mark dirty                                                      │
+│     Widget::needs_draw_ = true                                      │
+│     Propagate up to root for frame scheduling                       │
+│         │                                                           │
+│         ▼                                                           │
+│  3. Frame loop begins (consumer-driven: vsync / timer / SwapBuffer) │
+│         │                                                           │
+│         ▼                                                           │
+│  4. Batch state changes                                             │
+│     Coalesce all pending Signals → single invalidation pass         │
+│         │                                                           │
+│         ▼                                                           │
+│  5. If needs_layout_:                                               │
+│       a. Container::Measure(available)  ← Yoga runs                 │
+│       b. Container::Arrange(size)       ← positions updated         │
+│         │                                                           │
+│         ▼                                                           │
+│  6. Render dirty widgets:                                           │
+│       Canvas canvas(surface);                                       │
+│       For each dirty widget (or all if layout changed):             │
+│         canvas.Save()                                               │
+│         canvas.Translate(widget.position)                           │
+│         widget->Draw(canvas)                                        │
+│         canvas.Restore()                                            │
+│         │                                                           │
+│         ▼                                                           │
+│  7. canvas.~Canvas()  ← auto restore to entry save state           │
+│         │                                                           │
+│         ▼                                                           │
+│  8. Surface::Flush()   ← commit pixels to display / buffer          │
+│         │                                                           │
+│         ▼                                                           │
+│  9. Clear dirty flags, wait for next frame                          │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Partial Draw Optimization
+
+When only `needs_draw_` is set (no layout change), the frame loop can skip clean widgets:
+
+```cpp
+void RootWidget::Draw(Canvas& canvas) {
+  for (auto& child : children_) {
+    if (!child->needs_layout_ && !child->needs_draw_) {
+      continue;  // skip — widget content unchanged
+    }
+    canvas.Save();
+    canvas.Translate(child->position);
+    child->Draw(canvas);
+    canvas.Restore();
+    child->needs_draw_ = false;   // clear flag
+    child->needs_layout_ = false;
+  }
+}
+```
+
+For more aggressive optimization (dirty rect clipping), the root tracks a `dirty_rect_` that unions all changed regions, and passes it to `Canvas::ClipRect` before drawing.
+
 ## Surface (Backing Store)
 
 ```cpp

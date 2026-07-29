@@ -43,6 +43,85 @@
 | `Canvas` | Lightweight RAII wrapper attached to a `Surface&`; provides all drawing APIs; auto save/restore on scope exit |
 | One Surface → one Canvas at a time | Canvas is not shared between threads; create/destroy per frame |
 
+## Frame Pipeline: Change → Flush
+
+### Dirty Widget Tracking
+
+Each widget tracks two flags:
+
+| Flag | Means | Next Frame Action |
+|------|-------|-------------------|
+| `needs_draw_` | Visual content changed (same layout) | Draw only dirty widgets |
+| `needs_layout_` | Structure or size changed | Full Measure → Arrange → Draw |
+
+### Trigger → Flag Mapping
+
+| Trigger | Flag |
+|---------|------|
+| State property change (same size) | `needs_draw_` |
+| AddChild / RemoveChild | `needs_layout_` |
+| State property change (size affected) | `needs_layout_` |
+| RequestRedraw() | `needs_draw_` |
+| RequestLayout() | `needs_layout_` |
+
+### Batch Coalescing
+
+Multiple changes within the same frame coalesce into a single draw pass:
+
+```text
+Frame N:
+  state->count = 1       → mark dirty
+  state->count = 2       → still dirty (same widget)
+  state->name = "x"      → mark dirty
+  AddChild(btn)          → mark layout dirty
+           ↓  (frame boundary)
+  One pass: Measure → Arrange → Draw → Flush
+```
+
+### Full Sequence
+
+```text
+ 1. Change:        state->count = 42
+                   → Property::operator= → Signal → RequestRedraw
+
+ 2. Mark dirty:    Widget::needs_draw_ = true
+                   → propagates to root for scheduling
+
+ 3. Frame start:   consumer's clock → frame loop begins
+
+ 4. Batch:         all pending Signals coalesced → one invalidation
+
+ 5. If layout dirty:
+     ├─ Container::Measure(available)   ← Yoga
+     └─ Container::Arrange(size)        ← positions
+
+ 6. Render dirty widgets:
+     ├─ Canvas canvas(surface)
+     ├─ For each dirty widget:
+     │    canvas.Translate(pos)
+     │    widget->Draw(canvas)
+     └─ ~Canvas() → auto restore
+
+ 7. Flush:         surface.Flush() → pixels committed
+
+ 8. Clear flags:   needs_draw_ = needs_layout_ = false
+```
+
+### Partial Draw
+
+If only `needs_draw_` is set, the frame loop skips clean widgets:
+
+```cpp
+for (auto& child : children_) {
+  if (!child->needs_layout_ && !child->needs_draw_) continue;
+  canvas.Save();
+  canvas.Translate(child->position);
+  child->Draw(canvas);
+  canvas.Restore();
+  child->needs_draw_ = child->needs_layout_ = false;
+}
+```
+
 ## Surface (Backing Store)
 
 ```cpp
