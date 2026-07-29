@@ -46,37 +46,186 @@ public:
 | `ChildAt(int)` | Optional | Expose children for layout/hit-test |
 | `ChildCount()` | Optional | Return child count |
 
-## Tagged-Parameter Constructor Convention
-
-All concrete widgets use tagged-parameter constructors:
+## Container Internal Structure
 
 ```cpp
-using namespace native::ui;
+namespace native::ui {
 
-// Tag types
-struct Direction     { FlexDirection value; };
-struct Padding       { float value; };
-struct Gap           { float value; };
-struct Content       { std::string value; };
-struct Id            { std::string value; };
-
-// Concrete widget
 class Container : public Widget {
 public:
   template <typename... Args>
   explicit Container(Args&&... args);
+
+  // Children management
+  struct Children { std::vector<std::unique_ptr<Widget>> value; };
+  void AddChild(std::unique_ptr<Widget> child);
+  void RemoveChild(Widget* child);
+  void ClearChildren();
+
+  Widget* ChildAt(int index) override;
+  int ChildCount() const override;
+  void Draw(Canvas& canvas) override;
+
+private:
+  // Tag processing — each tagged param maps to either a layout property or a child
+  void ProcessArg(Direction tag);
+  void ProcessArg(JustifyContent tag);
+  void ProcessArg(AlignItems tag);
+  void ProcessArg(FlexWrap tag);
+  void ProcessArg(Gap tag);
+  void ProcessArg(Padding tag);
+  void ProcessArg(Margin tag);
+  void ProcessArg(Children tag);
+  void ProcessArg(Id tag);
+
+  // Internal layout pipeline
+  void Measure(Size available_size);
+  void Arrange(Size container_size);
+
+  std::vector<std::unique_ptr<Widget>> children_;   // owned child widgets
+  std::vector<YGNodeRef> child_nodes_;              // Yoga nodes (1:1 with children_)
+  FlexLayout layout_;                               // Yoga-based layout engine
+  std::vector<MeasureResult> layout_result_;        // cached layout output
 };
 
-// Construction
-auto row = Container(
-    Direction(kRow),
-    Gap(8),
-    Padding(12),
-    Children{
-        Text(Content("Hello")),
-        Button(Id("submit"), Label("OK"))
-    }
-);
+}  // namespace native::ui
+```
+
+## Container ↔ FlexLayout Relationship
+
+```
+Container
+│
+├── children_  ─── 1:1 ───  child_nodes_  ─── Yoga tree
+│   (Widget*)                 (YGNodeRef)
+│
+├── layout_ (FlexLayout)
+│   ├── YGNodeRef root_       ← container-level Yoga node
+│   ├── YGNodeRef children_   ← child Yoga nodes (mirrors children_)
+│   ├── ProcessArg(Direction) → YGNodeStyleSetFlexDirection(root_, ...)
+│   ├── ProcessArg(Padding)   → YGNodeStyleSetPadding(root_, YGEdgeAll, ...)
+│   ├── ProcessArg(Gap)       → YGNodeStyleSetGap(root_, YGGutterAll, ...)
+│   └── ...
+│
+└── layout_result_ (vector<MeasureResult>)
+    ├── [i].size       ← set by Measure()
+    └── [i].position   ← set by Arrange()
+```
+
+**Key rules**:
+
+- `children_` and `child_nodes_` stay in sync — every AddChild creates a new `YGNodeRef`
+- `layout_` does not own the child Yoga nodes (Container manages their lifetime)
+- `layout_result_` is invalidated on every `RequestLayout()`, recalculated on next frame
+
+## How Tagged Parameters Map to FlexLayout
+
+When constructing a `Container`, each tagged argument routes either to a `FlexLayout` property or to internal state:
+
+```cpp
+Container(Direction(kRow), Gap(8), Padding(12), Children{...})
+    │           │           │           │
+    │           │           │           └─→ ProcessArg(Children) → move into children_
+    │           │           └─────────────→ ProcessArg(Gap) → YGNodeStyleSetGap(root_, 8)
+    │           └─────────────────────────→ ProcessArg(Direction) → YGNodeStyleSetFlexDirection(root_, kRow)
+    └─────────────────────────────────────→ ProcessArg(Padding) → YGNodeStyleSetPadding(root_, 12)
+```
+
+The fold expression `(ProcessArg(std::forward<Args>(args)), *this)` dispatches each tag by type.
+
+## Complete Layout Pipeline
+
+### AddChild Internal Flow
+
+```text
+Container::AddChild(child)
+  │
+  ├─1. Create YGNodeRef for child
+  │     child_node = YGNodeNew()
+  │     YGNodeStyleSetWidth/Height/Margin(child_node, ...)   // from child's own props
+  │
+  ├─2. Store mappings
+  │     child_nodes_.push_back(child_node)
+  │     children_.push_back(std::move(child))
+  │
+  ├─3. Mark subtree dirty
+  │     RequestLayout()
+  │
+  └─4. At next frame:
+        Measure() → Arrange() → Draw()
+```
+
+### Measure Step
+
+```cpp
+void Container::Measure(Size available) {
+  // 1. Pass children's Yoga nodes to FlexLayout
+  layout_.SetChildren(child_nodes_);
+
+  // 2. Run layout calculation
+  layout_result_ = layout_.Measure(available);
+  // Each MeasureResult: { size, position(0,0 placeholder) }
+
+  // 3. Measure each child widget recursively
+  for (size_t i = 0; i < children_.size(); i++) {
+    auto* child = dynamic_cast<Widget*>(children_[i].get());
+    child->Measure(layout_result_[i].size);  // propagate constraint
+  }
+}
+```
+
+### Arrange Step
+
+```cpp
+void Container::Arrange(Size container_size) {
+  // 1. Run Yoga arrange to get final positions
+  layout_.Arrange(layout_result_, container_size);
+
+  // 2. Update each child's position bounds
+  for (size_t i = 0; i < children_.size(); i++) {
+    auto* child = children_[i].get();
+    child->bounds_.origin = layout_result_[i].position;
+    child->bounds_.size    = layout_result_[i].size;
+  }
+}
+```
+
+### Draw Step
+
+```cpp
+void Container::Draw(Canvas& canvas) {
+  // Draw children at their computed positions
+  for (size_t i = 0; i < children_.size(); i++) {
+    Canvas::StateRestore _(canvas);  // RAII save/restore
+
+    canvas.Translate(layout_result_[i].position);
+    canvas.ClipRect(Rect(0, 0, layout_result_[i].size.width,
+                               layout_result_[i].size.height));
+
+    children_[i]->Draw(canvas);
+  }
+}
+```
+
+### Full Frame Pipeline
+
+```text
+RequestLayout()
+  │
+  └─→ Frame Loop (next vsync):
+        │
+        ├─ Container::Measure(available)
+        │    ├─ layout_.Measure(available)        ← Yoga calculates sizes
+        │    └─ for each child: child->Measure()   ← recursive
+        │
+        ├─ Container::Arrange(size)
+        │    ├─ layout_.Arrange(result_, size)     ← Yoga calculates positions
+        │    └─ for each child: update child bounds
+        │
+        └─ Renderer::Draw(root, canvas)
+             └─ Container::Draw(canvas)
+                  ├─ canvas.Translate(child.position)
+                  └─ child->Draw(canvas)           ← recursive
 ```
 
 ## Invalidation Protocol
@@ -84,11 +233,11 @@ auto row = Container(
 ```
 RequestLayout()
   → marks widget + ancestors layout dirty
-  → at next frame: re-Measure → re-Arrange → re-Draw
+  → at next frame: full Measure → Arrange → Draw pipeline
 
 RequestRedraw()
   → marks widget visual dirty
-  → at next frame: re-Draw only (same layout)
+  → at next frame: Draw only (layout unchanged, reuse layout_result_)
 ```
 
 ## Rules
@@ -97,3 +246,4 @@ RequestRedraw()
 - Container widgets maintain `std::vector<std::unique_ptr<Widget>> children_`
 - Never delete a raw `Widget*` received from the framework
 - Always call `RequestLayout()` after structural changes (add/remove children)
+- `child_nodes_` must stay in sync with `children_` (same size and order)
