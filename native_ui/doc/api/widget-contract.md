@@ -240,6 +240,37 @@ RequestRedraw()
   → at next frame: Draw only (layout unchanged, reuse layout_result_)
 ```
 
+## Reserved: Page Widget (Future)
+
+A `Page` widget is reserved for future navigation/routing support. It is not implemented in MVP but the conceptual slot is defined:
+
+```cpp
+namespace native::ui {
+
+// Reserved — will be added post-MVP
+class Page : public Container {
+public:
+  virtual void OnPageShow();  // called on navigation enter
+  virtual void OnPageHide();  // called on navigation leave
+};
+
+}  // namespace native::ui
+```
+
+Multiple `Container` widgets can already be composed as a single screen via nesting:
+
+```cpp
+// Currently — Container nesting serves as "page" equivalent
+auto screen = Container(Direction(kColumn),
+    Children{
+        HeaderBar(/*...*/),
+        BodyContent(/*...*/),
+        BottomNav(/*...*/),
+    });
+```
+
+Future `Page` will wrap this pattern and add lifecycle hooks + navigation stack.
+
 ## Rules
 
 - Leaf widgets (no children) return `ChildCount() == 0`

@@ -75,3 +75,14 @@ RequestRedraw()   → marks visual dirty → re-D only (same layout)
 | `OnUnmount()` | Before Unmount | Release resources, unwatch States |
 | `OnLayout()` | When RequestLayout propagates | Custom invalidation logic |
 | `Draw(Canvas&)` | Draw phase | Render widget content |
+
+## Reserved: Page Lifecycle (Future)
+
+Page-level navigation is not yet implemented but is reserved as a future extension point:
+
+| Reserved Method | Intended Call Timing | Purpose |
+|----------------|---------------------|---------|
+| `OnPageShow()` | When page becomes visible (navigation enter) | Lazy-load data, resume animations |
+| `OnPageHide()` | When page becomes invisible (navigation leave) | Release heavy resources, pause timers |
+
+These hooks will be added to `Widget` or a `Page` subclass when navigation/routing lands (post-MVP).

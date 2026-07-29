@@ -166,6 +166,23 @@ RequestLayout()
 | `ChildAt(int)` | Optional | Expose children for layout/hit-test |
 | `ChildCount()` | Optional | Return child count |
 
+## Reserved: Page (Future)
+
+```cpp
+namespace native::ui {
+
+// Reserved for navigation/routing — post-MVP
+class Page : public Container {
+public:
+  virtual void OnPageShow();
+  virtual void OnPageHide();
+};
+
+}  // namespace native::ui
+```
+
+MVP uses nested `Container` as the page equivalent.
+
 ## Conventions
 
 - Leaf widgets return ChildCount() == 0
