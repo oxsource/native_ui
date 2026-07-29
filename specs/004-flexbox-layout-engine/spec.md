@@ -72,7 +72,7 @@ A developer can configure a FlexLayout with any standard flexbox property — ju
 ### Measurable Outcomes
 
 - **SC-001**: A developer can configure a FlexLayout with 3 flexbox properties and compute layout in under 5 minutes
-- **SC-002**: All 8 flexbox properties (direction, justify, align, wrap, gap, padding, margin, grow) are covered by unit tests
+- **SC-002**: All flexbox properties (direction, justify, align, wrap, gap, padding, margin, grow) are covered by unit tests — including edge cases (empty children, zero-size container, gap overshoot)
 - **SC-003**: FlexLayout handles empty children list without crash
 - **SC-004**: FlexLayout handles zero-size container without crash
 
