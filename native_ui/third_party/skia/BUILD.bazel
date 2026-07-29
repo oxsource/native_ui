@@ -40,6 +40,7 @@ cc_library(
             "src/encode/SkWebpEncoderImpl.cpp",
             "src/encode/SkPngEncoderImpl.cpp",
             "src/encode/SkJpegGainmapEncoder.cpp",
+            "src/sksl/lex/**/*.cpp",
         ],
     ),
     includes = [
