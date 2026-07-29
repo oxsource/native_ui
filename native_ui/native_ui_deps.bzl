@@ -11,11 +11,16 @@ def _skia():
     )
 
 def _yoga():
+    # Yoga v2.0.0 (2023-06-30) — C++17 compatible, used by React Native 0.73.
+    # v3.0+ requires C++20 (std::floating_point concept, abbreviated auto templates).
+    # Downgraded from v3.2.1 to keep the project on C++17. Feature-wise v2.0.0
+    # covers all flexbox primitives needed: direction, margin, padding, gap,
+    # grow/shrink, alignment, wrapping.
     http_archive(
         name = "yoga",
-        urls = ["https://github.com/react/yoga/archive/refs/tags/v3.2.1.tar.gz"],
-        sha256 = "86b399ac31fd820d8ffa823c3fae31bb690b6fc45301b2a8a966c09b5a088b55",
-        strip_prefix = "yoga-3.2.1",
+        urls = ["https://github.com/react/yoga/archive/refs/tags/v2.0.0.tar.gz"],
+        sha256 = "29eaf05191dd857f76b6db97c77cce66db3c0067c88bd5e052909386ea66b8c5",
+        strip_prefix = "yoga-2.0.0",
         build_file = "//third_party/yoga:BUILD.bazel",
     )
 

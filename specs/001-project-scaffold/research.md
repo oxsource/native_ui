@@ -40,11 +40,12 @@ All technical decisions for P1 are documented in `project_bootstrap.md` and `roa
 - **Rationale**: Validates the full compile-link-execute pipeline for the most complex dependency; exercises Skia's include paths, linkopts, and runtime library loading
 - **Alternatives considered**: Compile-only test (rejected: doesn't validate linking or runtime); no spike (rejected: highest risk item must be validated before P2)
 
-### Layout Engine: Yoga (replacing caflex)
+### Layout Engine: Yoga v2.0.0
 
-- **Decision**: Use Facebook Yoga v3.2.1 as the flexbox layout engine
-- **Rationale**: Yoga is the industry-standard flexbox implementation, maintained by Meta, used in React Native. caflex was initially chosen but does not exist as a maintained library.
-- **Alternatives considered**: caflex (rejected: unmaintained/not found); custom implementation (rejected: unnecessary effort when Yoga is battle-tested)
+- **Decision**: Use Yoga v2.0.0 as the flexbox layout engine
+- **Released**: 2023-06-30, used in React Native 0.73
+- **Rationale**: Yoga is the industry-standard flexbox implementation, maintained by Meta, used in React Native. caflex was initially chosen but does not exist as a maintained library. v2.0.0 provides feature-complete flexbox support (direction, alignment, margin, padding, gap, grow/shrink) while compiling under C++17. v3.0+ (2024-03) adopted C++20 concepts (`std::floating_point`, abbreviated function templates) and cannot be compiled with the project's C++17 standard without raising the language requirement project-wide.
+- **Alternatives considered**: caflex (rejected: unmaintained/not found); custom implementation (rejected: unnecessary effort when Yoga is battle-tested); Yoga v3.x (rejected: requires C++20, project targets C++17)
 
 ### Dependency Management: Single deps.bzl
 

@@ -734,9 +734,9 @@ def _skia():
 def _yoga():
     http_archive(
         name = "yoga",
-        urls = ["https://github.com/facebook/yoga/archive/refs/tags/v3.2.1.tar.gz"],
-        sha256 = "<sha256>",
-        strip_prefix = "yoga-3.2.1",
+        urls = ["https://github.com/react/yoga/archive/refs/tags/v2.0.0.tar.gz"],
+        sha256 = "29eaf05191dd857f76b6db97c77cce66db3c0067c88bd5e052909386ea66b8c5",
+        strip_prefix = "yoga-2.0.0",
         build_file = "//third_party/yoga:BUILD.bazel",
     )
 

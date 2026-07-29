@@ -10,7 +10,7 @@ description: "Task list for Project Scaffolding & Skia Spike"
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/public-api.md, quickstart.md
 
-**Tests**: Tests are NOT requested in this feature specification (P1 is build system only; application tests come in later phases).
+**Tests**: Tests are NOT requested in this feature specification (P1 is build system only; application tests come in later phases). Spike binaries serve as integration validation.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -133,6 +133,21 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 ---
 
+## Phase 8: User Story 5 - Yoga+Skia Spike Validates Flex Layout with Margin (Priority: P1)
+
+**Goal**: A developer builds and runs the Yoga+Skia spike binary to confirm that Yoga flexbox layout (with margin) integrates with Skia rendering — compiles, links, computes layout, and produces a valid PNG.
+
+**Independent Test**: Run `bazel run //src/spike:yoga_spike` — it executes and produces a valid PNG image with two flex layout sections (row + column) showing margin spacing.
+
+### Implementation for User Story 5
+
+- [x] T029 [US5] Create `src/spike/yoga_spike.cc` with Yoga node tree (margin: 8 row + margin: 6 column), calculate layout, render colored rects via Skia, output PNG
+- [x] T030 [US5] Update `src/spike/BUILD.bazel` to add `cc_binary` target `yoga_spike` depending on `@skia//:skia`, `@yoga//:yoga`, `@stblib//:stb_image_write`
+
+**Checkpoint**: `bazel run //src/spike:yoga_spike` produces a valid PNG with correct margin-spaced flex layouts.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -144,6 +159,7 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 - **User Story 2 (Phase 5)**: Depends on User Story 1 (public API target must exist)
 - **User Story 4 (Phase 6)**: Depends on Foundational completion — test infra independent of source code
 - **Polish (Phase 7)**: Depends on all user stories being complete
+- **User Story 5 (Phase 8)**: Depends on Foundational completion (Yoga BUILD wrapper must exist) — can proceed in parallel with US1 and US3
 
 ### User Story Dependencies
 
@@ -151,6 +167,7 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 - **User Story 3 (P1)**: Can start after Foundational — No dependencies on other stories (parallel with US1)
 - **User Story 2 (P1)**: Depends on US1 — public API target must exist
 - **User Story 4 (P2)**: Can start after Foundational — No dependencies on other stories
+- **User Story 5 (P1)**: Can start after Foundational — No dependencies on other stories (parallel with US1, US3)
 
 ### Within Each User Story
 
@@ -166,8 +183,8 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 - Foundational tasks T005-T008 (marked [P]) can run in parallel
 - Foundational tasks T009-T010 (third_party wrappers) can run in parallel
 - All module stub tasks T012-T017 (marked [P]) can run in parallel
-- US1 (Phase 3) and US3 (Phase 4) can run in parallel after Foundational completes
-- US4 (Phase 6) can run in parallel with US1 and US3
+- US1 (Phase 3), US3 (Phase 4), and US5 (Phase 8) can run in parallel after Foundational completes
+- US4 (Phase 6) can run in parallel with US1, US3, and US5
 - Polish tasks T027-T028 can run in parallel
 
 ---
@@ -188,7 +205,7 @@ Task: "T010 Create third_party/yoga/BUILD.bazel"
 
 ---
 
-## Parallel Example: User Stories 1 & 3 (Concurrent)
+## Parallel Example: User Stories 1, 3 & 5 (Concurrent)
 
 ```bash
 # US1: All module stub BUILD files (parallel):
@@ -202,6 +219,10 @@ Task: "T017 event/BUILD.bazel"
 # US3: Skia spike (parallel with US1 stubs):
 Task: "T020 Create skia_spike.cc"
 Task: "T021 Create spike/BUILD.bazel"
+
+# US5: Yoga+Skia spike (parallel with US1 and US3):
+Task: "T029 Create yoga_spike.cc"
+Task: "T030 Update spike/BUILD.bazel"
 ```
 
 ---
@@ -220,10 +241,11 @@ Task: "T021 Create spike/BUILD.bazel"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 (module stubs) → `bazel build //...` succeeds → Demo (MVP!)
-3. Add User Story 3 (Skia spike) → Spike binary runs → De-risk complete
-4. Add User Story 2 (integrator) → External dependency validated
-5. Add User Story 4 (tests) → Test pipeline green
-6. Polish → Build conventions documented
+3. Add User Story 3 (Skia spike) → Spike binary runs → De-risk Skia complete
+4. Add User Story 5 (Yoga+Skia spike) → Spike binary runs → De-risk Yoga+Skia complete
+5. Add User Story 2 (integrator) → External dependency validated
+6. Add User Story 4 (tests) → Test pipeline green
+7. Polish → Build conventions documented
 
 ### Parallel Team Strategy
 
@@ -233,7 +255,8 @@ With multiple developers:
 2. Once Foundational is done:
    - Developer A: User Story 1 (module stubs + public API)
    - Developer B: User Story 3 (Skia spike)
-   - Developer C: User Story 4 (test infrastructure)
+   - Developer C: User Story 5 (Yoga+Skia spike)
+   - Developer D: User Story 4 (test infrastructure)
 3. Developer A continues to User Story 2 (integrator) after US1 completes
 4. All stories integrate independently
 

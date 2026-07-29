@@ -72,12 +72,31 @@ A developer runs all project tests to confirm the test infrastructure works, eve
 
 ---
 
+### User Story 5 - Yoga+Skia Spike Validates Flex Layout with Margin (Priority: P1)
+
+A developer runs the Yoga+Skia spike binary and confirms that Yoga computes flexbox layout (with margin) and Skia renders the result correctly.
+
+**Why this priority**: Validates the combined Yoga+Skia pipeline — Yoga layout calculation + Skia rendering — which is the core rendering path for all downstream widgets. Margin is a key flexbox feature that directly impacts visual spacing.
+
+**Independent Test**: A binary that creates a Yoga node tree with margin settings, calculates layout, and renders each node as a colored rectangle via Skia, produces a valid PNG image showing proper spacing.
+
+**Acceptance Scenarios**:
+
+1. **Given** the build system is set up, **When** the developer builds the yoga_spike binary, **Then** it compiles and links without errors
+2. **Given** the spike binary runs, **When** it executes, **Then** it produces a valid PNG image file as output
+3. **Given** the output image, **When** inspected, **Then** it contains at least two flex layouts (row + column) with colored rectangles spaced apart by visible margins
+4. **Given** the output image, **When** measured, **Then** each child rectangle's position matches the position computed by Yoga including margin offsets
+
+---
+
 ### Edge Cases
 
 - What happens when the build is attempted on an unsupported platform (e.g., Windows x86_64)?
 - How does the build system handle missing system dependencies (e.g., Xcode command line tools on macOS)?
 - What happens when network access is unavailable and dependencies need to be fetched from cache?
 - How does the system handle a Skia API change that breaks the spike build?
+- What happens when Yoga layout produces zero-sized nodes due to conflicting constraints?
+- How does the system handle overlapping margins between adjacent flex items?
 
 ## Requirements
 
@@ -90,9 +109,10 @@ A developer runs all project tests to confirm the test infrastructure works, eve
 - **FR-005**: Module source directories must exist as stubs for: core types, layout engine, render wrapper, surface, widgets, event, and public API
 - **FR-006**: Each module stub must be independently compilable as an empty library target
 - **FR-007**: The project root must provide a convenient alias that resolves to the public API target
-- **FR-008**: Third-party dependencies (Skia, Yoga, googletest, skylib) must be fetchable and resolvable via the build system
+- **FR-008**: Third-party dependencies (Skia, Yoga, googletest, skylib, stblib) must be fetchable and resolvable via the build system
 - **FR-009**: Platform-specific build settings (compiler flags, link options) must be correctly applied per target platform
 - **FR-010**: The Skia spike binary must use Skia's canvas API to draw content and encode the result as a PNG file
+- **FR-011**: The Yoga+Skia spike binary must combine Yoga flexbox layout (with margin) and Skia rendering, producing a PNG that visually demonstrates margin spacing in both row and column directions
 
 ### Key Entities
 
@@ -101,7 +121,8 @@ A developer runs all project tests to confirm the test infrastructure works, eve
 - **Third-Party Dependency**: An external library fetched and managed by the build system, not part of the project source
 - **Module**: A logical grouping of source code within the project (core, layout, render, surface, widgets, event, public)
 - **Public API Target**: The designated build target that external consumers depend on, exposing the full project interface
-- **Spike Binary**: A minimal executable that validates a high-risk integration (Skia) compiles, links, and functions correctly
+- **Spike Binary**: A minimal executable that validates a high-risk integration (Skia, Yoga+Skia) compiles, links, and functions correctly
+- **Flex Layout**: A layout mode based on the W3C Flexbox specification, computed by Yoga, supporting direction, alignment, and margin/padding spacing
 
 ## Success Criteria
 
@@ -113,6 +134,8 @@ A developer runs all project tests to confirm the test infrastructure works, eve
 - **SC-004**: All module stub targets compile successfully, confirming the module directory structure is correct
 - **SC-005**: Incremental builds after a single source change complete in under 30 seconds
 - **SC-006**: The build system correctly applies platform-specific settings (verified by inspecting compiler/linker flags per platform)
+- **SC-007**: The Yoga+Skia spike binary compiles, links, and executes successfully, producing a PNG with two distinct flex layout sections showing correct margin spacing
+- **SC-008**: The output PNG from the Yoga+Skia spike visually confirms that margin creates predictable gaps between flex children in both row and column directions
 
 ## Assumptions
 

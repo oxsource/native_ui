@@ -6,7 +6,7 @@
 
 ## Summary
 
-Establish Bazel workspace, platform definitions, dependency management, and validate Skia integration via a spike binary. This phase carries the highest technical risk — Skia's build system is complex and its Bazel integration often requires significant work. The spike ensures Skia compiles and links before any downstream code depends on it.
+Establish Bazel workspace, platform definitions, dependency management, and validate Skia + Yoga integration via spike binaries. This phase carries the highest technical risk — Skia's build system is complex and its Bazel integration often requires significant work. Two spikes ensure both Skia and Yoga+Skia compile and link before any downstream code depends on them.
 
 ## Technical Context
 
@@ -97,8 +97,9 @@ native_ui/                          # Bazel workspace root
 │               └── native_ui/
 │                   └── native_ui_export.h  # NATIVE_UI_API macro
 ├── src/spike/
-│   ├── BUILD.bazel                 # cc_binary depending on @skia//:skia
-│   └── skia_spike.cc               # Minimal Skia draw + encode binary
+│   ├── BUILD.bazel                 # cc_binary targets for skia_spike + yoga_spike
+│   ├── skia_spike.cc               # Minimal Skia draw + encode binary
+│   └── yoga_spike.cc               # Yoga layout (with margin) + Skia render binary
 ├── tests/
 │   ├── BUILD.bazel                 # Empty test target (test infra present)
 ├── spec/
