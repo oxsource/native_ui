@@ -10,7 +10,7 @@ namespace native::ui {
 class Surface {
 public:
   static std::unique_ptr<Surface> Create(int width, int height);
-  static std::unique_ptr<Surface> CreateFromBuffer(BufferHandle handle);
+  static std::unique_ptr<Surface> CreateFromBuffer(HardwareBuffer handle);
   ~Surface();
 
   void Present();  // swap/flush for platform surfaces
@@ -33,7 +33,7 @@ public:
   static std::unique_ptr<Image> FromFile(const char* path);
 
   // From platform buffer (AHardwareBuffer / IOSurface / DMA-BUF fd)
-  static std::unique_ptr<Image> FromBuffer(BufferHandle buffer);
+  static std::unique_ptr<Image> FromBuffer(HardwareBuffer buffer);
 
   int width() const;
   int height() const;

@@ -323,7 +323,7 @@ CI checks at minimum:
 | `src/framework/render/path.h / path.cc` | `Path` — `MoveTo`, `LineTo`, `CubicTo`, `Close` |
 | `src/framework/render/image.h / image.cc` | `Image` — decode from encoded data (PNG/JPEG/WebP/SVG auto-detect) and platform Buffer (AHardwareBuffer / IOSurface / DMA-BUF), `FromEncoded`, `FromFile`, `FromBuffer` |
 | `src/framework/surface/surface.h / surface.cc` | `Surface` — composable wrapper over SkSurface, supports display and external buffer rendering |
-| `src/framework/surface/buffer_handle.h` | `BufferHandle` — type-erased cross-platform buffer descriptor (AHardwareBuffer / IOSurface / DMA-BUF fd) |
+| `src/framework/surface/hardware_buffer.h` | `HardwareBuffer` — cross-platform hardware buffer wrapper (AHardwareBuffer / IOSurface / DMA-BUF fd) |
 | `src/framework/surface/surface_factory.h / surface_factory.cc` | `SurfaceFactory` — platform dispatch via `#ifdef`, creates platform-specific SkSurface |
 
 ### Public Headers
@@ -331,7 +331,7 @@ CI checks at minimum:
 | File | Content |
 |------|---------|
 | `src/framework/public/include/native_ui/render.h` | Re-export render types |
-| `src/framework/public/include/native_ui/surface.h` | Re-export Surface, BufferHandle |
+| `src/framework/public/include/native_ui/surface.h` | Re-export Surface, HardwareBuffer |
 
 ### Tests
 
@@ -361,7 +361,7 @@ Golden test flow:
 - `Canvas` auto-restore on scope exit
 - `Paint` method chaining works
 - Golden test produces identical PNG on repeat runs
-- `Surface` accepts `BufferHandle` and creates a valid `SkSurface`
+- `Surface` accepts `HardwareBuffer` and creates a valid `SkSurface`
 - Buffer update callback triggers correct `RequestLayout` / `RequestRedraw`
 - **No module outside `render/` or `surface/` depends on Skia directly** (enforced by CI visibility query)
 - `bazel test //tests:render_test` green

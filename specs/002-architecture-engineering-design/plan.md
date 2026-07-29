@@ -116,7 +116,7 @@ graph TD
             CORE["core<br/>Rect, Point, Size, Color, EdgeInsets"]
             LAYOUT["layout<br/>FlexLayout measure + arrange"]
             RENDER["render<br/>Canvas, Paint, Path wrappers"]
-            SURFACE["surface<br/>Surface, BufferHandle"]
+            SURFACE["surface<br/>Surface, HardwareBuffer"]
             WIDGETS["widgets<br/>Widget, Container, Text, Button"]
             VIEWMODEL["viewmodel<br/>State + Property<T>"]
             EVENT["event<br/>HitTester, Event dispatch"]
