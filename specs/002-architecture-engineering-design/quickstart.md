@@ -46,7 +46,7 @@ native_ui/
 │       ├── core/                 # Rect, Point, Size, Color, EdgeInsets
 │       ├── layout/              # FlexLayout (Yoga wrapper)
 │       ├── render/              # Canvas, Paint, Path
-│       ├── surface/             # PlatformSurface, BufferHandle
+│       ├── surface/             # Surface, BufferHandle
 │       ├── widgets/             # Widget, Container, Text, Button, Image, Stack
 │       ├── event/               # HitTester, Event dispatch
 │       └── public/              # Umbrella header, export macro

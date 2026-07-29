@@ -2,6 +2,31 @@
 
 **Last Updated**: 2026-07-29
 
+## Surface (Backing Store)
+
+```cpp
+namespace native::ui {
+
+class Surface {
+public:
+  // Create a new rendering surface
+  static std::unique_ptr<Surface> Create(int width, int height);
+
+  // Create a surface from an external platform buffer
+  static std::unique_ptr<Surface> CreateFromBuffer(BufferHandle handle);
+
+  ~Surface();
+
+  // Present the rendered content (swap/flush for platform surfaces)
+  void Present();
+
+  int width() const;
+  int height() const;
+};
+
+}  // namespace native::ui
+```
+
 ## Canvas (RAII Wrapper)
 
 ```cpp
@@ -9,12 +34,12 @@ namespace native::ui {
 
 class Canvas {
 public:
-  explicit Canvas(SkCanvas* sk_canvas);
+  // Attach to a Surface — Canvas renders into this backing store
+  explicit Canvas(Surface& surface);
   ~Canvas();  // auto restore
 
   void DrawRect(Rect rect, const Paint& paint);
-  void DrawSimpleText(const std::string& text, Point pos,
-                      const Paint& paint);
+  void DrawText(const std::string& text, Point pos, const Paint& paint);
   void DrawPath(const Path& path, const Paint& paint);
   void ClipRect(Rect rect);
   void Translate(Point offset);
@@ -66,7 +91,7 @@ public:
 
 - Only `render/` and `surface/` modules may depend on `@skia//:skia`
 - No module outside these may `#include` any Skia header
-- `Canvas`, `Paint`, `Path` must not expose Skia types in their public signatures
+- `Surface`, `Canvas`, `Paint`, `Path` must not expose Skia types in their public signatures
 - Enforced by CI:
 
 ```bash

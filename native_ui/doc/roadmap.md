@@ -302,9 +302,9 @@ CI checks at minimum:
 
 # Phase 5: Skia Render Wrapper & Platform Surface
 
-**Goal**: Build `Canvas`, `Paint`, `Path` RAII wrappers over Skia, plus `PlatformSurface` for platform-native buffer rendering (AHardwareBuffer / IOSurface / DMA-BUF). These are the only modules that depend on Skia directly.
+**Goal**: Build `Surface`, `Canvas`, `Paint`, `Path` RAII wrappers over Skia, plus `Surface` for platform-native buffer rendering (AHardwareBuffer / IOSurface / DMA-BUF). These are the only modules that depend on Skia directly.
 
-> **Scope note**: `TextLayout` is intentionally deferred to a post-MVP phase. Skia's text stack (SkParagraph/SkShaper) has complex dependencies (ICU, harfbuzz) that increase integration risk. Initial widget rendering uses simple `DrawSimpleText` until `TextLayout` lands.
+> **Scope note**: `TextLayout` is intentionally deferred to a post-MVP phase. Skia's text stack (SkParagraph/SkShaper) has complex dependencies (ICU, harfbuzz) that increase integration risk. Initial widget rendering uses simple `DrawText` until `TextLayout` lands.
 
 ## Dependencies
 
@@ -312,16 +312,16 @@ CI checks at minimum:
 
 ## Deliverables
 
-> **Key differentiator**: This phase also lays the foundation for platform native Buffer support (AHardwareBuffer / IOSurface / DMA-BUF). The `surface/` module provides `PlatformSurface` — a widget that wraps Skia's `SkSurface` creation from external buffer handles, enabling zero-copy GPU-side rendering for camera preview, video decode, and AI inference overlay.
+> **Key differentiator**: This phase also lays the foundation for platform native Buffer support (AHardwareBuffer / IOSurface / DMA-BUF). The `surface/` module provides `Surface` — a composable wrapper over Skia's `SkSurface` for both display and external buffer rendering, enabling zero-copy GPU-side rendering for camera preview, video decode, and AI inference overlay.
 
 ### Source Files
 
 | File | Content |
 |------|---------|
-| `src/framework/render/canvas.h / canvas.cc` | Scoped `Canvas` — auto save/restore, `DrawRect`, `DrawSimpleText`, `DrawPath` |
+| `src/framework/render/canvas.h / canvas.cc` | Scoped `Canvas` — attach to `Surface&`, auto save/restore, `DrawRect`, `DrawText`, `DrawPath` |
 | `src/framework/render/paint.h / paint.cc` | `Paint` — chainable `SetColor`, `SetAntiAlias`, `SetStrokeWidth` |
 | `src/framework/render/path.h / path.cc` | `Path` — `MoveTo`, `LineTo`, `CubicTo`, `Close` |
-| `src/framework/surface/platform_surface.h / platform_surface.cc` | `PlatformSurface` — Widget accepting external buffer handles, creates SkSurface, manages lifecycle |
+| `src/framework/surface/surface.h / surface.cc` | `Surface` — composable wrapper over SkSurface, supports display and external buffer rendering |
 | `src/framework/surface/buffer_handle.h` | `BufferHandle` — type-erased cross-platform buffer descriptor (AHardwareBuffer / IOSurface / DMA-BUF fd) |
 | `src/framework/surface/surface_factory.h / surface_factory.cc` | `SurfaceFactory` — platform dispatch via `#ifdef`, creates platform-specific SkSurface |
 
@@ -330,7 +330,7 @@ CI checks at minimum:
 | File | Content |
 |------|---------|
 | `src/framework/public/include/native_ui/render.h` | Re-export render types |
-| `src/framework/public/include/native_ui/surface.h` | Re-export PlatformSurface, BufferHandle |
+| `src/framework/public/include/native_ui/surface.h` | Re-export Surface, BufferHandle |
 
 ### Tests
 
@@ -338,7 +338,7 @@ CI checks at minimum:
 |------|---------|
 | `tests/render_test.cc` | Canvas save/restore, Paint chain, Path construction, pixel readback verification |
 | `tests/golden/skia_spike_test.cc` | Golden baseline: render known rect → compare PNG hash against committed baseline |
-| `tests/surface_test.cc` | PlatformSurface creation from synthetic buffer, buffer update callback, surface lifecycle |
+| `tests/surface_test.cc` | Surface creation from synthetic buffer, buffer update callback, surface lifecycle |
 
 Golden test flow:
 1. Render a known scene to a Skia surface
@@ -359,7 +359,7 @@ Golden test flow:
 - `Canvas` auto-restore on scope exit
 - `Paint` method chaining works
 - Golden test produces identical PNG on repeat runs
-- `PlatformSurface` accepts `BufferHandle` and creates a valid `SkSurface`
+- `Surface` accepts `BufferHandle` and creates a valid `SkSurface`
 - Buffer update callback triggers correct `RequestLayout` / `RequestRedraw`
 - **No module outside `render/` or `surface/` depends on Skia directly** (enforced by CI visibility query)
 - `bazel test //tests:render_test` green

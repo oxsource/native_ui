@@ -18,7 +18,7 @@ Single umbrella header includes all public headers.
 | `native_ui/core.h` | Re-exports: Rect, Point, Size, Color, EdgeInsets |
 | `native_ui/layout.h` | Re-exports: FlexLayout, Direction, JustifyContent, etc. |
 | `native_ui/render.h` | Re-exports: Canvas, Paint |
-| `native_ui/surface.h` | Re-exports: PlatformSurface, BufferHandle |
+| `native_ui/surface.h` | Re-exports: Surface, BufferHandle |
 | `native_ui/widgets.h` | Re-exports: Widget, Container, Text, Button, Image, Stack |
 | `native_ui/event.h` | Re-exports: Event, HitTester |
 

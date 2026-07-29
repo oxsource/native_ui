@@ -118,7 +118,7 @@ deps = ["@native_ui//src/framework/public:native_ui"]
 
 框架应提供：
 
-- `PlatformSurface` 控件 — 接收外部 Buffer 描述符（AHardwareBuffer / IOSurface / DMA-BUF fd），自动创建 Skia `SkSurface` 并管理生命周期
+- `Surface` 控件 — 接收外部 Buffer 描述符（AHardwareBuffer / IOSurface / DMA-BUF fd），自动创建 Skia `SkSurface` 并管理生命周期
 - Buffer 到达回调 — 外部生产者在 Buffer 就绪时通知 Widget 更新
 - 高效的 texture 导入路径 — 避免 CPU 回读，直接在 GPU 侧完成合成
 
@@ -168,9 +168,9 @@ native_ui/src/framework/
 ├── core/          # 基础类型：Rect, Point, Size, Color, Matrix, EdgeInsets
 ├── layout/        # 布局引擎：Flexbox measure + arrange
 ├── render/        # Skia 渲染封装：Canvas, Paint, Path, TextLayout
-├── surface/       # 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory
+├── surface/       # 平台 Buffer 封装：Surface, BufferHandle, SurfaceFactory
 ├── viewmodel/     # 数据绑定：State 基类、属性通知、Watch/Unwatch 生命周期
-├── widgets/       # 基础控件：Text, Button, Image, Container, Stack, PlatformSurface
+├── widgets/       # 基础控件：Text, Button, Image, Container, Stack, Surface
 ├── event/         # 事件处理：Event, HitTester, InputHandler
 └── public/        # 公开 API 汇总入口
 ```
@@ -182,7 +182,7 @@ native_ui/src/framework/
 | `core` | 几何类型、颜色、矩阵运算、EdgeInsets | — |
 | `layout` | Flexbox measure/arrange 算法 | Yoga |
 | `render` | Skia Canvas 封装、Paint、Path、Text | Skia |
-| `surface` | 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory | Skia, platform headers |
+| `surface` | 平台 Buffer 封装：Surface, BufferHandle, SurfaceFactory | Skia, platform headers |
 | `viewmodel` | 数据绑定：`State` 基类、属性通知 | core |
 | `widgets` | 基础控件、Widget 基类、组合规则 | core, viewmodel, layout, render, event, surface |
 | `event` | Event 类型定义、HitTesting、分发机制 | core |
@@ -1141,7 +1141,7 @@ http_archive(
 
 `src/framework/surface/` 模块封装平台原生 Buffer，利用 Skia 的 `SkSurface` 创建能力：
 
-- `PlatformSurface` — 接收 AHardwareBuffer / IOSurface / DMA-BUF 句柄，自动创建 SkSurface
+- `Surface` — 接收 AHardwareBuffer / IOSurface / DMA-BUF 句柄，自动创建 SkSurface
 - `BufferHandle` — 跨平台的 Buffer 描述符类型擦除封装
 - `SurfaceFactory` — 平台适配工厂，按 `#ifdef` 编译对应后端
 
