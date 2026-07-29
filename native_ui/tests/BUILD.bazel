@@ -21,3 +21,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "core_type_test",
+    srcs = ["core_type_test.cc"],
+    deps = [
+        "//src/framework/core",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

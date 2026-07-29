@@ -58,10 +58,10 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:core_test` passes for all types
 
-- [ ] T009 [P] [US1] Create `src/framework/core/size.h` with `Size` struct — fields `width`, `height`; methods `IsEmpty()`, `operator==`
-- [ ] T010 [P] [US1] Create `src/framework/core/color.h` with `Color` struct — `uint8_t` RGBA channels, clamp-on-construction, static named constants (`kRed`, `kGreen`, `kBlue`, `kWhite`, `kBlack`, `kTransparent`)
-- [ ] T011 [P] [US1] Create `src/framework/core/edge_insets.h` with `EdgeInsets` struct — fields `top`, `left`, `bottom`, `right`; factories `All(v)`, `Symmetric(h, v)`, `Only(t, r, b, l)`
-- [ ] T012 [US1] Create `tests/core_type_test.cc` with unit tests: Size isEmpty/equality, Color channel access/clamping/named constants, EdgeInsets construction and application to Rect
+- [x] T009 [P] [US1] Create `src/framework/core/size.h` with `Size` struct — fields `width`, `height`; methods `IsEmpty()`, `operator==`
+- [x] T010 [P] [US1] Create `src/framework/core/color.h` with `Color` struct — `uint8_t` RGBA channels, clamp-on-construction, constexpr namespace-level named constants (`kRed`, `kGreen`, `kBlue`, `kWhite`, `kBlack`, `kTransparent`)
+- [x] T011 [P] [US1] Create `src/framework/core/edge_insets.h` with `EdgeInsets` struct — fields `top`, `left`, `bottom`, `right`; factories `All(v)`, `Symmetric(h, v)`, `Only(t, r, b, l)`
+- [x] T012 [US1] Create `tests/core_type_test.cc` with unit tests: Size isEmpty/equality, Color channel access/clamping/named constants, EdgeInsets construction and application to Rect
 
 **Checkpoint**: `bazel test //tests:core_rect_test //tests:core_point_test //tests:core_type_test` all pass
 
