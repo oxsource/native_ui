@@ -93,6 +93,8 @@ public:
 ## Usage Example
 
 ```cpp
+using namespace native::ui;
+
 // Define state with typed properties — no strings anywhere
 class CounterState : public State {
 public:

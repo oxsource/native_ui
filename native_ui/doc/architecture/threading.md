@@ -83,6 +83,8 @@ The main thread runs a continuous frame loop:
 The frame loop's step 7 (`WaitForNextFrame`) is abstracted behind `FrameClock` to support different frame driving models:
 
 ```cpp
+namespace native::ui {
+
 class FrameClock {
 public:
   virtual ~FrameClock() = default;
@@ -90,6 +92,8 @@ public:
   // The caller (frame loop) resumes immediately after this returns.
   virtual void WaitForNextFrame() = 0;
 };
+
+}  // namespace native::ui
 ```
 
 ### Implementations
@@ -144,6 +148,6 @@ Queue notification
 2. State property change notification is always delivered on the main thread
 3. Widget tree mutations (AddChild, RemoveChild) are main-thread only
 4. Skia APIs are main-thread only
-5. LogSink::Log must be thread-safe (called from any thread)
+5. LogSlot::Log must be thread-safe (called from any thread)
 6. `PostTask` and `PostNextFrame` are main-thread only
 7. `FrameClock::WaitForNextFrame` is main-thread only; `SwapChainClock::SwapBuffer` is thread-safe (can be called from any thread)

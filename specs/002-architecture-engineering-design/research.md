@@ -87,7 +87,7 @@ This research consolidates architectural design decisions for the native_ui fram
 
 ### Logging: Slot Interface Pattern
 
-- **Decision**: Framework defines an abstract `LogSink` base class with `Log(level, message, metadata)` as the only required method. No default implementation. If no LogSink is plugged in, log calls are no-ops (zero overhead when not used). The consumer creates a subclass and registers it at startup.
+- **Decision**: Framework defines an abstract `LogSlot` base class with `Log(level, message, metadata)` as the only required method. No default implementation. If no LogSlot is plugged in, log calls are no-ops (zero overhead when not used). The consumer creates a subclass and registers it at startup.
 - **Rationale**: Slot interface decouples the framework from any specific logging library. The user explicitly stated they will design a separate reusable logging module — this pattern allows that module to plug into native_ui without changes to the framework.
 - **Alternatives considered**: Built-in spdlog (rejected: adds dependency, user wants their own logger); Built-in fprintf/stderr (rejected: insufficient for production); No logging (rejected: debugging impossible)
 

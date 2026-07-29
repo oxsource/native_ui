@@ -146,7 +146,7 @@ This document defines the key entities in the native_ui framework architecture. 
 
 ---
 
-## Entity: LogSink
+## Entity: LogSlot
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -155,11 +155,11 @@ This document defines the key entities in the native_ui framework architecture. 
 | `metadata` | Metadata[] | Structured key-value pairs |
 
 **Relationships**:
-- LogSink **is called by** any framework module
-- LogSink **is implemented by** consumer (plug-in pattern)
+- LogSlot **is called by** any framework module
+- LogSlot **is implemented by** consumer (plug-in pattern)
 
 **Validation Rules**:
-- If no LogSink registered, Log() is a no-op
+- If no LogSlot registered, Log() is a no-op
 - Must be thread-safe (called from any thread)
 
 ---
@@ -176,7 +176,7 @@ This document defines the key entities in the native_ui framework architecture. 
 - Layout measure + arrange
 - Skia rendering (Draw)
 - State property observation → RequestRedraw
-- LogSink dispatch
+- LogSlot dispatch
 
 ---
 

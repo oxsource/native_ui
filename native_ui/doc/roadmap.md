@@ -104,7 +104,7 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 
 # Phase 2: Architecture & Engineering Design
 
-**Goal**: Establish architectural foundations — module interface contracts, error handling, memory model, widget lifecycle, **data binding (React-inspired `State`)**, **threading model (main-thread rendering + worker-thread logic)**, **logging slot interface (LogSink)**, testing conventions, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
+**Goal**: Establish architectural foundations — module interface contracts, error handling, memory model, widget lifecycle, **data binding (React-inspired `State`)**, **threading model (main-thread rendering + worker-thread logic)**, **logging slot interface (LogSlot)**, testing conventions, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
 
 ## Dependencies
 
@@ -123,7 +123,7 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 | `doc/architecture/lifecycle_model.md` | Widget lifecycle state machine, mount/unmount semantics |
 | `doc/architecture/data_binding.md` | `State` + `Property<T>` pattern, typed `Watch(Property<T>&)`, extension hooks (`OnBeforeSet`, `OnAfterSet`), batch RequestRedraw |
 | `doc/architecture/threading.md` | Threading model: main thread (render/layout/event) + worker threads (logic/data), inter-thread communication via State |
-| `doc/architecture/logging_slot.md` | LogSink abstract interface (debug/info/warn/error), slot pattern, consumer-plugged implementation |
+| `doc/architecture/logging_slot.md` | LogSlot abstract interface (debug/info/warn/error), slot pattern, consumer-plugged implementation |
 
 ### API & Interface Contracts
 
@@ -187,7 +187,7 @@ CI checks at minimum:
 - Skia isolation query (`bazel query 'somepath(//src/framework/..., @skia//:skia)'`) validates only `render/` + `surface/` depend on Skia
 - spec-kit template covers: interface signature, behavior description, edge cases, test points
 - Agent instruction template includes Google C++ Style checklist and commit convention reminder
-- Architecture docs cover: threading model (main vs worker), logging slot (LogSink), data binding (`State`)
+- Architecture docs cover: threading model (main vs worker), logging slot (LogSlot), data binding (`State`)
 - No C++ source code (other than stubs) is written in this phase
 
 ---
@@ -598,7 +598,7 @@ W1  W2  W3  W4  W5  W6  W7  W8  W9  W10 W11 W12 W13 W14 W15 W16
 | TextLayout complexity | Feature creep | High (deferred) | Explicitly deferred post-MVP |
 | Performance (full re-layout on every add) | UI jank | Low | RequestLayout batching planned |
 | State thread safety | Data race on property update | Medium | Document thread boundaries in threading.md; State update must be thread-safe |
-| Logging slot not plugged | Silent failures | Low | Document fallback behavior (no-op when no LogSink) |
+| Logging slot not plugged | Silent failures | Low | Document fallback behavior (no-op when no LogSlot) |
 | CI maintenance overhead | Engineer velocity | Low | Shared Bazel cache, minimal workflow |
 
 ---

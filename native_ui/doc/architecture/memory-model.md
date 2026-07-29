@@ -27,6 +27,8 @@ Root Widget (unique_ptr owned by application)
 ## Observation (Non-Owning)
 
 ```cpp
+using namespace native::ui;
+
 // FindById returns raw pointer — caller does not own
 Widget* root->FindById("submit_btn");
 
@@ -46,6 +48,8 @@ Widget* parent_;  // non-owning back-reference
 State objects may be shared between multiple widgets:
 
 ```cpp
+using namespace native::ui;
+
 auto state = std::make_shared<CounterState>();
 // Both widgets watch the same State via Property<T> reference
 text1->Watch(state->count);

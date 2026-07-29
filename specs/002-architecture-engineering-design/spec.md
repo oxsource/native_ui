@@ -89,7 +89,7 @@ A release manager follows the documented release process to create a new version
 - How does the system handle rapid property changes — does it batch RequestRedraw calls?
 - What happens when a worker thread updates a State property while the main thread is rendering?
 - How does the framework prevent main thread starvation when worker threads flood property updates?
-- What happens when no LogSink is plugged in — does the framework silently drop logs, or fall back to stderr?
+- What happens when no LogSlot is plugged in — does the framework silently drop logs, or fall back to stderr?
 - What happens when PostTask or PostNextFrame callbacks throw exceptions?
 - What happens when ScheduleTimer fires while a heavy rendering frame is in progress?
 
@@ -108,7 +108,7 @@ A release manager follows the documented release process to create a new version
 - **FR-009**: No C++ source code is written in this phase — all deliverables are design documents and CI configuration
 - **FR-010**: Architecture must define a React-inspired State pattern for data binding — `State` base class with typed `Property<T>` members, property change notification via `Property<T>::operator=`, watching lifecycle (`Watch(Property<T>&)`), automatic batch RequestRedraw, and extension hooks (`OnBeforeSet`, `OnAfterSet`) for value interception
 - **FR-011**: Architecture must define the threading model — rendering, layout, and event dispatch run on the main thread; business logic and data processing execute on worker threads. Thread safety boundaries must be documented for State property updates and inter-thread communication. State property changes must be automatically batched within a single frame (React-style), coalescing multiple mutations into one layout + render pass. Three scheduling primitives must be defined: PostTask (pre-render), PostNextFrame (post-render), ScheduleTimer (delayed).
-- **FR-012**: Architecture must define a logging slot interface (abstract `LogSink` base) that the framework calls but does not implement — the consumer provides the concrete log implementation. The interface must support log levels (debug, info, warn, error) and structured metadata.
+- **FR-012**: Architecture must define a logging slot interface (abstract `LogSlot` base) that the framework calls but does not implement — the consumer provides the concrete log implementation. The interface must support log levels (debug, info, warn, error) and structured metadata.
 
 ### Key Entities
 
@@ -120,7 +120,7 @@ A release manager follows the documented release process to create a new version
 - **Spec-kit Template**: A reusable markdown or YAML template for writing feature specifications
 - **State**: A data holder object that stores widget state and notifies watching widgets when properties change, following React's state management pattern (unidirectional data flow: props ↓, events ↑)
 - **Watch**: A connection between a State property and a Widget — when the State property changes, the watching Widget automatically triggers RequestRedraw
-- **LogSink**: An abstract interface for logging — defines `Log(level, message, metadata)` method; framework calls it but does not provide implementation; consumer plugs in the concrete logger
+- **LogSlot**: An abstract interface for logging — defines `Log(level, message, metadata)` method; framework calls it but does not provide implementation; consumer plugs in the concrete logger
 - **Main Thread**: The thread responsible for rendering (Skia draw), layout calculation, and event dispatch — must never be blocked by business logic
 - **Worker Thread**: A background thread for business logic and data processing — communicates results to the main thread via State property updates
 
@@ -141,7 +141,7 @@ A release manager follows the documented release process to create a new version
 ### Session 2026-07-29
 
 - Q: 是否考虑了页面后续数据状态管理，比如MVVM的架构 → A: 参考 React 单向数据流模式（props ↓, events ↑），框架定义 `State` 基类 + 属性变更通知 + 自动 RequestRedraw，不引入 Vue 式响应式系统避免复杂化
-- Q: 还需要考虑一些工程化相关的架构要素 → A: 渲染在主线程（布局、事件分发也在主线程），逻辑处理在工作线程。日志模块预留 LogSink 抽象接口，框架调用但不实现，由外部提供具体实现
+- Q: 还需要考虑一些工程化相关的架构要素 → A: 渲染在主线程（布局、事件分发也在主线程），逻辑处理在工作线程。日志模块预留 LogSlot 抽象接口，框架调用但不实现，由外部提供具体实现
 - Q: 是否需要 nextTick/setTimeout 机制 → A: 不需要独立 nextTick。参考 React 批处理模型，State 属性变更自动在帧末合并为一次渲染；PostTask (pre-render) + PostNextFrame (post-render) + ScheduleTimer (跨帧定时) 三个原语即可覆盖所有调度场景
 
 ## Assumptions
@@ -155,4 +155,4 @@ A release manager follows the documented release process to create a new version
 - Architecture documents may reference graph_runtime as a reference project where conventions align
 - Data binding adopts React-inspired pattern (`State` with property notification, unidirectional flow) — no Vue-style computed/reactivity system
 - Rendering, layout, and event dispatch execute on the main thread; business logic runs on worker threads. State changes are auto-batched per frame (React-style), no explicit nextTick needed
-- Logging uses a slot interface pattern — framework defines `LogSink` abstract base, consumer provides implementation; no built-in logger
+- Logging uses a slot interface pattern — framework defines `LogSlot` abstract base, consumer provides implementation; no built-in logger

@@ -6,13 +6,16 @@
 
 1. **No C++ exceptions.** Follow Google C++ Style Guide — exceptions are prohibited.
 2. **StatusOr for recoverable errors.** Functions that can fail return `StatusOr<T>`.
-3. **LogSink for diagnostics.** Non-fatal diagnostic messages go through the LogSink interface (see [logging-slot.md](logging-slot.md)).
+3. **LogSlot for diagnostics.** Non-fatal diagnostic messages go through the LogSlot interface (see [logging-slot.md](logging-slot.md)).
 4. **Fail fast for programming errors.** Assertions (`DCHECK`) for invariant violations in debug builds.
 
 ## StatusOr Pattern
 
 ```cpp
-class StatusOr<T> {
+namespace native::ui {
+
+template<typename T>
+class StatusOr {
   bool ok() const;
   T value() const;    // UB if !ok()
   Status status() const;
@@ -20,33 +23,39 @@ class StatusOr<T> {
 
 // Usage
 StatusOr<Size> Measure(Size available);
+
+}  // namespace native::ui
 ```
 
 | Scenario | Handling |
 |----------|----------|
-| Layout constraint overflow | StatusOr with error status, logged via LogSink |
+| Layout constraint overflow | StatusOr with error status, logged via LogSlot |
 | Resource load failure (image, font) | StatusOr with error status, caller decides fallback |
-| Invalid widget tree (cycle, null parent) | DCHECK in debug, LogSink warning in release |
-| State property type mismatch | LogSink error, no crash |
+| Invalid widget tree (cycle, null parent) | DCHECK in debug, LogSlot warning in release |
+| State property type mismatch | LogSlot error, no crash |
 
-## LogSink Integration
+## LogSlot Integration
 
-Errors are NOT logged directly. Use the LogSink interface:
+Errors are NOT logged directly. Use the LogSlot interface:
 
 ```cpp
+namespace native::ui {
+
 // Framework calls this — consumer provides the implementation
-class LogSink {
+class LogSlot {
 public:
-  virtual ~LogSink() = default;
+  virtual ~LogSlot() = default;
   virtual void Log(LogLevel level, const std::string& message,
                    const KeyValue* metadata = nullptr) = 0;
 };
 
 // Framework-wide registration
-void SetLogSink(LogSink* sink);  // null sink = no-op
+void SetLogSlot(LogSlot* sink);  // null sink = no-op
+
+}  // namespace native::ui
 ```
 
-See [logging-slot.md](logging-slot.md) for the full LogSink specification.
+See [logging-slot.md](logging-slot.md) for the full LogSlot specification.
 
 ## Assertions
 

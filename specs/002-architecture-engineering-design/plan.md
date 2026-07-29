@@ -6,7 +6,7 @@
 
 ## Summary
 
-Design and document the complete architecture of the native_ui framework — module boundaries, interface contracts, widget lifecycle, layout pipeline, event system, rendering architecture, **data binding (React-inspired `State` pattern)**, threading model (main thread for render/layout/event, worker threads for logic), and logging slot interface (LogSink). Deliver architecture decision records (ADRs), API contracts, engineering standards, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
+Design and document the complete architecture of the native_ui framework — module boundaries, interface contracts, widget lifecycle, layout pipeline, event system, rendering architecture, **data binding (React-inspired `State` pattern)**, threading model (main thread for render/layout/event, worker threads for logic), and logging slot interface (LogSlot). Deliver architecture decision records (ADRs), API contracts, engineering standards, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
 
 ## Technical Context
 
@@ -73,7 +73,7 @@ native_ui/doc/architecture/
 ├── lifecycle-model.md           # Widget lifecycle state machine
 ├── data-binding.md              # State + Property<T> pattern, typed Watch, extension hooks
 ├── threading.md                 # Threading model: main thread (render/layout/event) + worker threads (logic), State cross-thread bridge
-└── logging-slot.md              # LogSink abstract interface, slot pattern, plug-in by consumer
+└── logging-slot.md              # LogSlot abstract interface, slot pattern, plug-in by consumer
 
 native_ui/doc/api/
 ├── widget-contract.md           # Widget virtual interface, extension points
@@ -294,11 +294,11 @@ flowchart TB
 flowchart LR
     subgraph "Framework (native_ui)"
         CALLER["Any Module<br/>calls Log(level, msg)"]
-        SINK["LogSink Interface<br/>virtual void Log()"]
+        SINK["LogSlot Interface<br/>virtual void Log()"]
     end
 
     subgraph "Consumer (plug-in)"
-        IMPL["Concrete LogSink<br/>spdlog / printf / custom"]
+        IMPL["Concrete LogSlot<br/>spdlog / printf / custom"]
     end
 
     SINK -.->|implemented by| IMPL

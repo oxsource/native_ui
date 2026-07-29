@@ -57,7 +57,7 @@ This document is the entry point for the native_ui framework architecture. It de
 | 5 | Widget lifecycle: Created → Mounted → Measured → Arranged → Ready → Unmounted | [lifecycle-model.md](lifecycle-model.md) |
 | 6 | React-inspired `State` for data binding | [data-binding.md](data-binding.md) |
 | 7 | Main-thread rendering + worker-thread logic | [threading.md](threading.md) |
-| 8 | LogSink slot interface for logging | [logging-slot.md](logging-slot.md) |
+| 8 | LogSlot slot interface for logging | [logging-slot.md](logging-slot.md) |
 | 9 | StatusOr for recoverable errors | [error-handling.md](error-handling.md) |
 | 10 | Tagged-parameter constructor pattern for widgets | See API contracts at `doc/api/` |
 
@@ -66,11 +66,11 @@ This document is the entry point for the native_ui framework architecture. It de
 | Document | Covers |
 |----------|--------|
 | [module-dependencies.md](module-dependencies.md) | Module diagram, dependency graph, Bazel visibility rules, Skia isolation policy |
-| [error-handling.md](error-handling.md) | StatusOr strategy, no-exceptions convention, LogSink-based diagnostics |
+| [error-handling.md](error-handling.md) | StatusOr strategy, no-exceptions convention, LogSlot-based diagnostics |
 | [memory-model.md](memory-model.md) | unique_ptr ownership, raw pointer observation, shared_ptr avoidance |
 | [lifecycle-model.md](lifecycle-model.md) | Widget lifecycle state machine, mount/unmount semantics |
 | [data-binding.md](data-binding.md) | `State` pattern, property notification, batch RequestRedraw |
 | [threading.md](threading.md) | Frame loop, worker threads, scheduling primitives |
-| [logging-slot.md](logging-slot.md) | LogSink interface, log levels, plug-in registration |
+| [logging-slot.md](logging-slot.md) | LogSlot interface, log levels, plug-in registration |
 
 See `doc/api/` for interface contracts for each module.
