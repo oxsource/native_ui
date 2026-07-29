@@ -21,7 +21,8 @@
 │         │                                                      │
 │         ▼                                                      │
 │  ┌──────────────┐                                              │
-│  │ Wait vsync   │──→ (next frame) → PostTask Queue            │
+ │  │ FrameClock::  │──→ (next frame) → PostTask Queue
+ │  │WaitNextFrame│            │
 │  └──────────────┘                                              │
 └──────────────────────────────────────────────────────────────────┘
                          ▲
@@ -53,7 +54,7 @@ The main thread runs a continuous frame loop:
    a. Draw(Canvas) for each dirty widget
    b. Children Draw recursively
 6. Fire PostNextFrame callbacks  (post-render)
-7. Wait for next vsync
+7. Wait for FrameClock::WaitForNextFrame()
 8. Go to 1
 ```
 
@@ -76,6 +77,47 @@ The main thread runs a continuous frame loop:
 | `PostTask(callback)` | Queued before next frame's render phase | `queueMicrotask` |
 | `PostNextFrame(callback)` | Executed after current frame's render completes | `useEffect` |
 | `ScheduleTimer(delay_ms, callback)` | Executed after delay, may cross multiple frames | `setTimeout` |
+
+## FrameClock (Frame Tick Abstraction)
+
+The frame loop's step 7 (`WaitForNextFrame`) is abstracted behind `FrameClock` to support different frame driving models:
+
+```cpp
+class FrameClock {
+public:
+  virtual ~FrameClock() = default;
+  // Blocks until the next frame should begin.
+  // The caller (frame loop) resumes immediately after this returns.
+  virtual void WaitForNextFrame() = 0;
+};
+```
+
+### Implementations
+
+| Implementation | Drive Model | WaitForNextFrame Behavior | Use Case |
+|---------------|-------------|--------------------------|----------|
+| `VSyncClock` | Clock-driven | Blocks until physical vsync signal via CVDisplayLink (macOS) or KMS/DRM (Linux) | Production GUI, 60fps vertical-synced rendering |
+| `TimerClock` | Clock-driven | `std::this_thread::sleep_for(16ms)` — fixed interval, no display hardware | CI tests, headless/server rendering, fallback |
+| `SwapChainClock` | **Producer-driven** | Blocks on a semaphore; external producer calls `SwapBuffer()` to release one frame | DVR pipeline, video playback, camera preview, AI inference overlay — any scenario where buffer availability drives render |
+
+### Producer-Driven Flow (SwapChainClock)
+
+```
+Producer Thread                    Main Thread (Frame Loop)
+─────────────────                  ─────────────────────────
+Fill buffer (GPU/CPU)
+        │
+SwapBuffer()                       WaitForNextFrame()
+  → sem_.release()                     │
+        │                              ▼ sem_.acquire()
+        │                         resumed → render frame
+```
+
+`SwapChainClock` is the natural fit for `PlatformSurface` — when an external buffer (AHardwareBuffer / IOSurface / DMA-BUF fd) arrives, the producer calls `SwapBuffer()` to unblock the frame loop, which then renders the new content via Skia.
+
+### Manual Clock for Unit Testing
+
+`SwapChainClock` also serves as a manual clock in tests — `WaitForNextFrame()` blocks, test code calls `SwapBuffer()` to advance frame by frame, no real-time dependency.
 
 ## State Cross-Thread Bridge
 
@@ -104,3 +146,4 @@ Queue notification
 4. Skia APIs are main-thread only
 5. LogSink::Log must be thread-safe (called from any thread)
 6. `PostTask` and `PostNextFrame` are main-thread only
+7. `FrameClock::WaitForNextFrame` is main-thread only; `SwapChainClock::SwapBuffer` is thread-safe (can be called from any thread)

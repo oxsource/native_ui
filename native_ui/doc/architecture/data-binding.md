@@ -160,6 +160,7 @@ No explicit `nextTick` or `flushSync` is required — the frame loop naturally c
 | `OnBeforeSet` | Validation, rejection, logging, debounce |
 | `OnAfterSet` | Side effects, derived state update, serialization |
 | Subclass Property<T> | Computed/read-only properties, value transformation |
+| `SwapChainClock` + `Property<T>` | Producer (decoder, DVR) writes state → triggers frame render — see [threading.md](threading.md) |
 
 ## Comparison with React
 
