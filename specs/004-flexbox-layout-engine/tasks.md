@@ -48,9 +48,9 @@ description: "Task list for Flexbox Layout Engine"
 
 ## Phase 5: Public Header & Validation
 
-- [ ] T023 Create `src/framework/public/include/native_ui/layout.h` — re-export `FlexLayout`, `MeasureResult`, and all tag types (`Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`)
-- [ ] T024 Update `src/framework/public/BUILD.bazel` — add `//src/framework/layout` to deps
-- [ ] T025 Run full validation: `bazel build //...` + `bazel test //...`
+- [x] T023 Create `src/framework/public/include/native_ui/layout.h` — re-export `FlexLayout`, `MeasureResult`, and all tag types (`Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`)
+- [x] T024 Update `src/framework/public/BUILD.bazel` — add `//src/framework/layout` to deps (already present)
+- [x] T025 Run full validation: `bazel build //...` + `bazel test //...` — all 10 tests pass
 
 ---
 
