@@ -27,7 +27,7 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 4: Image (lazy decode)
 
-- [ ] T009 Create `src/framework/render/image.h` and `image.cc` — `Image` class: `FromEncoded`, `FromFile`, `FromBuffer`, lazy decode on draw, width/height accessors
+- [x] T009 Create `src/framework/render/image.h` and `image.cc` — `Image` class: `FromEncoded`, `FromFile`, `FromBuffer`, eager decode via SkImages::DeferredFromEncodedData, width/height accessors via ImageImpl pimpl
 
 ## Phase 5: Canvas (RAII drawing context)
 
