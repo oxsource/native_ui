@@ -21,9 +21,9 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 3: HardwareBuffer & Surface
 
-- [ ] T006 [P] Create `src/framework/surface/hardware_buffer.h` — `HardwareBuffer` header-only, platform `#ifdef` dispatch (IOSurfaceRef / dma-buf fd), `IsValid()`
-- [ ] T007 [P] Create `src/framework/surface/surface.h` and `surface.cc` — `Surface` class: `Create(w,h)`, `CreateFromBuffer(HardwareBuffer)`, `Flush()`, wraps `sk_sp<SkSurface>`
-- [ ] T008 Create `src/framework/surface/surface_factory.h` and `surface_factory.cc` — `SurfaceFactory` platform dispatch via `#ifdef`
+- [x] T006 [P] Create `src/framework/surface/hardware_buffer.h` — `HardwareBuffer` header-only, platform `#ifdef` dispatch (IOSurfaceRef / dma-buf fd), `IsValid()`
+- [x] T007 [P] Create `src/framework/surface/surface.h` and `surface.cc` — `Surface` class: `Create(w,h)`, `CreateFromBuffer(HardwareBuffer)`, `Flush()`, wraps `sk_sp<SkSurface>` via SurfaceImpl pimpl
+- [x] T008 Create `src/framework/surface/surface_factory.h` and `surface_factory.cc` — `SurfaceFactory` platform dispatch via `#ifdef`
 
 ## Phase 4: Image (lazy decode)
 
