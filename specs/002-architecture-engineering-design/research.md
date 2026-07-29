@@ -81,8 +81,8 @@ This research consolidates architectural design decisions for the native_ui fram
 
 ### Threading Model: Main Thread + Worker Threads (React-Inspired Batch)
 
-- **Decision**: Rendering (Skia draw), layout calculation, and event dispatch execute exclusively on the main thread. Business logic and data processing run on worker threads. ViewModel acts as the cross-thread bridge — worker threads update ViewModel properties, main thread observes changes and triggers redraw. **ViewModel property changes are automatically batched within a single frame** (React-style `setState` batch), so multiple mutations trigger only one layout + render pass.
-- **Rationale**: Skia's raster API is not thread-safe for concurrent draw calls. Keeping layout and rendering on one thread avoids synchronization overhead on the hot path. Worker threads keep the UI responsive during data processing. ViewModel's property notification provides a natural synchronization boundary. The batch model eliminates the need for explicit `nextTick` — the frame loop naturally coalesces all pending changes.
+- **Decision**: Rendering (Skia draw), layout calculation, and event dispatch execute exclusively on the main thread. Business logic and data processing run on worker threads. `State` acts as the cross-thread bridge — worker threads update State properties, main thread observes changes and triggers redraw. **State property changes are automatically batched within a single frame** (React-style `setState` batch), so multiple mutations trigger only one layout + render pass.
+- **Rationale**: Skia's raster API is not thread-safe for concurrent draw calls. Keeping layout and rendering on one thread avoids synchronization overhead on the hot path. Worker threads keep the UI responsive during data processing. State's property notification provides a natural synchronization boundary. The batch model eliminates the need for explicit `nextTick` — the frame loop naturally coalesces all pending changes.
 - **Alternatives considered**: Multi-threaded rendering (rejected: Skia thread safety complexity, marginal benefit for 2D UI); All-on-main-thread (rejected: blocking on I/O/computation freezes UI); Render on separate thread (rejected: adds cross-thread Skia surface management complexity)
 
 ### Logging: Slot Interface Pattern
@@ -91,10 +91,10 @@ This research consolidates architectural design decisions for the native_ui fram
 - **Rationale**: Slot interface decouples the framework from any specific logging library. The user explicitly stated they will design a separate reusable logging module — this pattern allows that module to plug into native_ui without changes to the framework.
 - **Alternatives considered**: Built-in spdlog (rejected: adds dependency, user wants their own logger); Built-in fprintf/stderr (rejected: insufficient for production); No logging (rejected: debugging impossible)
 
-### Data Binding: React-Inspired ViewModel Pattern
+### Data Binding: React-Inspired `State` Pattern
 
-- **Decision**: Adopt React-style unidirectional data flow (props ↓, events ↑) with a `ViewModel` base class providing property change notification. Widgets bind to ViewModel properties and auto-trigger `RequestRedraw` on change. No Vue-style computed properties or deep reactivity system.
-- **Rationale**: React's model aligns naturally with the existing tagged-parameter props pattern and event bubbling. Simpler to implement than Vue's proxy-based reactivity. Avoids template/DSL complexity — ViewModels are plain C++ objects.
+- **Decision**: Adopt React-style unidirectional data flow (props ↓, events ↑) with a `native::ui::State` base class providing property change notification via `Set()` / `operator[]`. Widgets `Watch()` on State properties and auto-trigger `RequestRedraw` on change. No Vue-style computed properties or deep reactivity system.
+- **Rationale**: React's model aligns naturally with the existing tagged-parameter props pattern and event bubbling. Simpler to implement than Vue's proxy-based reactivity. Avoids template/DSL complexity — State objects are plain C++ objects. Named `State` (not ViewModel) to align with React terminology.
 - **Alternatives considered**: Vue-style proxy reactivity (rejected: C++ lacks JS Proxy, complex metaprogramming required); No built-in state management (rejected: consumers would each create ad-hoc solutions); Full MVVM framework (rejected: over-engineering for initial scope)
 - **Reference**: React useState/useReducer pattern, unidirectional data flow
 

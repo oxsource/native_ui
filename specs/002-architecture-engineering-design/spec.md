@@ -24,7 +24,7 @@ A developer reads the architecture design records to understand how the system i
 2. **Given** the error handling document, **When** a developer reads it, **Then** they understand whether exceptions or StatusOr is used and where
 3. **Given** the memory model document, **When** a developer reads it, **Then** they understand Widget ownership rules and pointer conventions
 4. **Given** the lifecycle document, **When** a developer reads it, **Then** they understand the mount/unmount lifecycle state machine
-5. **Given** the data binding document, **When** a developer reads it, **Then** they understand the ViewModel pattern, property notification, and how to bind a ViewModel to a Widget
+5. **Given** the data binding document, **When** a developer reads it, **Then** they understand the State pattern, property notification, and how to watch a State from a Widget
 6. **Given** the threading model document, **When** a developer reads it, **Then** they understand which work runs on the main thread (rendering, layout, event dispatch) and which runs on worker threads (logic, data processing)
 7. **Given** the logging slot document, **When** a developer reads it, **Then** they know how to plug in a custom log implementation
 
@@ -85,9 +85,9 @@ A release manager follows the documented release process to create a new version
 - How does a developer bypass CI for emergency fixes (documented override process)?
 - What happens when a new module is added that needs Skia — does the visibility query detect it?
 - How does the release process handle hotfixes on a previous release branch?
-- What happens when a ViewModel is destroyed while widgets are still bound to it?
+- What happens when a State is destroyed while widgets are still watching it?
 - How does the system handle rapid property changes — does it batch RequestRedraw calls?
-- What happens when a worker thread updates a ViewModel property while the main thread is rendering?
+- What happens when a worker thread updates a State property while the main thread is rendering?
 - How does the framework prevent main thread starvation when worker threads flood property updates?
 - What happens when no LogSink is plugged in — does the framework silently drop logs, or fall back to stderr?
 - What happens when PostTask or PostNextFrame callbacks throw exceptions?
@@ -106,8 +106,8 @@ A release manager follows the documented release process to create a new version
 - **FR-007**: Spec-kit templates must provide YAML and markdown templates for widget/API specifications
 - **FR-008**: All design documents must be consistent with each other and with the project bootstrap document — no contradictions
 - **FR-009**: No C++ source code is written in this phase — all deliverables are design documents and CI configuration
-- **FR-010**: Architecture must define a React-inspired ViewModel pattern for data binding — ViewModel base class with property change notification, binding lifecycle (Bind/Unbind), and automatic RequestRedraw on property change
-- **FR-011**: Architecture must define the threading model — rendering, layout, and event dispatch run on the main thread; business logic and data processing execute on worker threads. Thread safety boundaries must be documented for ViewModel property updates and inter-thread communication. ViewModel property changes must be automatically batched within a single frame (React-style), coalescing multiple mutations into one layout + render pass. Three scheduling primitives must be defined: PostTask (pre-render), PostNextFrame (post-render), ScheduleTimer (delayed).
+- **FR-010**: Architecture must define a React-inspired State pattern for data binding — `State` base class with property change notification, watching lifecycle (Watch/Unwatch), and automatic RequestRedraw on property change
+- **FR-011**: Architecture must define the threading model — rendering, layout, and event dispatch run on the main thread; business logic and data processing execute on worker threads. Thread safety boundaries must be documented for State property updates and inter-thread communication. State property changes must be automatically batched within a single frame (React-style), coalescing multiple mutations into one layout + render pass. Three scheduling primitives must be defined: PostTask (pre-render), PostNextFrame (post-render), ScheduleTimer (delayed).
 - **FR-012**: Architecture must define a logging slot interface (abstract `LogSink` base) that the framework calls but does not implement — the consumer provides the concrete log implementation. The interface must support log levels (debug, info, warn, error) and structured metadata.
 
 ### Key Entities
@@ -118,11 +118,11 @@ A release manager follows the documented release process to create a new version
 - **CI Pipeline**: An automated workflow triggered by code changes that builds, tests, and validates the project
 - **Release Process**: A documented sequence of steps to produce and publish a new version of the library
 - **Spec-kit Template**: A reusable markdown or YAML template for writing feature specifications
-- **ViewModel**: A data holder object that stores widget state and notifies bound widgets when properties change, following React's state management pattern (unidirectional data flow: props ↓, events ↑)
-- **Binding**: A connection between a ViewModel property and a Widget — when the ViewModel property changes, the bound Widget automatically triggers RequestRedraw
+- **State**: A data holder object that stores widget state and notifies watching widgets when properties change, following React's state management pattern (unidirectional data flow: props ↓, events ↑)
+- **Watch**: A connection between a State property and a Widget — when the State property changes, the watching Widget automatically triggers RequestRedraw
 - **LogSink**: An abstract interface for logging — defines `Log(level, message, metadata)` method; framework calls it but does not provide implementation; consumer plugs in the concrete logger
 - **Main Thread**: The thread responsible for rendering (Skia draw), layout calculation, and event dispatch — must never be blocked by business logic
-- **Worker Thread**: A background thread for business logic and data processing — communicates results to the main thread via ViewModel property updates
+- **Worker Thread**: A background thread for business logic and data processing — communicates results to the main thread via State property updates
 
 ## Success Criteria
 
@@ -134,15 +134,15 @@ A release manager follows the documented release process to create a new version
 - **SC-004**: The Skia isolation query (`bazel query`) correctly identifies any module outside `render/` or `surface/` that depends on Skia
 - **SC-005**: All architecture documents pass an internal consistency review with zero contradictions against `project_bootstrap.md`
 - **SC-006**: Spec-kit templates support at least two format options (YAML and Markdown) for widget specifications
-- **SC-007**: A widget implementer can bind a ViewModel to a Widget and see automatic redraw on property change by following the data binding documentation
+- **SC-007**: A widget implementer can watch a State from a Widget and see automatic redraw on property change by following the data binding documentation
 
 ## Clarifications
 
 ### Session 2026-07-29
 
-- Q: 是否考虑了页面后续数据状态管理，比如MVVM的架构 → A: 参考 React 单向数据流模式（props ↓, events ↑），框架定义 ViewModel 基类 + 属性变更通知 + 自动 RequestRedraw，不引入 Vue 式响应式系统避免复杂化
+- Q: 是否考虑了页面后续数据状态管理，比如MVVM的架构 → A: 参考 React 单向数据流模式（props ↓, events ↑），框架定义 `State` 基类 + 属性变更通知 + 自动 RequestRedraw，不引入 Vue 式响应式系统避免复杂化
 - Q: 还需要考虑一些工程化相关的架构要素 → A: 渲染在主线程（布局、事件分发也在主线程），逻辑处理在工作线程。日志模块预留 LogSink 抽象接口，框架调用但不实现，由外部提供具体实现
-- Q: 是否需要 nextTick/setTimeout 机制 → A: 不需要独立 nextTick。参考 React 批处理模型，ViewModel 属性变更自动在帧末合并为一次渲染；PostTask (pre-render) + PostNextFrame (post-render) + ScheduleTimer (跨帧定时) 三个原语即可覆盖所有调度场景
+- Q: 是否需要 nextTick/setTimeout 机制 → A: 不需要独立 nextTick。参考 React 批处理模型，State 属性变更自动在帧末合并为一次渲染；PostTask (pre-render) + PostNextFrame (post-render) + ScheduleTimer (跨帧定时) 三个原语即可覆盖所有调度场景
 
 ## Assumptions
 
@@ -153,6 +153,6 @@ A release manager follows the documented release process to create a new version
 - Spec-kit templates are written in Markdown for maximum compatibility
 - All design documents are written in English (project language)
 - Architecture documents may reference graph_runtime as a reference project where conventions align
-- Data binding adopts React-inspired pattern (ViewModel with property notification, unidirectional flow) — no Vue-style computed/reactivity system
-- Rendering, layout, and event dispatch execute on the main thread; business logic runs on worker threads. ViewModel changes are auto-batched per frame (React-style), no explicit nextTick needed
+- Data binding adopts React-inspired pattern (`State` with property notification, unidirectional flow) — no Vue-style computed/reactivity system
+- Rendering, layout, and event dispatch execute on the main thread; business logic runs on worker threads. State changes are auto-batched per frame (React-style), no explicit nextTick needed
 - Logging uses a slot interface pattern — framework defines `LogSink` abstract base, consumer provides implementation; no built-in logger

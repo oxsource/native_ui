@@ -6,7 +6,7 @@
 
 ## Summary
 
-Design and document the complete architecture of the native_ui framework — module boundaries, interface contracts, widget lifecycle, layout pipeline, event system, rendering architecture, **data binding (React-inspired ViewModel pattern)**, threading model (main thread for render/layout/event, worker threads for logic), and logging slot interface (LogSink). Deliver architecture decision records (ADRs), API contracts, engineering standards, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
+Design and document the complete architecture of the native_ui framework — module boundaries, interface contracts, widget lifecycle, layout pipeline, event system, rendering architecture, **data binding (React-inspired `State` pattern)**, threading model (main thread for render/layout/event, worker threads for logic), and logging slot interface (LogSink). Deliver architecture decision records (ADRs), API contracts, engineering standards, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
 
 ## Technical Context
 
@@ -71,8 +71,8 @@ native_ui/doc/architecture/
 ├── error-handling.md            # Error propagation strategy
 ├── memory-model.md              # Ownership model, WidgetPtr vs raw pointer conventions
 ├── lifecycle-model.md           # Widget lifecycle state machine
-├── data-binding.md              # ViewModel pattern, property notification, binding lifecycle
-├── threading.md                 # Threading model: main thread (render/layout/event) + worker threads (logic)
+├── data-binding.md              # State pattern, property notification, Watch/Unwatch lifecycle
+├── threading.md                 # Threading model: main thread (render/layout/event) + worker threads (logic), State cross-thread bridge
 └── logging-slot.md              # LogSink abstract interface, slot pattern, plug-in by consumer
 
 native_ui/doc/api/
@@ -80,7 +80,7 @@ native_ui/doc/api/
 ├── layout-contract.md           # FlexLayout interface, measure/arrange protocol
 ├── render-contract.md           # Canvas/Paint/Path contract, Skia isolation rules
 ├── event-contract.md            # Event dispatch protocol, bubble/capture
-└── viewmodel-contract.md        # ViewModel base class, property notification, Bind API
+└── viewmodel-contract.md        # State base class, property notification, Watch API
 
 native_ui/doc/
 ├── testing-strategy.md          # Unit test structure, mock patterns, golden tests
@@ -118,7 +118,7 @@ graph TD
             RENDER["render<br/>Canvas, Paint, Path wrappers"]
             SURFACE["surface<br/>PlatformSurface, BufferHandle"]
             WIDGETS["widgets<br/>Widget, Container, Text, Button"]
-            VIEWMODEL["viewmodel<br/>ViewModel base, binding"]
+            VIEWMODEL["viewmodel<br/>State base, Watch"]
             EVENT["event<br/>HitTester, Event dispatch"]
             PUBLIC["public<br/>Umbrella header, export macro"]
         end
@@ -152,7 +152,7 @@ graph TD
     WT["Worker Threads<br/>logic + data processing"]
 
     MT --> APP
-    WT -.->|ViewModel property update| MT
+    WT -.->|State property update| MT
 
     style SKIA fill:#f96,stroke:#333
     style YOGA fill:#f96,stroke:#333
@@ -238,15 +238,15 @@ flowchart LR
 **Frame Loop (React-inspired batch model)**:
 
 ```
-ViewModel.setCount(1)  →  mark dirty, DON'T render yet
-ViewModel.setCount(2)  →  mark dirty, DON'T render yet
-                           ↓  (end of event loop, batch flush)
-                     batched RequestRedraw
-                     Layout + Render (once)
-                     Fire PostNextFrame callbacks
+state["count"] = 1;   // mark dirty, DON'T render yet
+state["count"] = 2;   // mark dirty, DON'T render yet
+                       ↓  (end of event loop, batch flush)
+                 batched RequestRedraw
+                 Layout + Render (once)
+                 Fire PostNextFrame callbacks
 ```
 
-ViewModel property changes are automatically **batched within a single frame**, analogous to React's `setState` batching — multiple property mutations before the render phase trigger only one layout + render pass. No explicit `nextTick` or `flushSync` is required because the frame loop naturally coalesces all pending changes.
+State property changes are automatically **batched within a single frame**, analogous to React's `setState` batching — multiple property mutations before the render phase trigger only one layout + render pass. No explicit `nextTick` or `flushSync` is required because the frame loop naturally coalesces all pending changes.
 
 Two lightweight scheduling primitives are exposed on the main thread:
 
@@ -261,7 +261,7 @@ flowchart TB
     subgraph "Main Thread Frame Loop"
         TASKS["PostTask Queue<br/>(high priority)"]
         EVT["Event Dispatch"]
-        BATCH["Batch ViewModel Changes<br/>(React-style coalesce)"]
+        BATCH["Batch State Changes<br/>(React-style coalesce)"]
         LAY["Layout Calculation"]
         REN["Skia Rendering"]
         NEXT["PostNextFrame Callbacks"]
@@ -270,7 +270,7 @@ flowchart TB
 
     subgraph "Worker Threads"
         LOGIC["Business Logic<br/>Data Processing"]
-        VM_UP["ViewModel Property Update<br/>(thread-safe)"]
+        VM_UP["State Property Update<br/>(thread-safe)"]
     end
 
     TASKS --> EVT

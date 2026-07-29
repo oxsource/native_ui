@@ -1,0 +1,7 @@
+cc_library(
+    name = "viewmodel",
+    visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
+    deps = [
+        "//src/framework/core",
+    ],
+)

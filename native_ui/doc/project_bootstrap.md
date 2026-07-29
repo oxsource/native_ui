@@ -169,7 +169,7 @@ native_ui/src/framework/
 ├── layout/        # 布局引擎：Flexbox measure + arrange
 ├── render/        # Skia 渲染封装：Canvas, Paint, Path, TextLayout
 ├── surface/       # 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory
-├── viewmodel/     # 数据绑定：ViewModel 基类、属性通知、Bind/Unbind 生命周期
+├── viewmodel/     # 数据绑定：State 基类、属性通知、Watch/Unwatch 生命周期
 ├── widgets/       # 基础控件：Text, Button, Image, Container, Stack, PlatformSurface
 ├── event/         # 事件处理：Event, HitTester, InputHandler
 └── public/        # 公开 API 汇总入口
@@ -183,7 +183,7 @@ native_ui/src/framework/
 | `layout` | Flexbox measure/arrange 算法 | Yoga |
 | `render` | Skia Canvas 封装、Paint、Path、Text | Skia |
 | `surface` | 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory | Skia, platform headers |
-| `viewmodel` | 数据绑定：ViewModel 基类、属性通知 | core |
+| `viewmodel` | 数据绑定：`State` 基类、属性通知 | core |
 | `widgets` | 基础控件、Widget 基类、组合规则 | core, viewmodel, layout, render, event, surface |
 | `event` | Event 类型定义、HitTesting、分发机制 | core |
 | `public` | Umbrella header、export macro、汇总 target | 所有模块 |

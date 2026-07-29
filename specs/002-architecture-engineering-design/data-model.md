@@ -113,21 +113,21 @@ This document defines the key entities in the native_ui framework architecture. 
 
 ---
 
-## Entity: ViewModel
+## Entity: State
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `properties` | Property[] | Observable properties with change notification |
-| `bound_widgets` | Widget[] (weak ref) | Widgets currently bound to this ViewModel |
-| `state` | ViewModelState | Idle → Notifying |
+| `watching_widgets` | Widget[] (weak ref) | Widgets currently watching this State |
+| `state` | StateStatus | Idle → Notifying |
 
 **Relationships**:
-- ViewModel **notifies** bound Widgets on property change
-- ViewModel **bridges** worker threads → main thread (properties updated on worker, notification delivered on main)
+- State **notifies** watching Widgets on property change
+- State **bridges** worker threads → main thread (properties updated on worker, notification delivered on main)
 
 **Validation Rules**:
 - Property updates must be thread-safe (lock-protected)
-- Widgets must unbind before ViewModel destruction
+- Widgets must unwatch before State destruction
 - Rapid property changes should batch-trigger a single RequestRedraw
 
 ---
@@ -161,7 +161,7 @@ This document defines the key entities in the native_ui framework architecture. 
 - Event dispatch and hit testing
 - Layout measure + arrange
 - Skia rendering (Draw)
-- ViewModel property observation → RequestRedraw
+- State property observation → RequestRedraw
 - LogSink dispatch
 
 ---
@@ -176,7 +176,7 @@ This document defines the key entities in the native_ui framework architecture. 
 **Responsible for**:
 - Business logic execution
 - Data processing / I/O
-- ViewModel property updates (thread-safe)
+- State property updates (thread-safe)
 
 **Must never**:
 - Call Skia drawing APIs
