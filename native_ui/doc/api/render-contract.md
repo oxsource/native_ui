@@ -2,6 +2,44 @@
 
 **Last Updated**: 2026-07-29
 
+## Surface ↔ Canvas Relationship
+
+```
+┌─────────────────────────────────────────────────┐
+│                  Surface                         │
+│  (backing store — owns the pixel buffer)         │
+│                                                   │
+│   ┌───────────────────────────────────────────┐  │
+│   │  Canvas  (drawing context)                │  │
+│   │  ────────────────────────                 │  │
+│   │  Constructed with Surface&                │  │
+│   │  DrawRect / DrawText / DrawPath / DrawImage│  │
+│   │  Save / Restore / ClipRect / Translate    │  │
+│   │  ~Canvas() → auto restore                 │  │
+│   └───────────────────────────────────────────┘  │
+│                                                   │
+│  Surface::Present() → swap/flush                  │
+└─────────────────────────────────────────────────┘
+```
+
+**Lifecycle**:
+
+```text
+1. Create Surface          Surface::Create(w, h)  or  Surface::CreateFromBuffer(hardwareBuffer)
+2. Attach Canvas           Canvas canvas(surface)
+3. Draw                    canvas.DrawRect(...); canvas.DrawText(...); canvas.DrawImage(...)
+4. Destroy Canvas          ~Canvas() → auto restore SkCanvas state
+5. Present                 surface.Present()
+6. Repeat from step 2 for next frame
+```
+
+**Contracts**:
+
+| Role | Responsibility |
+|------|---------------|
+| `Surface` | Owns pixel buffer; create from size or external `HardwareBuffer`; `Present()` to display |
+| `Canvas` | Lightweight RAII attached to `Surface&`; all drawing APIs; auto save/restore on scope |
+
 ## Surface (Backing Store)
 
 ```cpp
