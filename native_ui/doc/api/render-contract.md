@@ -34,15 +34,12 @@ namespace native::ui {
 
 class Image {
 public:
-  // Decode from encoded data (PNG, JPEG, WebP)
+  // Decode from encoded data (PNG, JPEG, WebP, SVG — auto-detect format)
   static std::unique_ptr<Image> FromEncoded(const void* data, size_t size);
   static std::unique_ptr<Image> FromFile(const char* path);
 
   // From platform buffer (AHardwareBuffer / IOSurface / DMA-BUF fd)
   static std::unique_ptr<Image> FromBuffer(BufferHandle buffer);
-
-  // From SVG text — rasterized at the given size
-  static std::unique_ptr<Image> FromSvg(const char* xml, float width, float height);
 
   int width() const;
   int height() const;

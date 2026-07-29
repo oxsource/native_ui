@@ -321,7 +321,7 @@ CI checks at minimum:
 | `src/framework/render/canvas.h / canvas.cc` | Scoped `Canvas` — attach to `Surface&`, auto save/restore, primitives (`DrawRect`, `DrawText`, `DrawPath`), image drawing (`DrawImage` with Image) |
 | `src/framework/render/paint.h / paint.cc` | `Paint` — chainable `SetColor`, `SetAntiAlias`, `SetStrokeWidth` |
 | `src/framework/render/path.h / path.cc` | `Path` — `MoveTo`, `LineTo`, `CubicTo`, `Close` |
-| `src/framework/render/image.h / image.cc` | `Image` — decode from PNG/JPEG/WebP/SVG, wrap platform Buffer (AHardwareBuffer / IOSurface / DMA-BUF), `FromEncoded`, `FromFile`, `FromBuffer`, `FromSvg` |
+| `src/framework/render/image.h / image.cc` | `Image` — decode from encoded data (PNG/JPEG/WebP/SVG auto-detect) and platform Buffer (AHardwareBuffer / IOSurface / DMA-BUF), `FromEncoded`, `FromFile`, `FromBuffer` |
 | `src/framework/surface/surface.h / surface.cc` | `Surface` — composable wrapper over SkSurface, supports display and external buffer rendering |
 | `src/framework/surface/buffer_handle.h` | `BufferHandle` — type-erased cross-platform buffer descriptor (AHardwareBuffer / IOSurface / DMA-BUF fd) |
 | `src/framework/surface/surface_factory.h / surface_factory.cc` | `SurfaceFactory` — platform dispatch via `#ifdef`, creates platform-specific SkSurface |
