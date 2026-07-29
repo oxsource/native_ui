@@ -10,7 +10,7 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 1: BUILD Infrastructure
 
-- [ ] T001 Update `src/framework/render/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia` and `//src/framework/core`
+- [ ] T001 Update `src/framework/render/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia`, `//src/framework/core`, and `//src/framework/surface` (Canvas uses Surface&)
 - [ ] T002 Update `src/framework/surface/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia` and `//src/framework/core`
 - [ ] T003 Add test targets to `tests/BUILD.bazel` — `render_test` (dep on `//src/framework/render`), `surface_test` (dep on `//src/framework/surface`)
 
@@ -21,8 +21,8 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 3: HardwareBuffer & Surface
 
-- [ ] T006 Create `src/framework/surface/hardware_buffer.h` — `HardwareBuffer` header-only, platform `#ifdef` dispatch (IOSurfaceRef / dma-buf fd), `IsValid()`
-- [ ] T007 Create `src/framework/surface/surface.h` and `surface.cc` — `Surface` class: `Create(w,h)`, `CreateFromBuffer(HardwareBuffer)`, `Flush()`, wraps `sk_sp<SkSurface>`
+- [ ] T006 [P] Create `src/framework/surface/hardware_buffer.h` — `HardwareBuffer` header-only, platform `#ifdef` dispatch (IOSurfaceRef / dma-buf fd), `IsValid()`
+- [ ] T007 [P] Create `src/framework/surface/surface.h` and `surface.cc` — `Surface` class: `Create(w,h)`, `CreateFromBuffer(HardwareBuffer)`, `Flush()`, wraps `sk_sp<SkSurface>`
 - [ ] T008 Create `src/framework/surface/surface_factory.h` and `surface_factory.cc` — `SurfaceFactory` platform dispatch via `#ifdef`
 
 ## Phase 4: Image (lazy decode)
@@ -56,7 +56,7 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 - [ ] T024 Create `src/framework/public/include/native_ui/render.h` — re-export Canvas, Paint, Path, Image
 - [ ] T025 Update `src/framework/public/include/native_ui/surface.h` — re-export Surface, HardwareBuffer
-- [ ] T026 Update `src/framework/public/BUILD.bazel` — add `//src/framework/render` and `//src/framework/surface` deps
+- [x] T026 Update `src/framework/public/BUILD.bazel` — add `//src/framework/render` and `//src/framework/surface` deps (already present, verified)
 - [ ] T027 Run full validation: `bazel build //...` + `bazel test //...`
 
 ---
