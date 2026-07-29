@@ -35,20 +35,29 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 6: Unit Tests
 
-- [ ] T011 Create `tests/render_test.cc` — test: Canvas save/restore state correctness
+- [ ] T011 Create `tests/render_test.cc` — test: Canvas save/restore state correctness (8+ levels)
 - [ ] T012 Add test: Paint chainable builder — SetColor + SetAntiAlias + SetStrokeWidth returns correct values
 - [ ] T013 Add test: Path construction — MoveTo/LineTo/CubicTo/Close produces correct point count
 - [ ] T014 Add test: Canvas DrawRect with pixel readback — verify correct pixel color in rect area
-- [ ] T015 Add test: Image::FromEncoded with known PNG data — verify dimensions match
-- [ ] T016 Add test: Surface::Create and Flush — verify surface is created with correct dimensions
-- [ ] T017 Create `tests/golden/skia_spike_test.cc` — golden test: render known rect, encode PNG, compare hash against baseline
+- [ ] T015 Add test: Canvas DrawRect zero/negative dimensions — no crash, graceful handling
+- [ ] T016 Add test: Image::FromEncoded with known PNG data — verify dimensions match
+- [ ] T017 Add test: Image::FromEncoded with JPEG data — verify decode and dimensions
+- [ ] T018 Add test: Image::FromFile with nonexistent path — returns null/error gracefully
+- [ ] T019 Add test: Surface::Create and Flush — verify surface is created with correct dimensions
+- [ ] T020 Add test: HardwareBuffer::IsValid returns false for default-constructed buffer
+- [ ] T021 Add test: Canvas::DrawImage with Surface::Flush — verify image pixel output
 
-## Phase 7: Public Headers & Validation
+## Phase 7: Golden Test
 
-- [ ] T018 Create `src/framework/public/include/native_ui/render.h` — re-export Canvas, Paint, Path, Image
-- [ ] T019 Update `src/framework/public/include/native_ui/surface.h` — re-export Surface, HardwareBuffer
-- [ ] T020 Update `src/framework/public/BUILD.bazel` — add `//src/framework/render` and `//src/framework/surface` deps
-- [ ] T021 Run full validation: `bazel build //...` + `bazel test //...`
+- [ ] T022 Create `tests/golden/BUILD.bazel` — cc_test target for golden test
+- [ ] T023 Create `tests/golden/skia_spike_test.cc` — golden test: render known rect, encode PNG, compare hash against committed baseline
+
+## Phase 8: Public Headers & Validation
+
+- [ ] T024 Create `src/framework/public/include/native_ui/render.h` — re-export Canvas, Paint, Path, Image
+- [ ] T025 Update `src/framework/public/include/native_ui/surface.h` — re-export Surface, HardwareBuffer
+- [ ] T026 Update `src/framework/public/BUILD.bazel` — add `//src/framework/render` and `//src/framework/surface` deps
+- [ ] T027 Run full validation: `bazel build //...` + `bazel test //...`
 
 ---
 
@@ -59,7 +68,7 @@ Phase 1 (BUILD) → Phase 2 (Paint/Path) → Phase 3 (HardwareBuffer/Surface)
                                                       │
                                                       ├──→ Phase 4 (Image) ──→ Phase 5 (Canvas)
                                                       │
-                                                      └──→ Phase 6 (Tests)
-                                                              │
-                                                      Phase 7 (Public headers + Validation)
+                                                      ├──→ Phase 6 (Tests) ──→ Phase 7 (Golden)
+                                                      │
+                                                      └──→ Phase 8 (Public headers + Validation)
 ```

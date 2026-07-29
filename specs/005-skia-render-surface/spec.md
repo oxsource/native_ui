@@ -92,7 +92,7 @@ A developer creates Surfaces for both on-screen rendering and off-screen / platf
 ### Measurable Outcomes
 
 - **SC-001**: A developer can draw a rect, verify pixel output, and confirm Canvas auto-restore in under 10 minutes
-- **SC-002**: Image decoding works for at least 3 formats (PNG, JPEG, SVG) with correct dimensions
+- **SC-002**: Image decoding works for at least 2 formats (PNG, JPEG) with correct dimensions; nonexistent files handled without crash
 - **SC-003**: Canvas state (Save/Restore) nesting at least 8 levels deep works correctly
 - **SC-004**: Surface creation from a HardwareBuffer does not crash when buffer is valid
 
