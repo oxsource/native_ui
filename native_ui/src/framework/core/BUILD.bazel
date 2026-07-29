@@ -1,4 +1,5 @@
 cc_library(
     name = "core",
+    hdrs = glob(["*.h"]),
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
 )

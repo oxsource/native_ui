@@ -13,6 +13,7 @@ cc_library(
         "//src/framework/layout",
         "//src/framework/render",
         "//src/framework/surface",
+        "//src/framework/viewmodel",
         "//src/framework/widgets",
         "//src/framework/event",
     ],

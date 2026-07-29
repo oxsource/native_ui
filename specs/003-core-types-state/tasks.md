@@ -28,10 +28,10 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Purpose**: Initialize module BUILD files and directory structure for Phase 3
 
-- [ ] T001 Update `src/framework/core/BUILD.bazel` as header-only `cc_library` with `hdrs = glob(["*.h"])` and `visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"]`
-- [ ] T002 Update `src/framework/viewmodel/BUILD.bazel` with `deps = ["//src/framework/core"]` and same visibility
-- [ ] T003 Create `src/framework/widgets/BUILD.bazel` as `cc_library` with deps on `//src/framework/core`, `//src/framework/viewmodel`, `@yoga//:yoga`
-- [ ] T004 Update `src/framework/public/BUILD.bazel` to add `//src/framework/core`, `//src/framework/viewmodel` to deps
+- [x] T001 Update `src/framework/core/BUILD.bazel` as header-only `cc_library` with `hdrs = glob(["*.h"])` and `visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"]`
+- [x] T002 Update `src/framework/viewmodel/BUILD.bazel` with `deps = ["//src/framework/core"]` and same visibility
+- [x] T003 Create `src/framework/widgets/BUILD.bazel` as `cc_library` with deps on `//src/framework/core`, `//src/framework/viewmodel`, `@yoga//:yoga`
+- [x] T004 Update `src/framework/public/BUILD.bazel` to add `//src/framework/core`, `//src/framework/viewmodel` to deps
 
 **Checkpoint**: `bazel build //src/framework/core //src/framework/viewmodel //src/framework/widgets //src/framework/public:native_ui` succeeds
 

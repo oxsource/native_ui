@@ -1,4 +1,11 @@
 cc_library(
     name = "widgets",
+    hdrs = glob(["*.h"]),
+    srcs = glob(["*.cc"]),
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
+    deps = [
+        "//src/framework/core",
+        "//src/framework/viewmodel",
+        "@yoga//:yoga",
+    ],
 )
