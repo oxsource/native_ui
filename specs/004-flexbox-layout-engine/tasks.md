@@ -19,9 +19,9 @@ description: "Task list for Flexbox Layout Engine"
 
 ## Phase 2: Result Type & Header
 
-- [ ] T003 Create `src/framework/layout/layout_result.h` with `MeasureResult` struct (`Size size`, `Point position`)
-- [ ] T004 [P] Create `src/framework/layout/flex_layout.h` — `FlexLayout` class with tagged-parameter ctor, `SetChildren`, `Measure`, `Arrange`, private `YGNodeRef root_`, `vector<YGNodeRef> children_`
-- [ ] T005 [P] Define tag types in `flex_layout.h`: `Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`
+- [x] T003 Create `src/framework/layout/layout_result.h` with `MeasureResult` struct (`Size size`, `Point position`)
+- [x] T004 [P] Create `src/framework/layout/flex_layout.h` — `FlexLayout` class with tagged-parameter ctor, `SetChildren`, `Measure`, `Arrange`, private `YGNodeRef root_`, `vector<YGNodeRef> children_`
+- [x] T005 [P] Define tag types in `flex_layout.h`: `Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`
 
 ## Phase 3: Yoga Wrapping Implementation
 
