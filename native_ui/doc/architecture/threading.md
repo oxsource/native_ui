@@ -80,7 +80,7 @@ The main thread runs a continuous frame loop:
 
 ## FrameClock (Frame Tick Abstraction)
 
-The frame loop's step 7 (`WaitForNextFrame`) is abstracted behind `FrameClock` to support different frame driving models:
+`FrameClock` is a **utility provided to the consumer** for driving the frame loop. The library does not own or call it — the consumer uses it in their own loop to control frame timing.
 
 ```cpp
 namespace native::ui {
@@ -117,7 +117,7 @@ SwapBuffer()                       WaitForNextFrame()
         │                         resumed → render frame
 ```
 
-`SwapChainClock` is the natural fit for `PlatformSurface` — when an external buffer (AHardwareBuffer / IOSurface / DMA-BUF fd) arrives, the producer calls `SwapBuffer()` to unblock the frame loop, which then renders the new content via Skia.
+`SwapChainClock` is used when rendering is driven by external buffer availability — for example, a DVR pipeline calls `SwapBuffer()` each time a new frame is ready, and the consumer's loop renders it via Skia.
 
 ### Manual Clock for Unit Testing
 
@@ -142,6 +142,30 @@ Queue notification
                                    PostNextFrame (if registered)
 ```
 
+## Frame Loop Ownership
+
+The frame loop is **owned by the consumer**, not by native_ui. The library provides the building blocks (`FrameClock`, `LayoutEngine`, `Canvas`, `EventDispatcher`) but does not run the loop itself. The consumer drives the frame loop at their own pace:
+
+```
+EventHub hub;
+
+while (running) {
+  clock->WaitForNextFrame();              // consumer's clock
+  ProcessPlatformEvents();                // consumer polls platform
+  while (auto event = NextPlatformEvent()) {
+    hub.Push(ConvertToNativeUIEvent(event)); // single entry point
+  }
+  if (layout_dirty) { Measure(); Arrange(); }
+  if (visual_dirty) { Renderer::Draw(root, canvas); }
+}
+```
+
+This allows the consumer to:
+- Use any clock (vsync, timer, producer-driven `SwapBuffer`)
+- Own the platform event loop (NSRunLoop, xcb poll, etc.)
+- Integrate native_ui rendering into an existing render pipeline
+- Run multiple independent frame loops (one per window) without library involvement
+
 ## Thread Safety Rules
 
 1. `Property<T>::operator=` is thread-safe (mutex-protected inside State)
@@ -150,4 +174,4 @@ Queue notification
 4. Skia APIs are main-thread only
 5. LogSlot::Log must be thread-safe (called from any thread)
 6. `PostTask` and `PostNextFrame` are main-thread only
-7. `FrameClock::WaitForNextFrame` is main-thread only; `SwapChainClock::SwapBuffer` is thread-safe (can be called from any thread)
+7. `SwapChainClock::SwapBuffer` is thread-safe (can be called from any thread); the consumer is responsible for calling `WaitForNextFrame` from their frame loop thread
