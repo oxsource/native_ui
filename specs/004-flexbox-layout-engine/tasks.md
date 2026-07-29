@@ -1,0 +1,75 @@
+---
+
+description: "Task list for Flexbox Layout Engine"
+
+---
+
+# Tasks: Flexbox Layout Engine
+
+**Input**: Design documents from `specs/004-flexbox-layout-engine/`
+
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
+
+## Format: `[ID] [P?] [Story] Description`
+
+## Phase 1: BUILD Infrastructure
+
+- [ ] T001 Update `src/framework/layout/BUILD.bazel` with `cc_library` — `hdrs`, `srcs`, `includes = ["."]`, deps on `//src/framework/core` and `@yoga//:yoga`
+- [ ] T002 Add `cc_test` target `layout_test` to `tests/BUILD.bazel` — deps on `//src/framework/layout` and `@com_google_googletest//:gtest_main`
+
+## Phase 2: Result Type & Header
+
+- [ ] T003 Create `src/framework/layout/layout_result.h` with `MeasureResult` struct (`Size size`, `Point position`)
+- [ ] T004 [P] Create `src/framework/layout/flex_layout.h` — `FlexLayout` class with tagged-parameter ctor, `SetChildren`, `Measure`, `Arrange`, private `YGNodeRef root_`, `vector<YGNodeRef> children_`
+- [ ] T005 [P] Define tag types in `flex_layout.h`: `Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`
+
+## Phase 3: Yoga Wrapping Implementation
+
+- [ ] T006 Implement `FlexLayout` constructor with C++17 fold expression — each `ProcessArg` calls `YGNodeStyleSet*`
+- [ ] T007 Implement `SetChildren` — stores child YGNodeRef references
+- [ ] T008 Implement `Measure` — `YGNodeStyleSetWidth/Height` on root, `YGNodeInsertChild` per child, `YGNodeCalculateLayout`, extract sizes via `YGNodeLayoutGetWidth/Height`
+- [ ] T009 Implement `Arrange` — read positions via `YGNodeLayoutGetLeft/Top`
+- [ ] T010 Implement destructor — `YGNodeFreeRecursive(root_)`
+
+## Phase 4: Unit Tests
+
+- [ ] T011 Create `tests/layout_test.cc` — test: `Direction(kRow)` children lay out horizontally
+- [ ] T012 Add test: `Direction(kColumn)` — children lay out vertically
+- [ ] T013 Add test: `JustifyContent(kCenter)` — children centered in container
+- [ ] T014 Add test: `JustifyContent(kSpaceBetween)` — even spacing between children
+- [ ] T015 Add test: `AlignItems(kStretch)` — children stretched to cross-axis
+- [ ] T016 Add test: `Gap(8)` — correct spacing between adjacent children
+- [ ] T017 Add test: `Padding(12)` — children offset from container edge
+- [ ] T018 Add test: `Margin(8)` — margin outside children creates spacing
+- [ ] T019 Add test: `FlexWrap(kWrap)` — children wrap to next line when overflow
+- [ ] T020 Add test: `FlexGrow` — child with flex-grow takes remaining space; multiple grow children share proportionally
+- [ ] T021 Add test: edge cases — empty children list, zero-size container, gap larger than available space — all handle gracefully without crash
+
+## Phase 5: Public Header & Validation
+
+- [ ] T022 Create `src/framework/public/include/native_ui/layout.h` — re-export `FlexLayout`, `MeasureResult`, and all tag types (`Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`)
+- [ ] T023 Run full validation: `bazel build //...` + `bazel test //...`
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Phase 1 (BUILD)**: No dependencies — can start immediately
+- **Phase 2 (Header)**: Depends on Phase 1 (BUILD must exist)
+- **Phase 3 (Impl)**: Depends on Phase 2 (header defines API)
+- **Phase 4 (Tests)**: Depends on Phase 3 (implementation must compile)
+- **Phase 5 (Public)**: Depends on Phase 3 (header must exist)
+
+### Parallel Opportunities
+
+- T004-T005 both marked [P] — header and tags can be written concurrently
+- T011-T021 tests can be added incrementally (each test is independent)
+- T022 (public header) can be written in parallel with tests
+
+### Implementation Strategy
+
+1. **MVP**: Phase 1 + 2 + 3 (FlexLayout compiles, Measure/Arrange work) → core engine ready
+2. **Add tests** Phase 4 (11 test cases covering all flexbox properties + edge cases)
+3. **Public header** Phase 5 → external consumers can use FlexLayout
