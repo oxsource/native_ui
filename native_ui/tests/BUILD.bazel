@@ -3,3 +3,21 @@ cc_test(
     srcs = ["infra_test.cc"],
     deps = ["@com_google_googletest//:gtest_main"],
 )
+
+cc_test(
+    name = "core_rect_test",
+    srcs = ["core_rect_test.cc"],
+    deps = [
+        "//src/framework/core",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "core_point_test",
+    srcs = ["core_point_test.cc"],
+    deps = [
+        "//src/framework/core",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

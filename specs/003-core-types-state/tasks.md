@@ -43,10 +43,10 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:core_test` passes with Rect and Point tests
 
-- [ ] T005 [P] [US1] Create `src/framework/core/rect.h` with `Rect` struct — fields `x`, `y`, `width`, `height`; methods `Contains(Point)`, `Intersect(Rect)`, `Union(Rect)`, `Inset(EdgeInsets)`, `Offset(Point)`
-- [ ] T006 [P] [US1] Create `src/framework/core/point.h` with `Point` struct — fields `x`, `y`; methods `operator+`, `operator-`, `DistanceTo`
-- [ ] T007 [US1] Create `tests/core_rect_test.cc` with unit tests: Rect creation, Contains (inside/outside/boundary), Intersect (overlapping/non-overlapping), Union, Inset, Offset, zero/negative dimensions
-- [ ] T008 [US1] Create `tests/core_point_test.cc` with unit tests: Point creation, arithmetic operators, DistanceTo
+- [x] T005 [P] [US1] Create `src/framework/core/rect.h` with `Rect` struct — fields `x`, `y`, `width`, `height`; methods `Contains(Point)`, `Intersect(Rect)`, `Union(Rect)`, `Inset(EdgeInsets)`, `Offset(Point)`
+- [x] T006 [P] [US1] Create `src/framework/core/point.h` with `Point` struct — fields `x`, `y`; methods `operator+`, `operator-`, `DistanceTo`
+- [x] T007 [US1] Create `tests/core_rect_test.cc` with unit tests: Rect creation, Contains (inside/outside/boundary), Intersect (overlapping/non-overlapping), Union, Inset, Offset, zero/negative dimensions
+- [x] T008 [US1] Create `tests/core_point_test.cc` with unit tests: Point creation, arithmetic operators, DistanceTo
 
 **Checkpoint**: `bazel test //tests:core_rect_test //tests:core_point_test` passes
 
