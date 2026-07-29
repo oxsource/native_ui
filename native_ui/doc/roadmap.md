@@ -35,7 +35,7 @@ Phase 1 ──→ Phase 2 ──→ Phase 3 ──→ ... ──→ Phase 8 ─�
 
 # Phase 1: Project Scaffolding & Skia Spike
 
-**Goal**: Establish Bazel workspace, platform definitions, dependency management, and **validate Skia integration via a spike**. This phase has the highest technical risk — Skia's build system is complex and its Bazel integration often requires significant work. The spike ensures Skia compiles and links before any downstream code depends on it.
+**Goal**: Establish Bazel workspace, platform definitions, dependency management, and **validate Skia + Yoga integration via spikes**. This phase has the highest technical risk — Skia's build system is complex and its Bazel integration often requires significant work. Spikes ensure Skia and Yoga+Skia compile and link before any downstream code depends on it.
 
 ## Dependencies
 
@@ -66,25 +66,31 @@ Phase 1 ──→ Phase 2 ──→ Phase 3 ──→ ... ──→ Phase 8 ─�
 | `src/framework/layout/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/render/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/surface/BUILD.bazel` | Empty `cc_library` target |
+| `src/framework/viewmodel/BUILD.bazel` | Empty `cc_library` stub for State module |
 | `src/framework/widgets/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/event/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/public/BUILD.bazel` | Umbrella target aggregating all modules |
 | `src/framework/public/include/native_ui/native_ui_export.h` | `NATIVE_UI_API` macro |
 
-### Skia Integration Spike
+### Integration Spikes
 
 | File | Purpose |
 |------|---------|
-| `src/spike/skia_spike.cc` | Minimal binary: `#include "SkCanvas.h"`, create surface, draw red rect, write PNG |
-| `src/spike/BUILD.bazel` | `cc_binary` depending on `@skia//:skia` |
+| `src/spike/skia_spike.cc` | Minimal Skia binary: create surface, draw red rect, write PNG |
+| `src/spike/yoga_spike.cc` | Yoga+Skia combined: flexbox layout (row + column with margin), render via Skia, write PNG |
+| `src/spike/png_writer.h / png_writer.cc` | Shared utility: SkSurface → PNG encode |
+| `src/spike/BUILD.bazel` | `cc_binary` targets for `skia_spike` + `yoga_spike` |
 
-The spike validates:
-- Skia headers resolve correctly via `strip_include_prefix`
+Skia spike validates:
+- Skia headers resolve correctly
 - Skia source files compile without errors
 - Platform-specific linkopts (CoreGraphics, Metal, etc.) link correctly
 - A simple draw + encode pipeline works end-to-end
 
-If the spike fails, **stop and fix Skia integration before proceeding**. Do not enter P2 until the spike passes on the target platform.
+Yoga spike validates:
+- Yoga C API (YGNodeRef, YGNodeStyleSet*, YGNodeCalculateLayout) resolves correctly
+- Yoga + Skia combined compilation and linking succeeds
+- Flexbox layout with margin produces visually correct output in row and column directions
 
 ### Spec Files
 
@@ -96,6 +102,8 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 
 - `bazel build //src/spike:skia_spike` succeeds
 - `bazel run //src/spike:skia_spike` produces a valid PNG output
+- `bazel build //src/spike:yoga_spike` succeeds
+- `bazel run //src/spike:yoga_spike` produces a valid PNG with flex layout sections
 - `bazel build //...` succeeds (all targets green)
 - `bazel test //...` passes (no tests yet, but test infra exists)
 - Root alias `//:native_ui` resolves correctly
@@ -249,7 +257,7 @@ CI checks at minimum:
 - `AddChild` / `RemoveChildAt` / `ClearChildren` trigger `RequestLayout`
 - Integration test covers Container → FlexLayout pipeline
 - `bazel test //tests:core_test` green
-- `bazel test //tests:viewmodel_test` green
+- `bazel test //tests:state_test` green
 - `bazel test //tests:widget_test` green
 - `bazel test //tests:integration:container_layout_test` green
 
@@ -420,7 +428,7 @@ Golden test flow:
 
 # Phase 7: Event System & Observability
 
-**Goal**: Implement hit testing, event dispatch, mouse/touch input adapters, and a lightweight `DebugOverlay` for visual debugging.
+**Goal**: Implement event types, EventHub for external event injection, hit testing, bubble/capture dispatch, DispatchResult feedback, filter chain, and a lightweight `DebugOverlay` for visual debugging. Events are **externally injected** — the framework does not own platform event loops or input adapters.
 
 ## Dependencies
 
@@ -433,8 +441,9 @@ Golden test flow:
 
 | File | Content |
 |------|---------|
-| `src/framework/event/event.h / event.cc` | `Event` types: `MouseEvent`, `KeyEvent`, `TouchEvent` |
-| `src/framework/event/hit_tester.h / hit_tester.cc` | `HitTester` — DFS hit test on widget tree |
+| `src/framework/event/event.h / event.cc` | `EventHub` — unified external entry point (`Push`), filter chain (`AddFilter`), `DispatchResult` (kHandled/kUnhandled/kRejected/kNoTarget) |
+| `src/framework/event/hit_tester.h / hit_tester.cc` | `HitTester` — DFS hit test on widget tree, `HitTestResult` |
+| `src/framework/event/dispatch_result.h` | `DispatchResult`, `DispatchStatus` enum |
 | `src/framework/widgets/debug_overlay.h / debug_overlay.cc` | `DebugOverlay` — toggleable overlay showing layout borders, FPS, widget tree breadcrumb |
 
 ### DebugOverlay
@@ -461,29 +470,30 @@ Features:
 
 | File | Content |
 |------|---------|
-| `src/framework/public/include/native_ui/event.h` | Re-export event types |
+| `src/framework/public/include/native_ui/event.h` | Re-export EventHub, HitTester, DispatchResult |
 | `src/framework/public/include/native_ui/debug_overlay.h` | Re-export DebugOverlay |
 
 ### Tests
 
 | File | Content |
 |------|---------|
-| `tests/event_test.cc` | HitTest accuracy, event dispatch chain |
+| `tests/event_test.cc` | HitTest accuracy, EventHub::Push, filter chain, DispatchResult status |
 | `tests/debug_overlay_test.cc` | DebugOverlay toggling, border paint correctness |
 
 ### Spec Files
 
 | File | Purpose |
 |------|---------|
-| `spec/native_ui/event.yaml` | Event system spec |
+| `spec/native_ui/event.yaml` | Event system spec (EventHub, filter, DispatchResult) |
 | `spec/native_ui/debug_overlay.yaml` | DebugOverlay spec |
 
 ### Acceptance Criteria
 
 - `HitTester::Test(Point{10, 20})` returns correct widget
-- Events bubble from leaf to root
-- Mouse event carries position, button state
-- Key event carries key code
+- `EventHub::Push(mouse_event)` returns `kHandled` when a widget handles it
+- `EventHub::Push(mouse_event)` returns `kNoTarget` when clicking empty area
+- Filter added via `AddFilter` can reject events (kRejected)
+- Events bubble from leaf to root (capture → target → bubble protocol)
 - `DebugOverlay` toggleable, shows FPS + layout borders
 - `DebugOverlay` excluded from release builds
 - `bazel test //tests:event_test` green
@@ -600,7 +610,10 @@ W1  W2  W3  W4  W5  W6  W7  W8  W9  W10 W11 W12 W13 W14 W15 W16
 | TextLayout complexity | Feature creep | High (deferred) | Explicitly deferred post-MVP |
 | Performance (full re-layout on every add) | UI jank | Low | RequestLayout batching planned |
 | State thread safety | Data race on property update | Medium | Document thread boundaries in threading.md; State update must be thread-safe |
+| Property<T> binding lifecycle | Widget references stale State | Low | Weak refs + auto-unwatch on OnUnmount |
 | Logging slot not plugged | Silent failures | Low | Document fallback behavior (no-op when no LogSlot) |
+| FrameClock model mismatch | Producer vs clock-driven confusion | Low | Document three implementations (VSync, Timer, SwapChain) |
+| EventHub main-thread constraint | Consumer posts event on platform thread incorrectly | Low | Document Push() is main-thread only |
 | CI maintenance overhead | Engineer velocity | Low | Shared Bazel cache, minimal workflow |
 
 ---
