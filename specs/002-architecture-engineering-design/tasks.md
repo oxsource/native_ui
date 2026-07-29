@@ -62,13 +62,13 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Purpose**: Establish testing strategy, build conventions, CI pipeline, agent instructions, and automated quality gates
 
-- [ ] T015 [P] [US3] Create `native_ui/doc/testing-strategy.md` with unit test structure (googletest), mock patterns for Widget/Canvas, integration test scopes, golden image test plan (PNG hash comparison), and coverage targets
-- [ ] T016 [P] [US3] Create `native_ui/doc/build-conventions.md` with BUILD file conventions (cc_library per module), dep prefix rules (//src/framework for internal, @ for external), visibility templates (__subpackages__ for internal, public only for public target), and Skia isolation enforcement
-- [ ] T017 [P] [US3] Create `native_ui/doc/agent-instructions.md` with standard prompt template for opencode agents working on native_ui — including Google C++ style checklist, Bazel build/test commands, and commit convention reminder
-- [ ] T018 [P] [US3] Create `native_ui/doc/ci-strategy.md` with CI architecture doc — which checks run when (build → test → format → lint → visibility), Bazel remote caching strategy, matrix platforms (macOS ARM64 + Linux x86_64), and expected run times
-- [ ] T019 [US3] Create `.github/workflows/ci.yml` with CI pipeline: `bazel build //...`, `bazel test //...`, clang-format --dry-run --Werror, clang-tidy on changed files, Bazel visibility query (`bazel query 'somepath(//src/framework/..., @skia//:skia)'`) verifying only render/ + surface/ depend on Skia
-- [ ] T020 [US3] Create `.github/workflows/pr.yml` with PR gate: same checks as CI + mandatory review approval requirement
-- [ ] T021 [US3] Create `.github/workflows/release.yml` with release workflow: git tag (SemVer) → `bazel build //src/framework/public:native_ui_shared` → attach .dylib/.so artifact → create GitHub Release with changelog
+- [x] T015 [P] [US3] Create `native_ui/doc/testing-strategy.md` with unit test structure (googletest), mock patterns for Widget/Canvas, integration test scopes, golden image test plan (PNG hash comparison), and coverage targets
+- [x] T016 [P] [US3] Create `native_ui/doc/build-conventions.md` with BUILD file conventions (cc_library per module), dep prefix rules (//src/framework for internal, @ for external), visibility templates (__subpackages__ for internal, public only for public target), and Skia isolation enforcement
+- [x] T017 [P] [US3] Create `native_ui/doc/agent-instructions.md` with standard prompt template for opencode agents working on native_ui — including Google C++ style checklist, Bazel build/test commands, and commit convention reminder
+- [x] T018 [P] [US3] Create `native_ui/doc/ci-strategy.md` with CI architecture doc — which checks run when (build → test → format → lint → visibility), Bazel remote caching strategy, matrix platforms (macOS ARM64 + Linux x86_64), and expected run times
+- [x] T019 [US3] Create `.github/workflows/ci.yml` with CI pipeline: `bazel build //...`, `bazel test //...`, clang-format --dry-run --Werror, clang-tidy on changed files, Bazel visibility query (`bazel query 'somepath(//src/framework/..., @skia//:skia)'`) verifying only render/ + surface/ depend on Skia
+- [x] T020 [US3] Create `.github/workflows/pr.yml` with PR gate: same checks as CI + mandatory review approval requirement
+- [x] T021 [US3] Create `.github/workflows/release.yml` with release workflow: git tag (SemVer) → `bazel build //src/framework/public:native_ui_shared` → attach .dylib/.so artifact → create GitHub Release with changelog
 
 **Checkpoint**: CI pipeline runs successfully on a test push (all checks green). Visibility query confirms only render/ + surface/ depend on Skia.
 

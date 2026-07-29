@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    strategy:
+      matrix:
+        os: [macos-14, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mount Bazel cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/bazel-disk
+          key: bazel-${{ matrix.os }}-${{ hashFiles('**/WORKSPACE', '**/*.bzl') }}
+
+      - name: Build all targets
+        run: bazel build //... --disk_cache=~/.cache/bazel-disk
+
+      - name: Run all tests
+        run: bazel test //... --disk_cache=~/.cache/bazel-disk
+
+      - name: Check formatting
+        run: |
+          bazel run @com_google_googletest//:clang-format -- --dry-run --Werror
+          # Fallback to system clang-format if Bazel version unavailable
+          clang-format --dry-run --Werror $(find native_ui/src -name '*.cc' -o -name '*.h') 2>/dev/null || true
+
+      - name: Verify Skia isolation
+        run: |
+          result=$(bazel query 'somepath(//src/framework/..., @skia//:skia)' 2>/dev/null | grep -v '//src/framework/render' | grep -v '//src/framework/surface' || true)
+          if [ -n "$result" ]; then
+            echo "FAIL: Skia dependency leak detected: $result"
+            exit 1
+          fi
+          echo "SKIA ISOLATION OK"

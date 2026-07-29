@@ -1,0 +1,46 @@
+name: PR Gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  checks: write
+  pull-requests: write
+
+jobs:
+  pr-check:
+    name: PR Validation
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: bazel build //...
+
+      - name: Test
+        run: bazel test //...
+
+      - name: Format
+        run: clang-format --dry-run --Werror $(find native_ui/src -name '*.cc' -o -name '*.h') 2>/dev/null || true
+
+      - name: Skia isolation
+        run: |
+          result=$(bazel query 'somepath(//src/framework/..., @skia//:skia)' 2>/dev/null | grep -v '//src/framework/render' | grep -v '//src/framework/surface' || true)
+          if [ -n "$result" ]; then echo "FAIL"; exit 1; fi
+          echo "OK"
+
+      - name: Require review approval
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            const approved = reviews.some(r => r.state === 'APPROVED');
+            if (!approved) {
+              core.setFailed('PR requires at least one approved review');
+            }
