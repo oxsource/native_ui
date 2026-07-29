@@ -104,11 +104,11 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 
 # Phase 2: Architecture & Engineering Design
 
-**Goal**: Establish architectural foundations, module interface contracts, error handling strategy, testing conventions, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
+**Goal**: Establish architectural foundations — module interface contracts, error handling, memory model, widget lifecycle, **data binding (React-inspired ViewModel)**, **threading model (main-thread rendering + worker-thread logic)**, **logging slot interface (LogSink)**, testing conventions, CI/CD pipeline, release process, and spec-kit templates. This phase produces **design artifacts only** — no runtime code.
 
 ## Dependencies
 
-- P1 (build system ready to compile stubs, Skia Spike passes)
+- P1 (build system ready to compile stubs, Skia Spike + Yoga Spike pass)
 
 ## Deliverables
 
@@ -121,6 +121,9 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 | `doc/architecture/error_handling.md` | Error propagation strategy (StatusOr, exceptions policy) |
 | `doc/architecture/memory_model.md` | Ownership model, WidgetPtr vs raw pointer conventions |
 | `doc/architecture/lifecycle_model.md` | Widget lifecycle state machine, mount/unmount semantics |
+| `doc/architecture/data_binding.md` | ViewModel pattern, property notification, Bind/Unbind lifecycle, batch RequestRedraw |
+| `doc/architecture/threading.md` | Threading model: main thread (render/layout/event) + worker threads (logic/data), inter-thread communication via ViewModel |
+| `doc/architecture/logging_slot.md` | LogSink abstract interface (debug/info/warn/error), slot pattern, consumer-plugged implementation |
 
 ### API & Interface Contracts
 
@@ -130,6 +133,7 @@ If the spike fails, **stop and fix Skia integration before proceeding**. Do not 
 | `doc/api/layout_contract.md` | FlexLayout interface, measure/arrange protocol, adding new layouts |
 | `doc/api/render_contract.md` | Canvas/Paint/Path contract, Skia isolation rules |
 | `doc/api/event_contract.md` | Event dispatch protocol, bubble/capture, adding event types |
+| `doc/api/viewmodel_contract.md` | ViewModel base class, property notification API, binding lifecycle, thread safety |
 
 ### Engineering Standards
 
@@ -169,21 +173,28 @@ CI checks at minimum:
 | `spec/native_ui/_template.yaml` | spec-kit YAML template with all sections (interface, behavior, bounds, tests) |
 | `spec/native_ui/_template_layout.md` | Alternative markdown template for complex widget specs |
 
+### Source Stubs
+
+| File | Purpose |
+|------|---------|
+| `src/framework/viewmodel/BUILD.bazel` | Empty `cc_library` stub for future ViewModel module |
+
 ### Acceptance Criteria
 
 - All design documents pass internal review (no contradictions with project_bootstrap.md)
 - Module dependency graph is consistent with Bazel visibility rules in `build_conventions.md`
 - CI pipeline runs successfully on a test push (all checks green)
-- Skia isolation query (`bazel query 'somepath(//src/framework/..., @skia//:skia)'`) validates only `render/` depends on Skia
+- Skia isolation query (`bazel query 'somepath(//src/framework/..., @skia//:skia)'`) validates only `render/` + `surface/` depend on Skia
 - spec-kit template covers: interface signature, behavior description, edge cases, test points
 - Agent instruction template includes Google C++ Style checklist and commit convention reminder
-- No C++ source code is written in this phase
+- Architecture docs cover: threading model (main vs worker), logging slot (LogSink), data binding (ViewModel)
+- No C++ source code (other than stubs) is written in this phase
 
 ---
 
-# Phase 3: Core Types & Widget Foundation
+# Phase 3: Core Types & Widget Foundation + ViewModel
 
-**Goal**: Implement foundational geometry and color types, plus the `Widget` base class with ID, lifecycle, and invalidation.
+**Goal**: Implement foundational geometry and color types, the `Widget` base class, and the **ViewModel** base class with property notification. Establish the core data binding infrastructure.
 
 ## Dependencies
 
@@ -201,6 +212,7 @@ CI checks at minimum:
 | `src/framework/core/size.h / size.cc` | `Size` — width/height |
 | `src/framework/core/color.h / color.cc` | `Color` — RGBA, named colors (`kRed`, `kBlue`, etc.) |
 | `src/framework/core/edge_insets.h / edge_insets.cc` | `EdgeInsets` — symmetric, per-side |
+| `src/framework/viewmodel/viewmodel.h / viewmodel.cc` | `ViewModel` base — property change notification, thread-safe update, Bind/Unbind |
 | `src/framework/widgets/widget.h / widget.cc` | `Widget` base — `SetId`, `FindById`, `RequestLayout`, `RequestRedraw`, `ChildAt`, `ChildCount` |
 | `src/framework/widgets/container.h / container.cc` | `Container` — tagged-parameter ctor, `AddChild`, `RemoveChild`, `ClearChildren` |
 
@@ -209,13 +221,14 @@ CI checks at minimum:
 | File | Content |
 |------|---------|
 | `src/framework/public/include/native_ui/core.h` | Re-export core types |
-| `src/framework/public/include/native_ui/widgets.h` | Re-export Widget + Container |
+| `src/framework/public/include/native_ui/widgets.h` | Re-export Widget + Container + ViewModel |
 
 ### Tests
 
 | File | Content |
 |------|---------|
 | `tests/core_test.cc` | Rect, Point, Size, Color, EdgeInsets unit tests |
+| `tests/viewmodel_test.cc` | ViewModel property notification, cross-thread update, Bind/Unbind lifecycle |
 | `tests/widget_test.cc` | Widget ID, FindById, Container add/remove/clear |
 | `tests/integration/container_layout_test.cc` | Cross-module: Container + FlexLayout + core types end-to-end |
 
@@ -224,16 +237,19 @@ CI checks at minimum:
 | File | Purpose |
 |------|---------|
 | `spec/native_ui/core.yaml` | Core type specs |
+| `spec/native_ui/viewmodel.yaml` | ViewModel base class spec |
 | `spec/native_ui/widget_base.yaml` | Widget base class spec |
 
 ### Acceptance Criteria
 
 - `Rect::Contains`, `Rect::Intersect`, `Color` blending work correctly
+- `ViewModel` property change triggers notification to bound widgets
 - `Container(Direction(kRow), Padding(16), Children{...})` compiles
 - `FindById("x")` returns correct `Widget*`
 - `AddChild` / `RemoveChildAt` / `ClearChildren` trigger `RequestLayout`
 - Integration test covers Container → FlexLayout pipeline
 - `bazel test //tests:core_test` green
+- `bazel test //tests:viewmodel_test` green
 - `bazel test //tests:widget_test` green
 - `bazel test //tests:integration:container_layout_test` green
 
@@ -351,13 +367,13 @@ Golden test flow:
 
 ---
 
-# Phase 6: Basic Widgets & Dynamic Tree
+# Phase 6: Basic Widgets & Dynamic Tree + Data Binding Integration
 
-**Goal**: Implement `Text`, `Button`, `Image`, `Stack` widgets with full tagged-parameter construction, draw, layout invalidation, and dynamic tree manipulation.
+**Goal**: Implement `Text`, `Button`, `Image`, `Stack` widgets with full tagged-parameter construction, draw, layout invalidation, dynamic tree manipulation, and **data binding** (Bind ViewModel to Widget).
 
 ## Dependencies
 
-- P3 (Core Types & Widget Foundation)
+- P3 (Core Types & Widget Foundation + ViewModel)
 - P4 (Flexbox Layout Engine)
 - P5 (Skia Render Wrapper)
 
@@ -367,8 +383,8 @@ Golden test flow:
 
 | File | Content |
 |------|---------|
-| `src/framework/widgets/text.h / text.cc` | `Text` — `Content`, font size, color, `Draw` |
-| `src/framework/widgets/button.h / button.cc` | `Button` — `Label`, click callback, hit area |
+| `src/framework/widgets/text.h / text.cc` | `Text` — `Content`, font size, color, `Draw`, **Bind to ViewModel** |
+| `src/framework/widgets/button.h / button.cc` | `Button` — `Label`, click callback, hit area, **ViewModel event binding** |
 | `src/framework/widgets/image.h / image.cc` | `Image` — `ImagePath`, Skia image decode + draw |
 | `src/framework/widgets/stack.h / stack.cc` | `Stack` — layer-based child positioning |
 
@@ -376,7 +392,7 @@ Golden test flow:
 
 | File | Content |
 |------|---------|
-| `tests/widgets_test.cc` | Text layout + draw, Button hit area, Image load + draw, Stack layering |
+| `tests/widgets_test.cc` | Text layout + draw, Button hit area, Image load + draw, Stack layering, **ViewModel→Widget redraw** |
 
 ### Spec Files
 
@@ -394,6 +410,7 @@ Golden test flow:
 - `Image(ImagePath("/path.png"))` decodes and renders
 - `Stack` renders children in layer order
 - All widgets support `Id(...)` for `FindById` lookup
+- **Widget bound to ViewModel redraws automatically when ViewModel property changes**
 - Dynamic `AddChild` / `RemoveChild` triggers re-layout on any Container widget
 - `bazel test //tests:widgets_test` green
 
@@ -474,7 +491,7 @@ Features:
 
 # Phase 8: Example, CI Polish & Release
 
-**Goal**: End-to-end Hello World example, harden CI pipeline, finalize release process, and produce the first shared library artifact.
+**Goal**: End-to-end Hello World example (with **data binding** demonstrating ViewModel + Widget + Skia rendering), harden CI pipeline, finalize release process, and produce the first shared library artifact.
 
 ## Dependencies
 
@@ -486,7 +503,7 @@ Features:
 
 | File | Content |
 |------|---------|
-| `examples/hello_world.cc` | Full MVP: build widget tree, run layout, render to Skia surface, handle click |
+| `examples/hello_world.cc` | Full MVP: build widget tree with ViewModel data binding, run layout, render to Skia surface, handle click → ViewModel update → auto redraw |
 
 ### Tests
 
@@ -580,6 +597,8 @@ W1  W2  W3  W4  W5  W6  W7  W8  W9  W10 W11 W12 W13 W14 W15 W16
 | Cross-platform Skia linkopts | CI red on Linux | Medium | Spike tests both platforms in CI |
 | TextLayout complexity | Feature creep | High (deferred) | Explicitly deferred post-MVP |
 | Performance (full re-layout on every add) | UI jank | Low | RequestLayout batching planned |
+| ViewModel thread safety | Data race on property update | Medium | Document thread boundaries in threading.md; ViewModel update must be thread-safe |
+| Logging slot not plugged | Silent failures | Low | Document fallback behavior (no-op when no LogSink) |
 | CI maintenance overhead | Engineer velocity | Low | Shared Bazel cache, minimal workflow |
 
 ---

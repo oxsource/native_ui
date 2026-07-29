@@ -169,6 +169,7 @@ native_ui/src/framework/
 ├── layout/        # 布局引擎：Flexbox measure + arrange
 ├── render/        # Skia 渲染封装：Canvas, Paint, Path, TextLayout
 ├── surface/       # 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory
+├── viewmodel/     # 数据绑定：ViewModel 基类、属性通知、Bind/Unbind 生命周期
 ├── widgets/       # 基础控件：Text, Button, Image, Container, Stack, PlatformSurface
 ├── event/         # 事件处理：Event, HitTester, InputHandler
 └── public/        # 公开 API 汇总入口
@@ -182,7 +183,8 @@ native_ui/src/framework/
 | `layout` | Flexbox measure/arrange 算法 | Yoga |
 | `render` | Skia Canvas 封装、Paint、Path、Text | Skia |
 | `surface` | 平台 Buffer 封装：PlatformSurface, BufferHandle, SurfaceFactory | Skia, platform headers |
-| `widgets` | 基础控件、Widget 基类、组合规则 | core, layout, render, event, surface |
+| `viewmodel` | 数据绑定：ViewModel 基类、属性通知 | core |
+| `widgets` | 基础控件、Widget 基类、组合规则 | core, viewmodel, layout, render, event, surface |
 | `event` | Event 类型定义、HitTesting、分发机制 | core |
 | `public` | Umbrella header、export macro、汇总 target | 所有模块 |
 
@@ -251,6 +253,10 @@ native_ui/                        # Bazel workspace root
 │       │   ├── platform_surface.h / platform_surface.cc
 │       │   ├── buffer_handle.h
 │       │   └── surface_factory.h / surface_factory.cc
+│       ├── viewmodel/
+│       │   ├── BUILD.bazel
+│       │   ├── viewmodel.h / viewmodel.cc
+│       │   └── logging_slot.h
 │       ├── widgets/
 │       │   ├── BUILD.bazel
 │       │   ├── widget.h / widget.cc
@@ -272,6 +278,7 @@ native_ui/                        # Bazel workspace root
 │               ├── layout.h
 │               ├── render.h
 │               ├── surface.h
+│               ├── viewmodel.h
 │               ├── widgets.h
 │               └── event.h
 │
@@ -883,6 +890,17 @@ cc_library(
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
 )
 
+# src/framework/viewmodel/BUILD.bazel
+cc_library(
+    name = "viewmodel",
+    srcs = glob(["*.cc"]),
+    hdrs = glob(["*.h"]),
+    deps = [
+        "//src/framework/core",
+    ],
+    visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
+)
+
 # src/framework/widgets/BUILD.bazel
 cc_library(
     name = "widgets",
@@ -890,6 +908,7 @@ cc_library(
     hdrs = glob(["*.h"]),
     deps = [
         "//src/framework/core",
+        "//src/framework/viewmodel",
         "//src/framework/layout",
         "//src/framework/render",
         "//src/framework/event",
@@ -917,6 +936,7 @@ cc_library(
         "//src/framework/layout",
         "//src/framework/render",
         "//src/framework/surface",
+        "//src/framework/viewmodel",
         "//src/framework/widgets",
         "//src/framework/event",
     ],
@@ -1083,6 +1103,7 @@ docs: add project bootstrap doc
 #include "native_ui/layout.h"
 #include "native_ui/render.h"
 #include "native_ui/surface.h"
+#include "native_ui/viewmodel.h"
 #include "native_ui/widgets.h"
 #include "native_ui/event.h"
 ```
