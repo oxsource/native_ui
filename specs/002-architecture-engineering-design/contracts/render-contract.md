@@ -63,7 +63,6 @@ public:
   // Image drawing (PNG, SVG, camera buffer, etc.)
   void DrawImage(const Image& image, Rect dest);
   void DrawImage(const Image& image, Rect src, Rect dest);
-  void DrawImage(BufferHandle buffer, Rect dest);
 
   // State management
   void ClipRect(Rect rect);

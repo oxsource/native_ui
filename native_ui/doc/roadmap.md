@@ -318,7 +318,7 @@ CI checks at minimum:
 
 | File | Content |
 |------|---------|
-| `src/framework/render/canvas.h / canvas.cc` | Scoped `Canvas` — attach to `Surface&`, auto save/restore, primitives (`DrawRect`, `DrawText`, `DrawPath`), image drawing (`DrawImage` with Image, BufferHandle) |
+| `src/framework/render/canvas.h / canvas.cc` | Scoped `Canvas` — attach to `Surface&`, auto save/restore, primitives (`DrawRect`, `DrawText`, `DrawPath`), image drawing (`DrawImage` with Image) |
 | `src/framework/render/paint.h / paint.cc` | `Paint` — chainable `SetColor`, `SetAntiAlias`, `SetStrokeWidth` |
 | `src/framework/render/path.h / path.cc` | `Path` — `MoveTo`, `LineTo`, `CubicTo`, `Close` |
 | `src/framework/render/image.h / image.cc` | `Image` — decode from PNG/JPEG/WebP/SVG, wrap platform Buffer (AHardwareBuffer / IOSurface / DMA-BUF), `FromEncoded`, `FromFile`, `FromBuffer`, `FromSvg` |
