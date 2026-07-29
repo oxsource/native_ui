@@ -39,3 +39,12 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "state_test",
+    srcs = ["state_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

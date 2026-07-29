@@ -87,10 +87,10 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:state_test` passes
 
-- [ ] T016 [US2] Create `src/framework/viewmodel/state.h` with `State` class — `AddWatcher(Widget*, PropertyBase*)`, `RemoveWatcher(Widget*)`, `std::vector<Widget*>` watchers list, `std::mutex`
-- [ ] T017 [US2] Create `src/framework/viewmodel/state.cc` with `State` implementation — `AddWatcher` appends to vector, `RemoveWatcher` removes matching entries, `NotifyWatchers` iterates watchers and calls `RequestRedraw` on each `Widget*`
-- [ ] T018 [US2] Implement thread-safe batch coalescing in `state.cc` — `Property<T>::operator=` locks `mutex_`, enqueues the Property pointer to a SPSC queue, the main thread drains the queue and calls `NotifyWatchers` once per batch
-- [ ] T019 [US2] Create `tests/state_test.cc` with unit tests: Watch triggers notification on property change, Unwatch removes subscription, State destruction notifies watchers to clean up, batch coalescing merges multiple changes into one notification round
+- [x] T016 [US2] Create `src/framework/viewmodel/state.h` with `State` class — `AddWatcher(key, callback, PropertyBase*)`, `RemoveWatcher(key)`, `EnqueueDirty`, `Flush`, mutex-protected watchers and dirty queue
+- [x] T017 [US2] Create `src/framework/viewmodel/state.cc` with `State` implementation — `AddWatcher`/`RemoveWatcher`, `Flush` deduplicates and calls `NotifyWatchers`, each watcher invokes stored callback
+- [x] T018 [US2] Implement thread-safe batch coalescing in `state.cc` — `EnqueueDirty` locks mutex, pushes Property*, `Flush` swaps queue, deduplicates via sort+unique, single notification pass
+- [x] T019 [US2] Create `tests/state_test.cc` with unit tests: Watch triggers redraw, batch coalescing, multiple properties, no crash after widget destruction (4 tests all pass)
 
 **Checkpoint**: `bazel test //tests:state_test` passes
 

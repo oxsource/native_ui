@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "state.h"
 #include "property.h"
 
 namespace native::ui {

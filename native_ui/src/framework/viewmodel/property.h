@@ -32,12 +32,10 @@ public:
     after_set_ = std::move(fn);
   }
 
-  void Signal() override {
-    // Property notifies its owner State that this value changed.
-    // State will coalesce and dispatch to watchers in Phase 5.
-    // Signal() is defined inline here; Phase 5 replaces body with
-    // a call to State::NotifyWatchers via property_inl.h.
-  }
+  State* state() const override { return owner_; }
+
+  // Implementation is in property_inl.h (included by state.h)
+  void Signal() override;
 
 private:
   State* owner_;
