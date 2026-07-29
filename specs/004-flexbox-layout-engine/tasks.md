@@ -42,13 +42,15 @@ description: "Task list for Flexbox Layout Engine"
 - [ ] T017 Add test: `Padding(12)` — children offset from container edge
 - [ ] T018 Add test: `Margin(8)` — margin outside children creates spacing
 - [ ] T019 Add test: `FlexWrap(kWrap)` — children wrap to next line when overflow
-- [ ] T020 Add test: `FlexGrow` — child with flex-grow takes remaining space; multiple grow children share proportionally
-- [ ] T021 Add test: edge cases — empty children list, zero-size container, gap larger than available space — all handle gracefully without crash
+- [ ] T020 Add test: `FlexGrow` / `FlexShrink` / `FlexBasis` — child with flex-grow takes remaining space; multiple grow children share proportionally; flex-shrink reduces size when container too small; flex-basis sets initial main-axis size
+- [ ] T021 Add test: `AlignContent(kCenter)` — multi-line content centered in cross-axis when flex-wrap is enabled
+- [ ] T022 Add test: edge cases — empty children list, zero-size container, gap larger than available space — all handle gracefully without crash
 
 ## Phase 5: Public Header & Validation
 
-- [ ] T022 Create `src/framework/public/include/native_ui/layout.h` — re-export `FlexLayout`, `MeasureResult`, and all tag types (`Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`)
-- [ ] T023 Run full validation: `bazel build //...` + `bazel test //...`
+- [ ] T023 Create `src/framework/public/include/native_ui/layout.h` — re-export `FlexLayout`, `MeasureResult`, and all tag types (`Direction`, `JustifyContent`, `AlignItems`, `FlexWrap`, `Gap`, `Padding`, `Margin`)
+- [ ] T024 Update `src/framework/public/BUILD.bazel` — add `//src/framework/layout` to deps
+- [ ] T025 Run full validation: `bazel build //...` + `bazel test //...`
 
 ---
 
@@ -60,16 +62,16 @@ description: "Task list for Flexbox Layout Engine"
 - **Phase 2 (Header)**: Depends on Phase 1 (BUILD must exist)
 - **Phase 3 (Impl)**: Depends on Phase 2 (header defines API)
 - **Phase 4 (Tests)**: Depends on Phase 3 (implementation must compile)
-- **Phase 5 (Public)**: Depends on Phase 3 (header must exist)
+- **Phase 5 (Public + BUILD)**: Depends on Phase 3 (header must exist)
 
 ### Parallel Opportunities
 
 - T004-T005 both marked [P] — header and tags can be written concurrently
-- T011-T021 tests can be added incrementally (each test is independent)
-- T022 (public header) can be written in parallel with tests
+- T011-T022 tests can be added incrementally (each test is independent)
+- T023 (public header) can be written in parallel with tests
 
 ### Implementation Strategy
 
 1. **MVP**: Phase 1 + 2 + 3 (FlexLayout compiles, Measure/Arrange work) → core engine ready
-2. **Add tests** Phase 4 (11 test cases covering all flexbox properties + edge cases)
-3. **Public header** Phase 5 → external consumers can use FlexLayout
+2. **Add tests** Phase 4 (12 test cases covering all flexbox properties + edge cases)
+3. **Public header + BUILD** Phase 5 → external consumers can use FlexLayout
