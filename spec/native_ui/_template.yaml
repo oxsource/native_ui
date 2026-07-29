@@ -1,0 +1,29 @@
+# spec-kit YAML template
+# Use for structured widget/interface specifications
+
+name: <widget-name>
+version: 0.1
+
+interface:
+  base_class: <base>
+  methods:
+    - name: <method>
+      signature: <return_type> <method>(<params>)
+      description: <what it does>
+  tags:
+    - name: <tag-name>
+      type: <type>
+      description: <purpose>
+
+behavior:
+  - scenario: <description>
+    given: <initial state>
+    when: <action>
+    then: <expected outcome>
+
+edge_cases:
+  - case: <boundary condition>
+    expected: <behavior>
+
+test_points:
+  - <specific testable assertion>

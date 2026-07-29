@@ -78,10 +78,10 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Purpose**: Document release process, CHANGELOG, and spec-kit templates for future feature specifications
 
-- [ ] T022 [US4] Create `native_ui/doc/release-process.md` with SemVer versioning (MAJOR.MINOR.PATCH), CHANGELOG.md convention, shared library publishing steps (`bazel build //src/framework/public:native_ui_shared`), and hotfix branch strategy
-- [ ] T023 [US4] Create `CHANGELOG.md` placeholder at workspace root with semantic versioning sections ([Unreleased], MAJOR, MINOR, PATCH) and changelog entry format
-- [ ] T024 [P] [US4] Create `spec/native_ui/_template.yaml` with spec-kit YAML template covering interface signature, behavior description, edge cases, and test points
-- [ ] T025 [P] [US4] Create `spec/native_ui/_template_layout.md` with alternative markdown template for complex widget specs (narrative format with sequence diagrams)
+- [x] T022 [US4] Create `native_ui/doc/release-process.md` with SemVer versioning (MAJOR.MINOR.PATCH), CHANGELOG.md convention, shared library publishing steps (`bazel build //src/framework/public:native_ui_shared`), and hotfix branch strategy
+- [x] T023 [US4] Create `CHANGELOG.md` placeholder at workspace root with semantic versioning sections ([Unreleased], MAJOR, MINOR, PATCH) and changelog entry format
+- [x] T024 [P] [US4] Create `spec/native_ui/_template.yaml` with spec-kit YAML template covering interface signature, behavior description, edge cases, and test points
+- [x] T025 [P] [US4] Create `spec/native_ui/_template_layout.md` with alternative markdown template for complex widget specs (narrative format with sequence diagrams)
 
 **Checkpoint**: Release process documented with SemVer; CHANGELOG.md created; spec-kit templates (YAML + Markdown) available for all future feature specifications.
 
