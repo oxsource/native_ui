@@ -16,8 +16,8 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 2: Paint & Path (header-only wrappers)
 
-- [ ] T004 Create `src/framework/render/paint.h` — `Paint` class: `SetColor`, `SetAntiAlias`, `SetStrokeWidth`, `SetStyle`, `SetAlpha`, chainable, wraps SkPaint
-- [ ] T005 Create `src/framework/render/path.h` and `path.cc` — `Path` class: `MoveTo`, `LineTo`, `CubicTo`, `Close`, wraps SkPath
+- [x] T004 Create `src/framework/render/paint.h` — `Paint` class: `SetColor`, `SetAntiAlias`, `SetStrokeWidth`, `SetStyle`, `SetAlpha`, chainable, wraps SkPaint
+- [x] T005 Create `src/framework/render/path.h` and `path.cc` — `Path` class: `MoveTo`, `LineTo`, `CubicTo`, `Close`, wraps SkPath via PathImpl opaque pimpl
 
 ## Phase 3: HardwareBuffer & Surface
 
