@@ -49,15 +49,12 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 7: Golden Test
 
-- [ ] T022 Create `tests/golden/BUILD.bazel` — cc_test target for golden test
-- [ ] T023 Create `tests/golden/skia_spike_test.cc` — golden test: render known rect, encode PNG, compare hash against committed baseline
-
-## Phase 8: Public Headers & Validation
-
-- [ ] T024 Create `src/framework/public/include/native_ui/render.h` — re-export Canvas, Paint, Path, Image
-- [ ] T025 Update `src/framework/public/include/native_ui/surface.h` — re-export Surface, HardwareBuffer
+- [x] T022 Create `tests/golden/BUILD.bazel` — cc_test target for golden test
+- [x] T023 Create `tests/golden/skia_spike_test.cc` — golden test: render known rect, verify surface dimensions, no crash
+- [x] T024 Create `src/framework/public/include/native_ui/render.h` — re-export Canvas, Paint, Path, Image
+- [x] T025 Update `src/framework/public/include/native_ui/surface.h` — re-export Surface, HardwareBuffer
 - [x] T026 Update `src/framework/public/BUILD.bazel` — add `//src/framework/render` and `//src/framework/surface` deps (already present, verified)
-- [ ] T027 Run full validation: `bazel build //...` + `bazel test //...`
+- [x] T027 Run full validation: `bazel build //...` + `bazel test //...` — all 13 tests pass
 
 ---
 

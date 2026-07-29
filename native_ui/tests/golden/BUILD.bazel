@@ -1,0 +1,8 @@
+cc_test(
+    name = "skia_spike_test",
+    srcs = ["skia_spike_test.cc"],
+    deps = [
+        "//src/framework/render",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
