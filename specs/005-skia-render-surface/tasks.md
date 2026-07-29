@@ -10,9 +10,9 @@ description: "Task list for Skia Render Wrapper & Surface"
 
 ## Phase 1: BUILD Infrastructure
 
-- [ ] T001 Update `src/framework/render/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia`, `//src/framework/core`, and `//src/framework/surface` (Canvas uses Surface&)
-- [ ] T002 Update `src/framework/surface/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia` and `//src/framework/core`
-- [ ] T003 Add test targets to `tests/BUILD.bazel` — `render_test` (dep on `//src/framework/render`), `surface_test` (dep on `//src/framework/surface`)
+- [x] T001 Update `src/framework/render/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia`, `//src/framework/core`, and `//src/framework/surface` (Canvas uses Surface&)
+- [x] T002 Update `src/framework/surface/BUILD.bazel` — cc_library with hdrs, srcs, includes, dep on `@skia//:skia` and `//src/framework/core`
+- [x] T003 Add test targets to `tests/BUILD.bazel` — `render_test` (dep on `//src/framework/render`), `surface_test` (dep on `//src/framework/surface`)
 
 ## Phase 2: Paint & Path (header-only wrappers)
 

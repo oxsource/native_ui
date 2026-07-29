@@ -75,3 +75,21 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "render_test",
+    srcs = ["render_test.cc"],
+    deps = [
+        "//src/framework/render",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "surface_test",
+    srcs = ["surface_test.cc"],
+    deps = [
+        "//src/framework/surface",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
