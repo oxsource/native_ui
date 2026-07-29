@@ -1,11 +1,15 @@
 #pragma once
 
+#include <cstdint>
+
 namespace native::ui {
 
 class HardwareBuffer {
 public:
 #if __APPLE__
   static HardwareBuffer FromIOSurface(void* iosurface);
+#elif __ANDROID__
+  static HardwareBuffer FromAHardwareBuffer(void* buffer);
 #elif __linux__
   static HardwareBuffer FromDmaBuf(int fd);
 #endif
@@ -16,6 +20,8 @@ public:
 
 #if __APPLE__
   void* iosurface() const { return iosurface_; }
+#elif __ANDROID__
+  void* ahardwarebuffer() const { return ahardwarebuffer_; }
 #elif __linux__
   int dma_buf_fd() const { return dma_buf_fd_; }
 #endif
@@ -23,6 +29,8 @@ public:
 private:
 #if __APPLE__
   void* iosurface_ = nullptr;
+#elif __ANDROID__
+  void* ahardwarebuffer_ = nullptr;
 #elif __linux__
   int dma_buf_fd_ = -1;
 #endif
