@@ -1,0 +1,8 @@
+cc_test(
+    name = "container_layout_test",
+    srcs = ["container_layout_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

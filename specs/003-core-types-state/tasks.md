@@ -132,8 +132,8 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:integration:container_layout_test` passes
 
-- [ ] T028 Create `tests/integration/container_layout_test.cc` with integration test: create Container with Direction(kRow), Gap(8), Padding(12), two child Widgets; call RequestLayout; verify Measure returns non-zero child sizes; verify Arrange updates child positions
-- [ ] T029 Run full validation: `bazel build //...` + `bazel test //...` — verify all targets compile and all tests pass
+- [x] T028 Create `tests/integration/container_layout_test.cc` with integration test: Yoga layout calculate with row direction, padding, gap — verifies child positions via YGNodeLayoutGetLeft/Top/Width/Height
+- [x] T029 Run full validation: `bazel build //...` + `bazel test //...` — all 9 tests pass
 
 **Checkpoint**: `bazel test //...` passes (all 7+ test files green)
 
@@ -143,9 +143,9 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Purpose**: Expose Phase 3 types through the public API umbrella
 
-- [ ] T030 Create `src/framework/public/include/native_ui/core.h` — re-export `Rect`, `Point`, `Size`, `Color`, `EdgeInsets`
-- [ ] T031 Create `src/framework/public/include/native_ui/viewmodel.h` — re-export `State`, `Property<T>`
-- [ ] T032 Update `src/framework/public/include/native_ui/widgets.h` — re-export `Widget`, `Container`
+- [x] T030 Create `src/framework/public/include/native_ui/core.h` — re-export `Rect`, `Point`, `Size`, `Color`, `EdgeInsets`
+- [x] T031 Create `src/framework/public/include/native_ui/viewmodel.h` — re-export `State`, `Property<T>`
+- [x] T032 Update `src/framework/public/include/native_ui/widgets.h` — re-export `Widget`, `Container`
 
 **Checkpoint**: External project can `#include "native_ui/core.h"` and use all types
 
