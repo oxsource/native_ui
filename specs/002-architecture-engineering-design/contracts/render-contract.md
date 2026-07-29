@@ -122,6 +122,25 @@ for (auto& child : children_) {
 }
 ```
 
+## Canvas Sharing Across Widget Tree
+
+One `Canvas` per frame, shared by all widgets via `save/translate/restore`.
+
+```
+Surface (pixel buffer)
+  └── Canvas canvas(surface)     ← single canvas for this frame
+       ├── canvas.Save()
+       ├── canvas.Translate(child.position)
+       ├── child->Draw(canvas)   ← same canvas, local coords
+       ├── canvas.Restore()
+       └── ... loop children
+
+~Canvas() → auto restore
+Surface::Flush() → commit
+```
+
+Widgets never create their own Canvas or Surface. This matches Android View and Flutter models.
+
 ## Surface (Backing Store)
 
 ```cpp

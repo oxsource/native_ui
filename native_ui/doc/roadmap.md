@@ -388,7 +388,7 @@ Golden test flow:
 | `src/framework/widgets/text.h / text.cc` | `Text` — `Content`, font size, color, `Draw`, **Watch State** |
 | `src/framework/widgets/button.h / button.cc` | `Button` — `Label`, click callback, hit area, **State event binding** |
 | `src/framework/widgets/image.h / image.cc` | `Image` — `ImagePath`, Skia image decode + draw |
-| `src/framework/widgets/stack.h / stack.cc` | `Stack` — layer-based child positioning |
+| `src/framework/widgets/stack.h / stack.cc` | `Stack` — z-order child stacking (children_[0]=bottom, children_[N]=top), no Yoga |
 
 ### Tests
 
@@ -410,7 +410,7 @@ Golden test flow:
 - `Text(Content("Hi"))` renders with correct size
 - `Button(Label("OK"))` draws a clickable area
 - `Image(ImagePath("/path.png"))` decodes and renders
-- `Stack` renders children in layer order
+- `Stack` renders children in z-order (index 0 = bottom, last = top)
 - All widgets support `Id(...)` for `FindById` lookup
 - **Widget watching State redraws automatically when State property changes**
 - Dynamic `AddChild` / `RemoveChild` triggers re-layout on any Container widget

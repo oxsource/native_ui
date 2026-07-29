@@ -153,6 +153,18 @@ Container::Arrange(measured)
       └→ update child positions
 ```
 
+## StackLayout (Non-Yoga, Z-Order)
+
+`Stack` does NOT use Yoga or FlexLayout. It is a pure z-order container:
+
+```text
+Measure → size = largest child's size
+Arrange → each child fills Stack's content box
+Draw    → children_[0] (bottom) → ... → children_[N] (top)
+```
+
+No `FlexLayout` wrapper needed — `Stack` manages children as a simple list.
+
 ## Adding a New Layout
 
 1. Create a new layout class following `FlexLayout`'s pattern

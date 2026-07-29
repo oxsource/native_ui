@@ -128,6 +128,10 @@ Container::RequestLayout()
        └→ child positions updated
 ```
 
+## StackLayout (Non-Yoga)
+
+`Stack` does not use Yoga — it arranges children by z-order (vector index). Measure returns the largest child's size; each child fills the Stack bounds by default.
+
 ## Adding a New Layout
 
 1. Create a new layout class following `FlexLayout`'s pattern

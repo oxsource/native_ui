@@ -166,6 +166,42 @@ RequestLayout()
 | `ChildAt(int)` | Optional | Expose children for layout/hit-test |
 | `ChildCount()` | Optional | Return child count |
 
+## Stack (Z-Order Widget)
+
+Children are stacked in `children_` vector order — `children_[0]` is bottom, `children_[N]` is top. No Yoga involved.
+
+```cpp
+namespace native::ui {
+
+class Stack : public Widget {
+public:
+  template <typename... Args>
+  explicit Stack(Args&&... args);
+
+  struct Children { std::vector<std::unique_ptr<Widget>> value; };
+  void AddChild(std::unique_ptr<Widget> child);
+  void RemoveChild(Widget* child);
+
+  Widget* ChildAt(int index) override;
+  int ChildCount() const override;
+  void Draw(Canvas& canvas) override;
+
+private:
+  std::vector<std::unique_ptr<Widget>> children_;
+};
+
+}  // namespace native::ui
+```
+
+**Draw**: iterate `children_` in order → `canvas.Save()` → `child->Draw(canvas)` → `canvas.Restore()`
+**Measure**: Stack size = largest child; each child fills Stack bounds by default
+
+| Feature | Container (FlexLayout) | Stack (Z-Order) |
+|---------|----------------------|-----------------|
+| Engine | Yoga | None |
+| Layout | Row/Column, no overlap | Stacked overlapping |
+| Draw order | Layout order | children_[0]=bottom, children_[N]=top |
+
 ## Reserved: Page (Future)
 
 ```cpp

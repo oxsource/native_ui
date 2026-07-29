@@ -92,7 +92,7 @@ auto root = Container(
 - Text（文本标签）
 - Button（按钮）
 - Image（图片）
-- Stack（层叠布局）
+- Stack（层叠布局，z-order，非 Yoga）
 
 ### FR-005 Event Handling
 

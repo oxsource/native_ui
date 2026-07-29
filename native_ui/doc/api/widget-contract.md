@@ -240,6 +240,80 @@ RequestRedraw()
   → at next frame: Draw only (layout unchanged, reuse layout_result_)
 ```
 
+## Stack (Z-Order Widget)
+
+`Stack` arranges children by **z-order** — children are stacked in the order they appear in the `children_` vector, with later children drawn on top of earlier ones.
+
+```cpp
+namespace native::ui {
+
+class Stack : public Widget {
+public:
+  template <typename... Args>
+  explicit Stack(Args&&... args);
+
+  struct Children { std::vector<std::unique_ptr<Widget>> value; };
+  void AddChild(std::unique_ptr<Widget> child);
+  void RemoveChild(Widget* child);
+  void ClearChildren();
+
+  Widget* ChildAt(int index) override;
+  int ChildCount() const override;
+  void Draw(Canvas& canvas) override;
+
+private:
+  std::vector<std::unique_ptr<Widget>> children_;
+
+  void ProcessArg(Children tag);
+  void ProcessArg(Id tag);
+  // Positioned tags (future): Left, Top, Right, Bottom
+};
+
+}  // namespace native::ui
+```
+
+### Z-Order Rules
+
+```text
+children_[0]  → 最底层 (z=0, 最先绘制)
+children_[1]  → 中间层 (z=1)
+children_[N]  → 最顶层 (z=N, 最后绘制, 在最上面)
+```
+
+### Draw Implementation
+
+```cpp
+void Stack::Draw(Canvas& canvas) {
+  for (auto& child : children_) {
+    canvas.Save();
+    // Child fills the Stack bounds by default
+    // (Positioned tags would translate here in the future)
+    child->Draw(canvas);
+    canvas.Restore();
+  }
+}
+```
+
+### Measure Behavior
+
+Unlike `Container`, `Stack` does NOT use Yoga (no FlexLayout):
+
+```text
+Measure(available):
+  → Stack size = largest child's size (or explicit width/height)
+  → Each child fills Stack's content box by default
+  → Future: Positioned(L, T, R, B) tags for per-child offset
+```
+
+### Stack vs Container
+
+| | Container (FlexLayout) | Stack (Z-Order) |
+|---|---|---|
+| Layout engine | Yoga (flexbox) | None (pure z-order) |
+| Child arrangement | Row or column, no overlap | Stacked, allow overlap |
+| Draw order | Children in layout order | children_[0] → bottom, children_[N] → top |
+| Use cases | Toolbars, lists, forms | Overlays, badges, dialogs, floating buttons |
+
 ## Reserved: Page Widget (Future)
 
 A `Page` widget is reserved for future navigation/routing support. It is not implemented in MVP but the conceptual slot is defined:

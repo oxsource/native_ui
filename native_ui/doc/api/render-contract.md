@@ -142,6 +142,69 @@ void RootWidget::Draw(Canvas& canvas) {
 
 For more aggressive optimization (dirty rect clipping), the root tracks a `dirty_rect_` that unions all changed regions, and passes it to `Canvas::ClipRect` before drawing.
 
+## Canvas Sharing Across Widget Tree
+
+The framework uses a **single Canvas per frame**, shared by all widgets. No widget creates its own Canvas or Surface.
+
+### Architecture
+
+```
+Frame N:  Surface (pixel buffer, e.g. 800×600)
+           │
+           └── Canvas canvas(surface)    ← 唯一的 Canvas
+                │
+                ├── canvas.Save()
+                ├── canvas.Translate(root.position)
+                ├── Container::Draw(canvas)
+                │    ├── canvas.Save()
+                │    ├── canvas.Translate(child_A.position)
+                │    ├── Text::Draw(canvas)            ← 同一 Canvas
+                │    ├── canvas.Restore()    ← 回到 Container 坐标
+                │    ├── canvas.Save()
+                │    ├── canvas.Translate(child_B.position)
+                │    ├── Button::Draw(canvas)          ← 同一 Canvas
+                │    └── canvas.Restore()
+                └── canvas.Restore()
+
+          ~Canvas()  ← auto restore
+          Surface::Flush()  ← 一次性提交
+```
+
+### Rules
+
+| Rule | Explanation |
+|------|-------------|
+| One Surface per frame | Only one pixel buffer is active per rendering pass |
+| One Canvas per frame | Canvas is created once, passed by reference along the widget tree |
+| No per-widget Canvas | Widgets never create their own Canvas or Surface |
+| Widget draws in local coords | Container translates the Canvas origin so each child draws relative to (0,0) = its top-left |
+| Save/Restore isolates children | Each child's draw is wrapped in Save/Restore to prevent coordinate leakage |
+
+### Why This Design
+
+This matches how mainstream 2D UI frameworks work:
+
+| Framework | Canvas Model |
+|-----------|-------------|
+| **Android View** | Single `Canvas` passed through `dispatchDraw()` — `save/translate/restore` per child |
+| **Flutter** | Single `Canvas` from `PaintingContext` — `save/translate/restore` per child |
+| **Our design** | Same — single Canvas, shared, coordinate transforms via Save/Translate/Restore |
+| **React Native** | Different — each native View has its own backing store (multi-Surface) |
+
+### Contrast: Multi-Surface (React Native Model)
+
+```text
+Our model (single Surface):
+  Yoga → shared Canvas → save/translate/restore → Flush
+
+RN model (per-View Surface):
+  Yoga → each View renders independently → OS compositor blends → display
+```
+
+Our model is simpler (no compositor needed) and performant for Skia-rendered UIs.
+The multi-Surface path is available via `Surface::CreateFromBuffer(HardwareBuffer)` for
+platform video/camera overlays when needed.
+
 ## Surface (Backing Store)
 
 ```cpp
