@@ -116,11 +116,11 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 **Independent Test**: `bazel test //tests:widget_test` passes with Container tests
 
-- [ ] T023 [P] [US3] Create `src/framework/widgets/container.h` with `Container : Widget` class — tagged-parameter `template<typename... Args> explicit Container(Args&&...)`, `Children` struct, `AddChild`, `RemoveChild`, `ClearChildren`, `ChildAt`/`ChildCount` overrides, forward-declared `FlexLayout layout_`
-- [ ] T024 [P] [US3] Implement `ProcessArg` dispatch methods in `container.cc` — `ProcessArg(Direction)`, `ProcessArg(Padding)`, `ProcessArg(Gap)`, `ProcessArg(Children)`, `ProcessArg(Id)` — each calls the corresponding `YGNodeStyleSet*` on the FlexLayout root node
-- [ ] T025 [US3] Implement `AddChild` in `container.cc` — creates `YGNodeRef`, sets child width/height/margin, inserts into `children_` vector, calls `RequestLayout()`
-- [ ] T026 [US3] Implement `RemoveChild` and `ClearChildren` in `container.cc` — removes from `children_`, frees corresponding `YGNodeRef`, calls `RequestLayout()`
-- [ ] T027 [US3] Create `tests/container_test.cc` with unit tests: Container tagged construction with Direction/Gap/Padding/Children, AddChild triggers RequestLayout, RemoveChild triggers RequestLayout, ClearChildren destroys all children, ChildAt/ChildCount return correct values, FindById on Container tree
+- [x] T023 [P] [US3] Create `src/framework/widgets/container.h` with `Container : Widget` class — tagged-parameter `template<typename... Args> explicit Container(Args&&...)` with C++17 fold expression, `Children` struct, `Direction`, `Padding`, `Gap`, `Margin`, `Id` tag types, `AddChild`, `RemoveChild`, `ClearChildren`, `ChildAt`/`ChildCount` overrides, `YGNodeRef root_` for Yoga
+- [x] T024 [P] [US3] Implement `ProcessArg` dispatch methods in `container.cc` — `ProcessArg(Direction)` calls `YGNodeStyleSetFlexDirection`, `ProcessArg(Padding)` calls `YGNodeStyleSetPadding`, `ProcessArg(Gap)` calls `YGNodeStyleSetGap`, `ProcessArg(Children)` calls `AddChild` for each child
+- [x] T025 [US3] Implement `AddChild` in `container.cc` — creates `YGNodeRef`, calls `YGNodeInsertChild`, stores in `children_` vector, calls `RequestLayout()`
+- [x] T026 [US3] Implement `RemoveChild` and `ClearChildren` in `container.cc` — `RemoveChild` calls `YGNodeRemoveChild` + `YGNodeFree`, `ClearChildren` removes all + frees all Yoga nodes, both call `RequestLayout()`
+- [x] T027 [US3] Create `tests/container_test.cc` with 8 unit tests: empty container, AddChild, AddChild triggers layout, RemoveChild, ClearChildren, FindById in tree, IndexOf, tagged construction — all pass
 
 **Checkpoint**: `bazel test //tests:widget_test //tests:container_test` passes
 

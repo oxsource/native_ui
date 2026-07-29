@@ -1,0 +1,96 @@
+#include "container.h"
+
+namespace native::ui {
+
+Container::~Container() {
+  if (root_) {
+    YGNodeFreeRecursive(root_);
+  }
+}
+
+void Container::ProcessArg(Direction tag) {
+  YGNodeStyleSetFlexDirection(
+      root_, tag.value == Direction::kRow ? YGFlexDirectionRow
+                                          : YGFlexDirectionColumn);
+}
+
+void Container::ProcessArg(Padding tag) {
+  YGNodeStyleSetPadding(root_, YGEdgeAll, tag.value);
+}
+
+void Container::ProcessArg(Gap tag) {
+  YGNodeStyleSetGap(root_, YGGutterAll, tag.value);
+}
+
+void Container::ProcessArg(Margin tag) {
+  YGNodeStyleSetMargin(root_, YGEdgeAll, tag.value);
+}
+
+void Container::ProcessArg(Children tag) {
+  for (auto& child : tag.value) {
+    AddChild(std::move(child));
+  }
+}
+
+void Container::ProcessArg(Id tag) {
+  SetId(std::move(tag.value));
+}
+
+void Container::AddChild(std::unique_ptr<Widget> child) {
+  YGNodeRef child_node = YGNodeNew();
+  YGNodeInsertChild(root_, child_node, static_cast<int32_t>(child_nodes_.size()));
+  child_nodes_.push_back(child_node);
+  children_.push_back(std::move(child));
+  RequestLayout();
+}
+
+void Container::RemoveChild(Widget* child) {
+  for (size_t i = 0; i < children_.size(); ++i) {
+    if (children_[i].get() == child) {
+      YGNodeRemoveChild(root_, child_nodes_[i]);
+      YGNodeFree(child_nodes_[i]);
+      child_nodes_.erase(child_nodes_.begin() + static_cast<ptrdiff_t>(i));
+      children_.erase(children_.begin() + static_cast<ptrdiff_t>(i));
+      RequestLayout();
+      return;
+    }
+  }
+}
+
+void Container::ClearChildren() {
+  for (auto* node : child_nodes_) {
+    YGNodeRemoveChild(root_, node);
+    YGNodeFree(node);
+  }
+  child_nodes_.clear();
+  children_.clear();
+  RequestLayout();
+}
+
+Widget* Container::ChildAt(int index) {
+  if (index < 0 || static_cast<size_t>(index) >= children_.size()) {
+    return nullptr;
+  }
+  return children_[static_cast<size_t>(index)].get();
+}
+
+int Container::ChildCount() const {
+  return static_cast<int>(children_.size());
+}
+
+int Container::IndexOf(Widget* child) const {
+  for (size_t i = 0; i < children_.size(); ++i) {
+    if (children_[i].get() == child) {
+      return static_cast<int>(i);
+    }
+  }
+  return -1;
+}
+
+void Container::Draw(class Canvas& canvas) {
+  for (auto& child : children_) {
+    child->Draw(canvas);
+  }
+}
+
+}  // namespace native::ui
