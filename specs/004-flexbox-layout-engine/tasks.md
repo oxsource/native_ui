@@ -25,11 +25,11 @@ description: "Task list for Flexbox Layout Engine"
 
 ## Phase 3: Yoga Wrapping Implementation
 
-- [ ] T006 Implement `FlexLayout` constructor with C++17 fold expression — each `ProcessArg` calls `YGNodeStyleSet*`
-- [ ] T007 Implement `SetChildren` — stores child YGNodeRef references
-- [ ] T008 Implement `Measure` — `YGNodeStyleSetWidth/Height` on root, `YGNodeInsertChild` per child, `YGNodeCalculateLayout`, extract sizes via `YGNodeLayoutGetWidth/Height`
-- [ ] T009 Implement `Arrange` — read positions via `YGNodeLayoutGetLeft/Top`
-- [ ] T010 Implement destructor — `YGNodeFreeRecursive(root_)`
+- [x] T006 Implement `FlexLayout` constructor with C++17 fold expression — each `ProcessArg` calls `YGNodeStyleSet*`
+- [x] T007 Implement `SetChildren` — stores child YGNodeRef references
+- [x] T008 Implement `Measure` — `YGNodeStyleSetWidth/Height` on root, `YGNodeInsertChild` per child, `YGNodeCalculateLayout`, extract sizes via `YGNodeLayoutGetWidth/Height`
+- [x] T009 Implement `Arrange` — read positions via `YGNodeLayoutGetLeft/Top`
+- [x] T010 Implement destructor — `YGNodeFreeRecursive(root_)`
 
 ## Phase 4: Unit Tests
 
