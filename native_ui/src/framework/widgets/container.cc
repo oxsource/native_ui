@@ -10,10 +10,6 @@ void Container::ProcessArg(Direction tag) {
       root_, static_cast<YGFlexDirection>(tag.value));
 }
 
-void Container::ProcessArg(Padding tag) {
-  YGNodeStyleSetPadding(root_, YGEdgeAll, tag.value);
-}
-
 void Container::ProcessArg(Gap tag) {
   YGNodeStyleSetGap(root_, YGGutterAll, tag.value);
 }
@@ -30,10 +26,6 @@ void Container::ProcessArg(Children tag) {
 
 void Container::ProcessArg(Id tag) {
   SetId(std::move(tag.value));
-}
-
-void Container::ProcessArg(Size tag) {
-  layout_size_ = tag;
 }
 
 void Container::AddChild(std::unique_ptr<Widget> child) {
@@ -95,15 +87,19 @@ void Container::Layout() {
 }
 
 void Container::Measure() {
-  float w = layout_size_.width > 0 ? layout_size_.width : YGUndefined;
-  float h = layout_size_.height > 0 ? layout_size_.height : YGUndefined;
+  float w = style().width() > 0 ? style().width() : YGUndefined;
+  float h = style().height() > 0 ? style().height() : YGUndefined;
   YGNodeStyleSetWidth(root_, w);
   YGNodeStyleSetHeight(root_, h);
 
-  YGNodeCalculateLayout(root_, YGUndefined, YGUndefined, YGDirectionLTR);
+  // Apply padding from Style
+  auto pad = style().padding();
+  YGNodeStyleSetPadding(root_, YGEdgeLeft, pad.left);
+  YGNodeStyleSetPadding(root_, YGEdgeTop, pad.top);
+  YGNodeStyleSetPadding(root_, YGEdgeRight, pad.right);
+  YGNodeStyleSetPadding(root_, YGEdgeBottom, pad.bottom);
 
-  if (layout_size_.width <= 0) layout_size_.width = YGNodeLayoutGetWidth(root_);
-  if (layout_size_.height <= 0) layout_size_.height = YGNodeLayoutGetHeight(root_);
+  YGNodeCalculateLayout(root_, YGUndefined, YGUndefined, YGDirectionLTR);
 
   layout_result_.resize(child_nodes_.size());
   for (size_t i = 0; i < child_nodes_.size(); i++) {

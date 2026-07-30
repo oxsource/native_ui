@@ -50,7 +50,7 @@ TEST(TextTest, EmptyContentNoCrash) {
 }
 
 TEST(TextTest, FontSizeAndColor) {
-  Text t(Content{"Hi"}, FontSize{24}, Color{kRed});
+  Text t(Content{"Hi"}, FontSize{24}, TextColor{kRed});
   EXPECT_EQ(t.GetId(), "");
 }
 

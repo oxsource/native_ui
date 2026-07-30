@@ -27,10 +27,6 @@ void FlexLayout::ProcessArg(Gap tag) {
   YGNodeStyleSetGap(root_, YGGutterAll, tag.value);
 }
 
-void FlexLayout::ProcessArg(Padding tag) {
-  YGNodeStyleSetPadding(root_, YGEdgeAll, tag.value);
-}
-
 void FlexLayout::ProcessArg(Margin tag) {
   YGNodeStyleSetMargin(root_, YGEdgeAll, tag.value);
 }

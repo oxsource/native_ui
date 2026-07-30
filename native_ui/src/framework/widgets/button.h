@@ -3,8 +3,7 @@
 #include <functional>
 #include <string>
 
-#include "rect.h"
-#include "widget.h"
+#include "text.h"
 
 namespace native::ui {
 
@@ -16,26 +15,32 @@ struct OnClick {
   std::function<void()> value;
 };
 
-class Button : public Widget {
+struct NormalColor { Color value; };
+struct PressedColor { Color value; };
+
+class Button : public Text {
 public:
   template <typename... Args>
   explicit Button(Args&&... args) {
     (ProcessArg(std::forward<Args>(args)), ...);
   }
 
+  using Widget::ProcessArg;  // base style tags
+  using Text::ProcessArg;    // text style tags
+
   bool HitTest(Point p) const;
-  void Watch(Property<std::string>& prop);
-  void Draw(Canvas& canvas) override;
   bool OnMouseEvent(const MouseEvent& event) override;
+  void Draw(Canvas& canvas) override;
 
 private:
   void ProcessArg(Label tag);
   void ProcessArg(OnClick tag);
-  void ProcessArg(Id tag);
+  void ProcessArg(NormalColor tag) { style_.setNormalColor(tag.value); }
+  void ProcessArg(PressedColor tag) { style_.setPressedColor(tag.value); }
+  void ProcessArg(Id tag) { SetId(std::move(tag.value)); }
 
-  std::string label_;
   std::function<void()> on_click_;
-  Property<std::string>* watched_prop_ = nullptr;
+  bool pressed_ = false;
 };
 
 }  // namespace native::ui

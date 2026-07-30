@@ -133,3 +133,21 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "style_test",
+    srcs = ["style_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "glide_test",
+    srcs = ["glide_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

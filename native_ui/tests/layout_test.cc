@@ -113,18 +113,20 @@ TEST(LayoutTest, GapSpacing) {
   FreeChildren({c1, c2});
 }
 
-TEST(LayoutTest, PaddingOffset) {
-  FlexLayout layout(Direction{0}, Padding{12});
-  auto c1 = MakeChild(60, 40);
-  layout.SetChildren({c1});
-  auto result = layout.Measure({300, 100});
-  layout.Arrange(result, {300, 100});
+TEST(LayoutTest, FlexWrapGap) {
+  FlexLayout layout(Direction{0}, Gap{8}, FlexWrap{FlexWrap::kWrap});
+  auto c1 = MakeChild(100, 40);
+  auto c2 = MakeChild(100, 40);
+  layout.SetChildren({c1, c2});
+  auto result = layout.Measure({160, 200});
+  layout.Arrange(result, {160, 200});
 
-  // Padding 12: child should be offset from container edge
-  EXPECT_FLOAT_EQ(result[0].position.x, 12);
-  EXPECT_FLOAT_EQ(result[0].position.y, 12);
+  // Should wrap: c1 on first row, c2 on second row
+  EXPECT_EQ(result.size(), 2u);
+  EXPECT_FLOAT_EQ(result[0].position.x, 0);
+  EXPECT_GT(result[1].position.y, 0);
 
-  FreeChildren({c1});
+  FreeChildren({c1, c2});
 }
 
 TEST(LayoutTest, MarginSpacing) {

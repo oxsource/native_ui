@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
 #include "canvas.h"
 #include "container.h"
+#include "edge_insets.h"
 #include "paint.h"
 #include "surface.h"
 #include "text.h"
 
 namespace native::ui {
 
-// Verify the hello_world pipeline pattern: widget tree → layout → render
 TEST(ExamplesTest, WidgetTreeRender) {
   std::vector<std::unique_ptr<Widget>> children;
   children.push_back(std::make_unique<Text>(Content{"Count: 0"}, Id{"label"}));
@@ -15,14 +15,17 @@ TEST(ExamplesTest, WidgetTreeRender) {
 
   Container tree(
       Direction{Direction::kRow},
-      Padding{16},
       Gap{8},
+      Width{400},
+      Height{200},
+      Padding{EdgeInsets::All(16)},
       Container::Children{std::move(children)});
 
-  tree.Measure({800, 600});
-  tree.Arrange({800, 600});
+  tree.Layout();
 
-  auto surface = Surface::Create(800, 600);
+  auto surface = Surface::Create(
+      static_cast<int>(tree.style().width()),
+      static_cast<int>(tree.style().height()));
   ASSERT_NE(surface, nullptr);
 
   {
