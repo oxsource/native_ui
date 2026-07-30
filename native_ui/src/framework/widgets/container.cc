@@ -45,6 +45,7 @@ void Container::AddChild(std::unique_ptr<Widget> child) {
   YGNodeInsertChild(root_, child_node, static_cast<int32_t>(child_nodes_.size()));
   child_nodes_.push_back(child_node);
   children_.push_back(std::move(child));
+  children_.back()->OnMount();
   RequestLayout();
 }
 

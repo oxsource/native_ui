@@ -8,14 +8,15 @@ namespace native::ui {
 
 ImageWidget::~ImageWidget() { Cancel(); }
 
+void ImageWidget::OnMount() {
+  if (!uri_.empty() && state_ == LoadState::kLoading) {
+    Load();
+  }
+}
+
 void ImageWidget::OnUnmount() {
   Cancel();
   Widget::OnUnmount();
-}
-
-void ImageWidget::ProcessArg(ImagePath tag) {
-  uri_ = std::move(tag.value);
-  if (!uri_.empty()) Load();
 }
 
 void ImageWidget::Load() {
@@ -28,7 +29,6 @@ void ImageWidget::Load() {
   }
 
   state_ = LoadState::kLoading;
-  load_key_ = uri_;
 
   LoadOptions opts;
   opts.target_width = static_cast<int>(style().width());
@@ -49,7 +49,6 @@ void ImageWidget::Cancel() {
     if (glide) glide->Cancel(request_id_);
     request_id_ = 0;
   }
-  load_key_.clear();
 }
 
 void ImageWidget::Draw(Canvas& canvas) {

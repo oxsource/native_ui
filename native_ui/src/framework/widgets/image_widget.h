@@ -27,13 +27,14 @@ public:
   using Widget::ProcessArg;
 
   ~ImageWidget() override;
+  void OnMount() override;
   void OnUnmount() override;
   void Draw(Canvas& canvas) override;
 
 private:
   // Non-style tags
-  void ProcessArg(ImagePath tag);
-  void ProcessArg(ImageURI tag)  { uri_ = tag.value; Load(); }
+  void ProcessArg(ImagePath tag) { uri_ = std::move(tag.value); }
+  void ProcessArg(ImageURI tag)  { uri_ = tag.value; }
   void ProcessArg(Id tag)        { SetId(std::move(tag.value)); }
 
   // Style-delegating tags
@@ -47,7 +48,6 @@ private:
   std::shared_ptr<Image> loaded_image_;
   LoadState state_ = LoadState::kLoading;
   uint64_t request_id_ = 0;
-  std::string load_key_;
 };
 
 }  // namespace native::ui
