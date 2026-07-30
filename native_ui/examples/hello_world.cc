@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "button.h"
 #include "canvas.h"
@@ -48,7 +49,6 @@ int main() {
       ui::Gap{8},
       ui::Container::Children{std::move(children)});
 
-  // Text watches the count property — auto-redraws on change
   label_raw->Watch(state->count);
 
   // Frame 000: count = 0
