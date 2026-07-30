@@ -89,8 +89,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 ### Implementation for User Story 4
 
-- [ ] T012 [P] [US4] Create `ExternalImage` header with tagged-parameter construction (HardwareBuffer, Id tags), `SetBuffer(HardwareBuffer)`, and `Watch(Property<HardwareBuffer>&)` support in `native_ui/src/framework/widgets/external_image.h`
-- [ ] T013 [US4] Implement `ExternalImage::Draw(Canvas&)` using `Canvas::DrawImage(Image::FromBuffer(...))`, `SetBuffer()` lifecycle, and data binding in `native_ui/src/framework/widgets/external_image.cc`
+- [x] T012 [P] [US4] Create `ExternalImage` header with tagged-parameter construction (HardwareBuffer, Id tags), `SetBuffer(HardwareBuffer)`, and `Watch(Property<HardwareBuffer>&)` support in `native_ui/src/framework/widgets/external_image.h`
+- [x] T013 [US4] Implement `ExternalImage::Draw(Canvas&)` using `Canvas::DrawImage(Image::FromBuffer(...))`, `SetBuffer()` lifecycle, and data binding in `native_ui/src/framework/widgets/external_image.cc`
 
 **Checkpoint**: ExternalImage renders hardware buffers, updates on `SetBuffer()` or State property change, handles invalid buffers gracefully.
 

@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "hardware_buffer.h"
-#include "image.h"
+#include "canvas.h"
 #include "widget.h"
 
 namespace native::ui {
@@ -13,7 +13,10 @@ public:
   template <typename... Args>
   explicit ExternalImage(Args&&... args);
 
+  ~ExternalImage() override;
+
   void SetBuffer(HardwareBuffer buffer);
+  void Watch(Property<HardwareBuffer>& prop);
   void Draw(Canvas& canvas) override;
 
 private:
