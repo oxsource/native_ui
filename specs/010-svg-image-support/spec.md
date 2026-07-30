@@ -111,7 +111,7 @@ An SVG file (`superdog.svg`) is parsed via the nanosvg library and rasterized to
 
 ## Assumptions
 
-- nanosvg header is placed at `third_party/nanosvg/nanosvg.h` and `third_party/nanosvg/nanosvgrast.h` — both header-only
+- nanosvg is fetched via `http_archive` in `native_ui_deps.bzl` — headers exposed as `@nanosvg//:nanosvg`, included as `#include "src/nanosvg.h"`
 - SVG rasterization uses nanosvg's rasterizer to produce an RGBA pixel buffer, then wrapped as Skia `SkBitmap` + `SkImage`
 - ALL image loading goes through `Glide::Load()` (async worker thread) — NOT synchronous `Image::FromFile` on main thread
 - `Image::FromFile` is extended to support SVG via nanosvg — called from within Glide's worker thread

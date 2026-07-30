@@ -14,11 +14,9 @@ TEST(RenderTest, CanvasSaveRestore) {
 
   {
     Canvas canvas(*surface);
-    int initial_count = 0;
     // Save multiple levels
     for (int i = 0; i < 10; i++) {
       canvas.Save();
-      initial_count++;
     }
     // Restore all
     for (int i = 0; i < 10; i++) {

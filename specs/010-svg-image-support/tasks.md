@@ -28,9 +28,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Integrate nanosvg third-party library and create build infrastructure
 
-- [ ] T001 Create `third_party/nanosvg/BUILD.bazel` — `cc_library(name = "nanosvg", hdrs = glob(["*.h"]), includes = ["."], visibility = ["//src/framework:__subpackages__"])`
-- [ ] T002 [P] Create `scripts/fetch_nanosvg.sh` — downloads `nanosvg.h` and `nanosvgrast.h` from `https://raw.githubusercontent.com/memononen/nanosvg/master/src/`
-- [ ] T003 Download nanosvg headers: run `bash scripts/fetch_nanosvg.sh` to populate `third_party/nanosvg/nanosvg.h` and `nanosvgrast.h`
+- [x] T001 Create `third_party/nanosvg/BUILD.bazel` — `cc_library(name = "nanosvg", hdrs = ["src/nanosvg.h", "src/nanosvgrast.h"], includes = ["src"], visibility = ["//src/framework:__subpackages__"])`
+- [x] T002 [P] Add `_nanosvg()` http_archive rule to `native_ui_deps.bzl` — URL + sha256 for nanosvg tarball
+- [x] T003 Remove locally committed nanosvg headers (now fetched via http_archive Bazel rule)
 
 ---
 
@@ -130,7 +130,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
-- nanosvg is header-only — no `.cc` files, just `#include` the headers
+- nanosvg is fetched via http_archive — no local files in third_party/nanosvg/ besides BUILD.bazel
+- Include as `#include "src/nanosvg.h"` — the `strip_prefix` places headers under `src/`
 - `Image::FromSkImage(sk_sp<SkImage>)` is an internal helper — not part of the public API
 - SVG rasterization happens at load time at natural SVG size; ScaleType at render time handles widget bounds
 - Glide worker thread calls `Image::FromFile` which now handles both PNG and SVG

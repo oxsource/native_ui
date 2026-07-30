@@ -3,10 +3,7 @@
 ## Build & Run Image Gallery
 
 ```bash
-# Fetch nanosvg headers (one-time)
-bash scripts/fetch_nanosvg.sh
-
-# Build the image gallery example
+# Build the image gallery example (nanosvg fetched automatically via http_archive)
 bazel build //examples:image_gallery
 
 # Run it

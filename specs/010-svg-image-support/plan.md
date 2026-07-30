@@ -53,10 +53,10 @@ specs/010-svg-image-support/
 ### Source Code
 
 ```text
+native_ui/native_ui_deps.bzl       # MODIFY — add _nanosvg() http_archive rule
+
 native_ui/third_party/nanosvg/
-├── BUILD.bazel          # NEW — cc_library wrapping nanosvg.h header
-├── nanosvg.h            # NEW — downloaded nanosvg header (zlib license)
-└── nanosvgrast.h        # NEW — downloaded nanosvg rasterizer header
+├── BUILD.bazel          # NEW — cc_library with hdrs = ["src/nanosvg.h", "src/nanosvgrast.h"]
 
 native_ui/src/framework/render/
 ├── image.h / image.cc   # MODIFY — detect .svg extension, call nanosvg rasterizer
@@ -75,8 +75,8 @@ native_ui/scripts/
 
 ```mermaid
 flowchart LR
-    subgraph "Third Party"
-        NANO["nanosvg.h/nanosvgrast.h<br/>Header-only SVG parser"]
+    subgraph "Third Party (http_archive)"
+        NANO["@nanosvg//:nanosvg<br/>Header-only SVG parser"]
     end
     subgraph "Framework"
         IMAGE["image.cc<br/>detect .svg → nanosvg<br/>→ SkBitmap → Image"]

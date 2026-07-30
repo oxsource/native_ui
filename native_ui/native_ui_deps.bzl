@@ -53,6 +53,15 @@ def _stblib():
         url = "https://github.com/nothings/stb/archive/b42009b3b9d4ca35bc703f5310eedc74f584be58.tar.gz",
     )
 
+def _nanosvg():
+    http_archive(
+        name = "nanosvg",
+        urls = ["https://github.com/oxsource/nanovg/archive/refs/tags/v1.0.0.tar.gz"],
+        sha256 = "91882cb9ea0f6cb75dfbe3a0d272292b640d237e8892d7252b08e38feb930e6f",
+        strip_prefix = "nanovg-1.0.0",
+        build_file = "//third_party/nanosvg:BUILD.bazel",
+    )
+
 def native_ui_setup():
     if not native.existing_rule("bazel_skylib"):
         _bazel_skylib()
@@ -64,3 +73,5 @@ def native_ui_setup():
         _stblib()
     if not native.existing_rule("com_google_googletest"):
         _googletest()
+    if not native.existing_rule("nanosvg"):
+        _nanosvg()

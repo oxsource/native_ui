@@ -1,0 +1,6 @@
+cc_library(
+    name = "nanosvg",
+    hdrs = ["nanosvg.h", "nanosvgrast.h"],
+    includes = ["."],
+    visibility = ["//visibility:public"],
+)

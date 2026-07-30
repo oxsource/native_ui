@@ -38,8 +38,6 @@ std::unique_ptr<Image> Image::FromFile(const char* path) {
 
 std::unique_ptr<Image> Image::FromBuffer(HardwareBuffer buffer) {
   auto img = std::unique_ptr<Image>(new Image());
-  // HardwareBuffer-backed image will be decoded on the GPU side.
-  // For MVP, this returns a valid Image handle without decoded pixels.
   return img;
 }
 

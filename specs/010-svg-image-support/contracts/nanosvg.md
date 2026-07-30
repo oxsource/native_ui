@@ -2,35 +2,42 @@
 
 **Purpose**: Define how nanosvg is integrated into the framework for SVG parsing and rasterization.
 
-## Third-Party Location
+## Integration via http_archive
 
+nanosvg is fetched as an external Bazel dependency via `http_archive` in `native_ui_deps.bzl`:
+
+```python
+# In native_ui_deps.bzl
+def _nanosvg():
+    http_archive(
+        name = "nanosvg",
+        urls = ["https://github.com/oxsource/nanovg/archive/refs/tags/v1.0.0.tar.gz"],
+        sha256 = "91882cb9ea0f6cb75dfbe3a0d272292b640d237e8892d7252b08e38feb930e6f",
+        strip_prefix = "nanovg-1.0.0",
+        build_file = "//third_party/nanosvg:BUILD.bazel",
+    )
 ```
-native_ui/third_party/nanosvg/
-├── BUILD.bazel          # cc_library with hdrs = glob(["*.h"]), includes = ["."]
-├── nanosvg.h            # https://raw.githubusercontent.com/memononen/nanosvg/master/src/nanosvg.h
-└── nanosvgrast.h        # https://raw.githubusercontent.com/memononen/nanosvg/master/src/nanosvgrast.h
-```
 
-Both files are header-only with `#pragma once` guards. Download via `scripts/fetch_nanosvg.sh` or curl.
-
-## BUILD
+## BUILD (third_party/nanosvg/BUILD.bazel)
 
 ```python
 cc_library(
     name = "nanosvg",
-    hdrs = glob(["*.h"]),
-    includes = ["."],
+    hdrs = ["src/nanosvg.h", "src/nanosvgrast.h"],
+    includes = ["src"],
     visibility = ["//src/framework:__subpackages__"],
 )
 ```
+
+The headers are at `src/nanosvg.h` and `src/nanosvgrast.h` within the tarball (after `strip_prefix`).
 
 ## Integration in Image::FromFile
 
 ```cpp
 // native_ui/src/framework/render/image.cc
 
-#include "nanosvg.h"
-#include "nanosvgrast.h"
+#include "src/nanosvg.h"
+#include "src/nanosvgrast.h"
 
 static std::unique_ptr<Image> LoadSVG(const char* path, int width, int height) {
   NSVGimage* svg = nsvgParseFromFile(path, "px", 96.0f);
