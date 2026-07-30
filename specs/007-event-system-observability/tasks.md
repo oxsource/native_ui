@@ -110,13 +110,13 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Unit tests covering all event system components and DebugOverlay
 
-- [ ] T019 [P] Write DispatchResult and event types unit tests in `native_ui/tests/event_test.cc` — enum values, struct construction
-- [ ] T020 [P] Write HitTester unit tests in `native_ui/tests/event_test.cc` — single widget, overlapping children, Stack z-order, null root, no hit
-- [ ] T021 [P] Write EventHub Push unit tests in `native_ui/tests/event_test.cc` — mock MouseEvent hitting Button (kHandled), outside bounds (kNoTarget), empty tree (kNoTarget)
-- [ ] T022 [P] Write event filter chain unit tests in `native_ui/tests/event_test.cc` — filter rejects (kRejected), filter allows (kHandled), multiple filters
-- [ ] T023 [P] Write DebugOverlay unit tests in `native_ui/tests/debug_overlay_test.cc` — toggle on/off, layout borders draw, FPS display, NDEBUG guard
-- [ ] T024 Add `event_test` and `debug_overlay_test` cc_test targets in `native_ui/tests/BUILD.bazel` with deps on `//src/framework/event`, `//src/framework/widgets`, `//src/framework/render`
-- [ ] T025 Verify build and tests pass: `bazel build //src/framework/event //src/framework/widgets` and `bazel test //tests:event_test //tests:debug_overlay_test`
+- [x] T019 [P] Write DispatchResult and event types unit tests in `native_ui/tests/event_test.cc` — enum values, struct construction
+- [x] T020 [P] Write HitTester unit tests in `native_ui/tests/event_test.cc` — single widget, overlapping children, Stack z-order, null root, no hit
+- [x] T021 [P] Write EventHub Push unit tests in `native_ui/tests/event_test.cc` — mock MouseEvent hitting Button (kHandled), outside bounds (kNoTarget), empty tree (kNoTarget)
+- [x] T022 [P] Write event filter chain unit tests in `native_ui/tests/event_test.cc` — filter rejects (kRejected), filter allows (kHandled), multiple filters
+- [x] T023 [P] Write DebugOverlay unit tests in `native_ui/tests/debug_overlay_test.cc` — toggle on/off, layout borders draw, FPS display, NDEBUG guard
+- [x] T024 Add `event_test` and `debug_overlay_test` cc_test targets in `native_ui/tests/BUILD.bazel` with deps on `//src/framework/event`, `//src/framework/widgets`, `//src/framework/render`
+- [x] T025 Verify build and tests pass: `bazel build //src/framework/event //src/framework/widgets` and `bazel test //tests:event_test //tests:debug_overlay_test`
 
 ---
 
