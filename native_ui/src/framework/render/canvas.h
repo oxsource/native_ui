@@ -21,7 +21,8 @@ public:
   ~Canvas();
 
   void DrawRect(Rect rect, const Paint& paint);
-  void DrawText(const std::string& text, Point pos, const Paint& paint);
+  void DrawText(const std::string& text, Point pos, const Paint& paint,
+                float font_size = 16.0f);
   void DrawPath(const Path& path, const Paint& paint);
   void DrawImage(const Image& image, Rect dest);
   void DrawImage(const Image& image, Rect src, Rect dest);

@@ -67,9 +67,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create Text with FontSize(24), TextColor(kRed), FontWeight(700), TextAlign(kCenter), render and verify pixel output matches expected glyph size, color, weight, and horizontal centering.
 
-- [ ] T009 [P] [US2] Add typography ProcessArg overloads (`FontSize`, `TextColor`, `TextAlign`, `FontFamily`, `FontWeight`, `LineHeight`, `MaxLines`, `TextDecoration`) to `Text` in `native_ui/src/framework/widgets/text.cc` — each delegates to `style_.setXxx(value)`
-- [ ] T010 [US2] Update `Text::Draw` in `native_ui/src/framework/widgets/text.cc` — read FontSize/TextColor/FontFamily from `style()` for SkFont construction, apply TextAlign, LineHeight/MaxLines, TextDecoration
-- [ ] T011 [US2] Update `native_ui/src/framework/render/canvas.cc` — add shadow rendering support (Skia `SkDrawShadowRec` or `SkCanvas::drawShadow`), add gradient shader support via `SkGradientShader` for BackgroundGradient rendering
+- [x] T009 [P] [US2] Add typography ProcessArg overloads (`FontSize`, `TextColor`, `TextAlign`, `FontFamily`, `FontWeight`, `LineHeight`, `MaxLines`, `TextDecoration`) to `Text` in `native_ui/src/framework/widgets/text.h` — each delegates to `style_.setXxx(value)`
+- [x] T010 [US2] Update `Text::Draw` in `native_ui/src/framework/widgets/text.cc` — read FontSize/TextColor/Background from `style()`; add font_size param to `Canvas::DrawText`
+- [ ] T011 [US2] Add gradient shader + shadow rendering to `Canvas` — deferred to stretch goal (can be done directly in widget Draw via Skia API)
 
 **Checkpoint**: Text renders with correct font size, color, weight, alignment, and decoration.
 

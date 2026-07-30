@@ -70,16 +70,16 @@ void Canvas::DrawRect(Rect rect, const Paint& paint) {
 }
 
 void Canvas::DrawText(const std::string& text, Point pos,
-                       const Paint& paint) {
+                       const Paint& paint, float font_size) {
   if (text.empty()) return;
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
 #if __APPLE__
   static sk_sp<SkFontMgr> font_mgr = SkFontMgr_New_CoreText(nullptr);
   sk_sp<SkTypeface> tf = font_mgr->matchFamilyStyle(nullptr, SkFontStyle());
-  SkFont font(tf, 16.0f);
+  SkFont font(tf, font_size);
 #else
-  SkFont font;
+  SkFont font(nullptr, font_size);
 #endif
   impl_->sk_canvas->drawString(text.c_str(), pos.x, pos.y, font, sk_paint);
 }

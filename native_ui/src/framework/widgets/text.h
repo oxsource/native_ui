@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "color.h"
 #include "widget.h"
+#include "style.h"
 
 namespace native::ui {
 
@@ -11,9 +11,13 @@ struct Content {
   std::string value;
 };
 
-struct FontSize {
-  float value;
-};
+// Text style tags — delegate to Style::setXxx
+struct FontSize { float value; };
+struct TextColor { Color value; };
+struct FontFamily { std::string value; };
+struct FontWeight { int value; };
+struct LineHeight { float value; };
+struct MaxLines { int value; };
 
 class Text : public Widget {
 public:
@@ -22,18 +26,27 @@ public:
     (ProcessArg(std::forward<Args>(args)), ...);
   }
 
+  using Widget::ProcessArg;  // bring in base style tags
+
   void Watch(Property<std::string>& prop);
   void Draw(Canvas& canvas) override;
 
 private:
+  // Non-style tags
   void ProcessArg(Content tag);
-  void ProcessArg(FontSize tag);
-  void ProcessArg(Color tag);
-  void ProcessArg(Id tag);
 
-  std::string content_;
-  float font_size_ = 16.0f;
-  Color color_ = kBlack;
+  // Style-delegating tags
+  void ProcessArg(FontSize tag)     { style_.setFontSize(tag.value); }
+  void ProcessArg(TextColor tag)    { style_.setTextColor(tag.value); }
+  void ProcessArg(FontFamily tag)   { style_.setFontFamily(tag.value); }
+  void ProcessArg(FontWeight tag)   { style_.setFontWeight(tag.value); }
+  void ProcessArg(LineHeight tag)   { style_.setLineHeight(tag.value); }
+  void ProcessArg(MaxLines tag)     { style_.setMaxLines(tag.value); }
+  void ProcessArg(TextAlign v)    { style_.setTextAlign(v); }
+  void ProcessArg(TextDecoration v) { style_.setTextDecoration(v); }
+  void ProcessArg(Id tag)           { SetId(std::move(tag.value)); }
+
+  std::string content_;  // non-style: text content
   Property<std::string>* watched_prop_ = nullptr;
 };
 
