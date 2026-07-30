@@ -48,7 +48,7 @@ int main() {
 
   auto btn = std::make_unique<ui::Button>(
       ui::Label{"Increment"},
-      ui::Style().setWidth(140).setHeight(50).setCornerRadius(22)
+      ui::Style().setCornerRadius(22)
          .setFontSize(16).setFontWeight(600)
          .setNormalColor(ui::Color{50, 130, 210})
          .setPressedColor(ui::Color{30, 90, 170})
@@ -56,8 +56,8 @@ int main() {
       ui::Id{"btn"});
 
   std::vector<std::unique_ptr<ui::Widget>> v;
-  v.push_back(std::move(btn));
   v.push_back(std::move(label));
+  v.push_back(std::move(btn));
 
   auto tree = std::make_unique<ui::Container>(
       ui::Direction{ui::Direction::kColumn},
