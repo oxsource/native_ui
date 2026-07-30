@@ -2,3 +2,8 @@
 
 #include "widget.h"
 #include "container.h"
+#include "text.h"
+#include "button.h"
+#include "image_widget.h"
+#include "external_image.h"
+#include "stack.h"

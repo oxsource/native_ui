@@ -6,6 +6,8 @@ cc_library(
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
     deps = [
         "//src/framework/core",
+        "//src/framework/layout",
+        "//src/framework/render",
         "//src/framework/viewmodel",
         "@yoga//:yoga",
     ],

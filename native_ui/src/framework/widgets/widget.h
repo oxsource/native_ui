@@ -4,8 +4,13 @@
 #include <vector>
 
 #include "property.h"
+#include "rect.h"
 
 namespace native::ui {
+
+struct Id {
+  std::string value;
+};
 
 class Widget {
 public:
@@ -13,6 +18,9 @@ public:
 
   void SetId(std::string id) { id_ = std::move(id); }
   const std::string& GetId() const { return id_; }
+
+  void SetBounds(Rect b) { bounds_ = b; }
+  const Rect& bounds() const { return bounds_; }
 
   virtual Widget* ChildAt(int index) { return nullptr; }
   virtual int ChildCount() const { return 0; }
@@ -37,6 +45,7 @@ public:
 
 private:
   std::string id_;
+  Rect bounds_;
   bool needs_layout_ = false;
   bool needs_draw_ = false;
   State* watched_state_ = nullptr;
@@ -44,4 +53,6 @@ private:
 
 }  // namespace native::ui
 
+// Include at end: Widget class must be complete before template method
+// implementation (Watch<T>) in widget_inl.h can be instantiated.
 #include "widget_inl.h"
