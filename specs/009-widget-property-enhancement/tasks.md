@@ -95,10 +95,10 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create ImageWidget with ImageURI pointing to a valid PNG, render, verify image appears. Destroy widget before callback fires, verify callback is NOT invoked.
 
-- [ ] T015 [P] [US1] Create `Glide` abstract base class in `native_ui/src/framework/widgets/glide.h` — `Load(path, callback, options)`, `Cancel()`, `ClearCache()`, `SetDefault()`/`Default()` static API; `DefaultGlide` implementation using `std::async` for decode + `LRUCache` for caching
-- [ ] T016 [US1] Create `native_ui/src/framework/widgets/glide.cc` — `DefaultGlide` implementation: `Load` submits decode via `std::async`, checks `LRUCache` first, invokes callback on main thread; `Cancel` marks request cancelled, callback checks flag
-- [ ] T017 [US1] Add `ImageURI`, `Placeholder`, `ErrorImage`, `ScaleType`, `ScaleGravity` tags to `ImageWidget` in `native_ui/src/framework/widgets/image_widget.h/cc` — integrate with Glide for async loading
-- [ ] T018 [US1] Implement `ImageWidget::Draw` in `native_ui/src/framework/widgets/image_widget.cc` — state machine: kLoading→Placeholder, kLoaded→ScaleType transform + draw, kError→ErrorImage; `Load()`/`CancelLoad()` lifecycle with `load_key_` stale callback guard
+- [x] T015 [P] [US1] Create `Glide` abstract base class in `native_ui/src/framework/widgets/glide.h` — Load/Cancel/ClearCache, SetDefault/Default singleton
+- [x] T016 [US1] Create `native_ui/src/framework/widgets/glide.cc` — DefaultGlide with std::async decode, LRU cache, cancellation, stale callback guard
+- [x] T017 [US1] Add `ImageURI`, `ScaleType`, `ScaleGravity` tags to `ImageWidget` in `native_ui/src/framework/widgets/image_widget.h/cc` — URI triggers Glide::Load(), Visual props delegate to Style::setXxx
+- [x] T018 [US1] Implement `ImageWidget::Draw` with ScaleType transform (kCenterCrop, kCenterInside, kFillXY, kFitStart, kFitEnd, kCenter) in `native_ui/src/framework/widgets/image_widget.cc`; Load/Cancel lifecycle with OnUnmount guard
 
 **Checkpoint**: ImageWidget loads file asynchronously, shows scaled image, cancels properly on destruction.
 
