@@ -56,9 +56,9 @@ def _stblib():
 def _nanosvg():
     http_archive(
         name = "nanosvg",
-        urls = ["https://github.com/oxsource/nanovg/archive/refs/tags/v1.0.0.tar.gz"],
-        sha256 = "91882cb9ea0f6cb75dfbe3a0d272292b640d237e8892d7252b08e38feb930e6f",
-        strip_prefix = "nanovg-1.0.0",
+        urls = ["https://github.com/memononen/nanosvg/archive/239e102ec2c691f2902e20ace2ed36ee4a35cfe6.tar.gz"],
+        sha256 = "2bc68bdb518d7800252042e5cad50a0ab321596f0cbf49ef2a752926329063d2",
+        strip_prefix = "nanosvg-239e102ec2c691f2902e20ace2ed36ee4a35cfe6",
         build_file = "//third_party/nanosvg:BUILD.bazel",
     )
 

@@ -4,7 +4,7 @@
 
 #include "hardware_buffer.h"
 
-class SkImage;
+#include "SkImage.h"
 
 namespace native::ui {
 
@@ -15,6 +15,9 @@ public:
   static std::unique_ptr<Image> FromEncoded(const void* data, size_t size);
   static std::unique_ptr<Image> FromFile(const char* path);
   static std::unique_ptr<Image> FromBuffer(HardwareBuffer buffer);
+
+  // Internal: wrap an existing SkImage (used by nanosvg SVG path)
+  static std::unique_ptr<Image> FromSkImage(sk_sp<SkImage> sk_image);
 
   ~Image();
 
