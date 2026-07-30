@@ -18,6 +18,7 @@
 - Q: 需要 Style 复用机制 → A: 设计 Style 对象，支持链式设置（`Style().setFontSize(16).setTextColor(kRed)`），可通过构造函数标签 `Text(Content("Hi"), myStyle)` 或运行时 `widget->ApplyStyle(myStyle)` 应用
 - Q: Widget 基础属性范围 + Width/Height 语义 → A: Widget 基类应有 Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor 等基础属性；Width/Height 为 CSS 语义的首选尺寸，作为 Yoga 布局约束而非强制固定
 - Q: Style 优先级 + 默认值机制 → A: Style 对象内部携带 `StylePriority` 枚举值（kGlobal=100 → kTheme=200 → kClass=300 → kInstance=400 → kExplicit=500），合并两个 Style 时按优先级裁决：同属性取优先级高者，同优先级取后者。每个属性有独立 is_set 标志，未设置的属性不参与合并。`Style::SetDefault` 设 kGlobal 级别，Widget 构造时设 kClass 级别，ApplyStyle 设 kInstance 级别，显式标签设 kExplicit 级别
+- Q: 补充缺失属性（Padding/Shadow/MinMax/Gradient）→ A: 新增 Padding(EdgeInsets)、MinWidth(float)/MaxWidth(float)、Shadow(offset,radius,color)、BackgroundGradient(Gradient) 属性——Padding 为 Widget 基类属性（CSS 语义内边距），MinWidth/MaxWidth 通过 Yoga 约束实现，Shadow 使用 Skia 阴影绘制，Gradient 支持线性/径向渐变
 
 ## User Scenarios & Testing
 
@@ -103,28 +104,37 @@ A developer configures how an Image widget scales its content within the widget 
 - What happens when Width and Height are set via Style and then overridden by parent FlexLayout?
 - What happens when Enabled(false) widget receives a mouse event?
 - What happens when Width/Height is set but layout_size_ is also set via Container::Layout(Size)?
+- What happens when both Background(Color) and BackgroundGradient(gradient) are set — which wins?
+- What happens when Padding exceeds container size?
+- What happens when ShadowRadius is 0?
+- What happens when MinWidth > MaxWidth?
+- What happens when a linear gradient has zero-length from→to vector?
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: A `Style` class MUST support chainable property setting: `Style().setFontSize(16).setTextColor(kRed).setWidth(200).setHeight(48)` — all properties are optional
-- **FR-002**: `Style` MUST cover at minimum: Width, Height, Background, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines
+- **FR-002**: `Style` MUST cover at minimum: Width, Height, MinWidth, MaxWidth, Padding, Background, BackgroundGradient, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, ShadowOffset, ShadowRadius, ShadowColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines
 - **FR-003**: Style MUST carry a `StylePriority` enum value (kGlobal=100, kTheme=200, kClass=300, kInstance=400, kExplicit=500) — each property inherits the Style's priority
 - **FR-004**: A free function `Style Merge(const Style& base, const Style& overlay)` MUST merge two Styles per-property: for each property where `overlay.is_set`, if `overlay.priority >= base.priority`, overlay wins; unset properties are ignored
 - **FR-005**: Style MUST support `Style::SetDefault(const Style&)` — sets a global default (kGlobal priority) applied to all subsequently created widgets (main-thread-only)
 - **FR-006**: Style MUST track per-property `is_set` flags — an unset property does NOT participate in Merge, allowing lower-priority values to survive
 - **FR-007**: Widget base MUST support `Width(float)` and `Height(float)` — CSS 语义的首选尺寸，作为 Yoga 布局约束，可能被父容器拉伸
 - **FR-008**: Widget base MUST support `Enabled(bool)` — when false, widget does not respond to events and renders with visual dimming; true by default
-- **FR-009**: Widget base MUST support `Background(Color)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
+- **FR-009**: Widget base MUST support `Padding(EdgeInsets)` — CSS 语义内边距，通过 Yoga padding 约束实现，影响子控件布局位置
+- **FR-010**: Widget base MUST support `MinWidth(float)` and `MaxWidth(float)` — CSS clamp 语义，通过 Yoga 约束实现，限制控件最小/最大宽度
+- **FR-011**: Widget base MUST support `Background(Color)`, `BackgroundGradient(Gradient)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
 - **FR-010**: Text widget MUST own the following tagged properties: `Content(string)`, `FontSize(float)`, `TextColor(Color)`, `TextAlign(TextAlign)`, `FontFamily(string)`, `FontWeight(int)`, `LineHeight(float)`, `MaxLines(int)`, `TextDecoration(TextDecoration)`
 - **FR-011**: Text widget MUST support `TextAlign(TextAlign)` — kLeft, kCenter, kRight (horizontal), and `kTop`, kCenter, kBottom (vertical)
-- **FR-012**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
-- **FR-013**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
-- **FR-014**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover, kStretch
-- **FR-015**: Image widget MUST support `CornerRadius(float)` for rounded corners
-- **FR-016**: All properties MUST be configurable via tagged parameters in the constructor AND via Style
-- **FR-017**: Properties MUST NOT break existing widget API — all existing constructors remain valid
+- **FR-012**: Widget base MUST support `ShadowOffset(Point)`, `ShadowRadius(float)`, `ShadowColor(Color)` — 控件阴影，通过 Skia 阴影 API 绘制在背景层下方
+- **FR-013**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
+- **FR-014**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
+- **FR-015**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover, kStretch
+- **FR-016**: Image widget MUST support `CornerRadius(float)` for rounded corners
+- **FR-017**: All properties MUST be configurable via tagged parameters in the constructor AND via Style
+- **FR-018**: `Gradient` type MUST support `Linear(Point from, Point to, std::vector<ColorStop>)` and `Radial(Point center, float radius, std::vector<ColorStop>)` — 通过 Skia `SkGradientShader` 实现
+- **FR-019**: Properties MUST NOT break existing widget API — all existing constructors remain valid
 
 ### Key Entities
 
@@ -132,7 +142,8 @@ A developer configures how an Image widget scales its content within the widget 
 - **Text**: Inherits Widget base properties (Width, Height, Background, etc.) plus owns typographic properties (FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration).
 - **Button**: Inherits from Text — gets all Text + Widget properties automatically. Adds interactive properties: OnClick, NormalColor, PressedColor. Inherits Enabled from Widget base (Disabled behavior unified across all widgets). Button's Draw uses state color for background and Text properties for label rendering.
 - **Image Widget**: Displays images with FitMode control. Supports CornerRadius for rounded corners.
-- **Widget Base Properties**: Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor — ALL widget types share these common visual/behavioral properties. Width/Height are CSS-semantic preferred sizes used as Yoga constraints.
+- **Widget Base Properties**: Width, Height, MinWidth, MaxWidth, Padding, Background, BackgroundGradient, ShadowOffset, ShadowRadius, ShadowColor, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor — ALL widget types share these common visual/behavioral/layout properties
+- **Gradient**: Describes a linear or radial color gradient. `Linear(from, to, colorStops)` for linear gradients; `Radial(center, radius, colorStops)` for radial. Each ColorStop is `(position, color)`. Rendered via Skia gradient shader.
 
 ## Success Criteria
 
@@ -146,6 +157,10 @@ A developer configures how an Image widget scales its content within the widget 
 - **SC-006**: Image with FitMode(kCover) fills the entire widget bounds — testable via edge pixel verification
 - **SC-007**: All new properties are settable via tagged parameters and do not break existing construction patterns — verified by existing test suite
 - **SC-008**: A Text widget with MaxLines(1) and overflow truncates content with an ellipsis — testable via pixel readback
+- **SC-009**: A developer can set Padding(8) on a Container and verify children are inset by 8px — testable via layout result positions
+- **SC-010**: A developer can set MinWidth(100) and MaxWidth(400) on a Container and verify Yoga respects the clamp — testable via Measure output
+- **SC-011**: A developer can set Shadow on a Container and verify a shadow is rendered below the background — testable via pixel readback
+- **SC-012**: A developer can set BackgroundGradient(Linear(...)) on a Container and verify smooth color transition — testable via pixel sampling at gradient endpoints
 
 ## Assumptions
 
@@ -168,3 +183,8 @@ A developer configures how an Image widget scales its content within the widget 
 - FitMode is implemented via `Canvas::DrawImage` with source/dest rect transformations
 - Visible(false) skips Draw but does NOT remove the widget from layout
 - Label("OK") on Button is synonymous with Content("OK") for convenience
+- Padding is implemented as Yoga padding (`YGNodeStyleSetPadding`) — affects child layout positions inside Container/Stack
+- MinWidth/MaxWidth are implemented as Yoga min/max constraints — limit widget sizing
+- Shadow is rendered via Skia shadow API — drawn beneath background, before content
+- Gradient uses Skia `SkGradientShader::MakeLinear/MakeRadial` — applied as background fill shader
+- When both Background(Color) and BackgroundGradient(Gradient) are set, Gradient wins
