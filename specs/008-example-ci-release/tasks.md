@@ -41,7 +41,7 @@ All paths relative to `native_ui/` under the repo root, except `.github/workflow
 
 **Independent Test**: `bazel run //examples:hello_world` exits with code 0 and produces `frame_000.png`, `frame_001.png`, `frame_002.png` showing count transitions (0→1→2).
 
-- [ ] T003 [US1] Create `examples/hello_world.cc` with:
+- [x] T003 [US1] Create `examples/hello_world.cc` with:
   - CounterState { Property<int> count } + Watch binding
   - Container(Column, Padding, Gap) → Text("Count: N") + Button("Increment")
   - 3 frames: count=0 → RenderAndSave("frame_000.png"), count=1 → RenderAndSave("frame_001.png"), count=2 → RenderAndSave("frame_002.png")

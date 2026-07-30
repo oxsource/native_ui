@@ -87,10 +87,7 @@ void Container::Measure(Size available) {
   YGNodeStyleSetWidth(root_, available.width);
   YGNodeStyleSetHeight(root_, available.height);
 
-  for (size_t i = 0; i < child_nodes_.size(); i++) {
-    YGNodeInsertChild(root_, child_nodes_[i], static_cast<int32_t>(i));
-  }
-
+  // Children already inserted via AddChild — no need to re-insert
   YGNodeCalculateLayout(root_, YGUndefined, YGUndefined, YGDirectionLTR);
 
   layout_result_.resize(child_nodes_.size());
