@@ -119,8 +119,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 ### Implementation for User Story 5
 
-- [ ] T016 [P] [US5] Create `Stack` header with tagged-parameter construction (Children, Id tags), `AddChild`, `RemoveChild`, `ClearChildren` in `native_ui/src/framework/widgets/stack.h`
-- [ ] T017 [US5] Implement `Stack::Draw(Canvas&)` with z-order iteration (0=bottom, N=top), save/restore per child, `ChildAt()`, `ChildCount()`, `AddChild`/`RemoveChild` with `RequestLayout()` in `native_ui/src/framework/widgets/stack.cc`
+- [x] T016 [P] [US5] Create `Stack` header with tagged-parameter construction (Children, Id tags), `AddChild`, `RemoveChild`, `ClearChildren` in `native_ui/src/framework/widgets/stack.h`
+- [x] T017 [US5] Implement `Stack::Draw(Canvas&)` with z-order iteration (0=bottom, N=top), save/restore per child, `ChildAt()`, `ChildCount()`, `AddChild`/`RemoveChild` with `RequestLayout()` in `native_ui/src/framework/widgets/stack.cc`
 
 **Checkpoint**: Stack renders children in correct z-order, AddChild/RemoveChild triggers layout.
 

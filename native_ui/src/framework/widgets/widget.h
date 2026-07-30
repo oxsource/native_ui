@@ -53,4 +53,6 @@ private:
 
 }  // namespace native::ui
 
+// Include at end: Widget class must be complete before template method
+// implementation (Watch<T>) in widget_inl.h can be instantiated.
 #include "widget_inl.h"
