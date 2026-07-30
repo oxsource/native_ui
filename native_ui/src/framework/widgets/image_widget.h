@@ -43,7 +43,6 @@ private:
   void Load();
   void Cancel();
 
-  std::string path_;
   std::string uri_;
   std::shared_ptr<Image> loaded_image_;
   LoadState state_ = LoadState::kLoading;

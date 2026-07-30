@@ -14,11 +14,8 @@ void ImageWidget::OnUnmount() {
 }
 
 void ImageWidget::ProcessArg(ImagePath tag) {
-  path_ = std::move(tag.value);
-  if (!path_.empty()) {
-    loaded_image_ = native::ui::Image::FromFile(path_.c_str());
-    state_ = loaded_image_ ? LoadState::kLoaded : LoadState::kError;
-  }
+  uri_ = std::move(tag.value);
+  if (!uri_.empty()) Load();
 }
 
 void ImageWidget::Load() {
