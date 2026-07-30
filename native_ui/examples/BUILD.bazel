@@ -2,9 +2,9 @@ cc_binary(
     name = "hello_world",
     srcs = ["hello_world.cc"],
     deps = [
-        "//src/framework/public:native_ui",
-        "//src/framework/surface",
-        "//src/framework/utils",
+        "@native_ui//src/framework/public:native_ui",
+        "@native_ui//src/framework/surface",
+        "@native_ui//src/framework/utils",
         "@skia//:skia",
     ],
 )
@@ -13,12 +13,12 @@ cc_binary(
     name = "image_gallery",
     srcs = ["image_gallery.cc"],
     data = [
-        "//assets/photo:photos",
+        "@native_ui//assets/photo:photos",
     ],
     deps = [
-        "//src/framework/public:native_ui",
-        "//src/framework/surface",
-        "//src/framework/utils",
+        "@native_ui//src/framework/public:native_ui",
+        "@native_ui//src/framework/surface",
+        "@native_ui//src/framework/utils",
         "@skia//:skia",
     ],
 )

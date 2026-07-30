@@ -5,10 +5,10 @@ cc_library(
     includes = ["."],
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
     deps = [
-        "//src/framework/core",
-        "//src/framework/layout",
-        "//src/framework/render",
-        "//src/framework/state",
+        "@native_ui//src/framework/core",
+        "@native_ui//src/framework/layout",
+        "@native_ui//src/framework/render",
+        "@native_ui//src/framework/state",
         "@yoga//:yoga",
     ],
 )

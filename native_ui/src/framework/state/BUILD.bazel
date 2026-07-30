@@ -5,6 +5,6 @@ cc_library(
     includes = ["."],
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
     deps = [
-        "//src/framework/core",
+        "@native_ui//src/framework/core",
     ],
 )

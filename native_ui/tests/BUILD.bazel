@@ -8,7 +8,7 @@ cc_test(
     name = "core_rect_test",
     srcs = ["core_rect_test.cc"],
     deps = [
-        "//src/framework/core",
+        "@native_ui//src/framework/core",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -17,7 +17,7 @@ cc_test(
     name = "core_point_test",
     srcs = ["core_point_test.cc"],
     deps = [
-        "//src/framework/core",
+        "@native_ui//src/framework/core",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -26,7 +26,7 @@ cc_test(
     name = "core_type_test",
     srcs = ["core_type_test.cc"],
     deps = [
-        "//src/framework/core",
+        "@native_ui//src/framework/core",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -35,7 +35,7 @@ cc_test(
     name = "property_test",
     srcs = ["property_test.cc"],
     deps = [
-        "//src/framework/state",
+        "@native_ui//src/framework/state",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -44,7 +44,7 @@ cc_test(
     name = "state_test",
     srcs = ["state_test.cc"],
     deps = [
-        "//src/framework/widgets",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -53,7 +53,7 @@ cc_test(
     name = "widget_test",
     srcs = ["widget_test.cc"],
     deps = [
-        "//src/framework/widgets",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -62,7 +62,7 @@ cc_test(
     name = "container_test",
     srcs = ["container_test.cc"],
     deps = [
-        "//src/framework/widgets",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -71,7 +71,7 @@ cc_test(
     name = "layout_test",
     srcs = ["layout_test.cc"],
     deps = [
-        "//src/framework/layout",
+        "@native_ui//src/framework/layout",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -80,7 +80,7 @@ cc_test(
     name = "render_test",
     srcs = ["render_test.cc"],
     deps = [
-        "//src/framework/render",
+        "@native_ui//src/framework/render",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -89,7 +89,7 @@ cc_test(
     name = "surface_test",
     srcs = ["surface_test.cc"],
     deps = [
-        "//src/framework/surface",
+        "@native_ui//src/framework/surface",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -98,8 +98,8 @@ cc_test(
     name = "widgets_test",
     srcs = ["widgets_test.cc"],
     deps = [
-        "//src/framework/widgets",
-        "//src/framework/render",
+        "@native_ui//src/framework/widgets",
+        "@native_ui//src/framework/render",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -108,8 +108,8 @@ cc_test(
     name = "event_test",
     srcs = ["event_test.cc"],
     deps = [
-        "//src/framework/event",
-        "//src/framework/widgets",
+        "@native_ui//src/framework/event",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -118,8 +118,8 @@ cc_test(
     name = "debug_overlay_test",
     srcs = ["debug_overlay_test.cc"],
     deps = [
-        "//src/framework/widgets",
-        "//src/framework/render",
+        "@native_ui//src/framework/widgets",
+        "@native_ui//src/framework/render",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -128,8 +128,8 @@ cc_test(
     name = "examples_test",
     srcs = ["examples_test.cc"],
     deps = [
-        "//src/framework/widgets",
-        "//src/framework/render",
+        "@native_ui//src/framework/widgets",
+        "@native_ui//src/framework/render",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -138,7 +138,7 @@ cc_test(
     name = "style_test",
     srcs = ["style_test.cc"],
     deps = [
-        "//src/framework/widgets",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -147,7 +147,7 @@ cc_test(
     name = "glide_test",
     srcs = ["glide_test.cc"],
     deps = [
-        "//src/framework/widgets",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )

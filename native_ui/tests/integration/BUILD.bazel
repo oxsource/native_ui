@@ -2,7 +2,7 @@ cc_test(
     name = "container_layout_test",
     srcs = ["container_layout_test.cc"],
     deps = [
-        "//src/framework/widgets",
+        "@native_ui//src/framework/widgets",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -11,9 +11,9 @@ cc_test(
     name = "full_pipeline_test",
     srcs = ["full_pipeline_test.cc"],
     deps = [
-        "//src/framework/widgets",
-        "//src/framework/render",
-        "//src/framework/surface",
+        "@native_ui//src/framework/widgets",
+        "@native_ui//src/framework/render",
+        "@native_ui//src/framework/surface",
         "@com_google_googletest//:gtest_main",
     ],
 )

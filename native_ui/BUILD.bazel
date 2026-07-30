@@ -2,5 +2,5 @@ package(default_visibility = ["//visibility:public"])
 
 alias(
     name = "native_ui",
-    actual = "//src/framework/public:native_ui",
+    actual = "@native_ui//src/framework/public:native_ui",
 )

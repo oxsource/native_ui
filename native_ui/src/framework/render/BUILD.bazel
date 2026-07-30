@@ -5,9 +5,9 @@ cc_library(
     includes = ["."],
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__", "//examples:__subpackages__"],
     deps = [
-        "//src/framework/core",
-        "//src/framework/surface",
-        "//third_party/stblib:stb_image",
+        "@native_ui//src/framework/core",
+        "@native_ui//src/framework/surface",
+        "@native_ui//third_party/stblib:stb_image",
         "@nanosvg//:nanosvg",
         "@skia//:skia",
     ],

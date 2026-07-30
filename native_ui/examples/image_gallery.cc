@@ -39,7 +39,7 @@ static std::unique_ptr<ui::Container> MakeCard(
     ui::ScaleMode scale_type) {
   auto img = std::make_unique<ui::ImageWidget>(
       ui::ImageURI{img_path},
-      ui::Width{120}, ui::Height{120},
+      ui::Width{120}, ui::Height{320},
       scale_type,
       ui::Background{ui::Color{240, 240, 245}},
       ui::CornerRadius{8});

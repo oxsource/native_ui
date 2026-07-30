@@ -1,4 +1,4 @@
-load("//platforms:platforms.bzl", "config_setting_and_platform")
+load("@native_ui//platforms:platforms.bzl", "config_setting_and_platform")
 
 config_setting_and_platform(
     name = "macos_arm64",

@@ -1,16 +1,16 @@
-package(default_visibility = ["//src/spike:__subpackages__"])
+package(default_visibility = ["@native_ui//src/spike:__subpackages__"])
 
 cc_binary(
     name = "skia_spike",
     srcs = ["skia_spike.cc"],
-    deps = ["//src/framework/utils"],
+    deps = ["@native_ui//src/framework/utils"],
 )
 
 cc_binary(
     name = "yoga_spike",
     srcs = ["yoga_spike.cc"],
     deps = [
-        "//src/framework/utils",
+        "@native_ui//src/framework/utils",
         "@yoga//:yoga",
     ],
 )
