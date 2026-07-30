@@ -103,3 +103,23 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "event_test",
+    srcs = ["event_test.cc"],
+    deps = [
+        "//src/framework/event",
+        "//src/framework/widgets",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "debug_overlay_test",
+    srcs = ["debug_overlay_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "//src/framework/render",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

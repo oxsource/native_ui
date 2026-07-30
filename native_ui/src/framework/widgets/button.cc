@@ -1,5 +1,6 @@
 #include "button.h"
 #include "canvas.h"
+#include "event_types.h"
 #include "paint.h"
 
 namespace native::ui {
@@ -15,6 +16,12 @@ void Button::Watch(Property<std::string>& prop) {
 
 bool Button::HitTest(Point p) const {
   return bounds().Contains(p);
+}
+
+bool Button::OnMouseEvent(const MouseEvent& event) {
+  if (!bounds().Contains(event.position)) return false;
+  if (on_click_) on_click_();
+  return true;
 }
 
 void Button::Draw(Canvas& canvas) {
