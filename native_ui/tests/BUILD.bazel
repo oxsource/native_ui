@@ -93,3 +93,13 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "widgets_test",
+    srcs = ["widgets_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "//src/framework/render",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

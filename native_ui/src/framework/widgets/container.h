@@ -4,27 +4,10 @@
 #include <vector>
 
 #include "widget.h"
-#include "yoga/Yoga.h"
+#include "flex_layout.h"
+#include "layout_result.h"
 
 namespace native::ui {
-
-struct Direction {
-  int value;
-  static constexpr int kRow = 0;
-  static constexpr int kColumn = 1;
-};
-
-struct Padding {
-  float value;
-};
-
-struct Gap {
-  float value;
-};
-
-struct Margin {
-  float value;
-};
 
 struct Id {
   std::string value;
@@ -52,6 +35,8 @@ public:
   int ChildCount() const override;
   int IndexOf(Widget* child) const override;
 
+  void Measure(Size available);
+  void Arrange(Size container_size);
   void Draw(class Canvas& canvas) override;
 
 private:
@@ -65,6 +50,8 @@ private:
   std::vector<std::unique_ptr<Widget>> children_;
   std::vector<YGNodeRef> child_nodes_;
   YGNodeRef root_ = nullptr;
+  std::unique_ptr<FlexLayout> layout_;
+  std::vector<MeasureResult> layout_result_;
 };
 
 }  // namespace native::ui

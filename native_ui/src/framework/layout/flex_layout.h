@@ -8,7 +8,11 @@
 namespace native::ui {
 
 // Tag types with constants
-struct Direction { int value; };
+struct Direction {
+  int value;
+  static constexpr int kRow = 0;
+  static constexpr int kColumn = 1;
+};
 struct JustifyContent {
   int value;
   static constexpr int kFlexStart = 0;

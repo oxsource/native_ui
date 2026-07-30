@@ -1,17 +1,13 @@
 #include "container.h"
+#include "canvas.h"
 
 namespace native::ui {
 
-Container::~Container() {
-  if (root_) {
-    YGNodeFreeRecursive(root_);
-  }
-}
+Container::~Container() = default;
 
 void Container::ProcessArg(Direction tag) {
   YGNodeStyleSetFlexDirection(
-      root_, tag.value == Direction::kRow ? YGFlexDirectionRow
-                                          : YGFlexDirectionColumn);
+      root_, static_cast<YGFlexDirection>(tag.value));
 }
 
 void Container::ProcessArg(Padding tag) {
@@ -87,9 +83,52 @@ int Container::IndexOf(Widget* child) const {
   return -1;
 }
 
+void Container::Measure(Size available) {
+  YGNodeStyleSetWidth(root_, available.width);
+  YGNodeStyleSetHeight(root_, available.height);
+
+  for (size_t i = 0; i < child_nodes_.size(); i++) {
+    YGNodeInsertChild(root_, child_nodes_[i], static_cast<int32_t>(i));
+  }
+
+  YGNodeCalculateLayout(root_, YGUndefined, YGUndefined, YGDirectionLTR);
+
+  layout_result_.resize(child_nodes_.size());
+  for (size_t i = 0; i < child_nodes_.size(); i++) {
+    layout_result_[i].size = Size{
+      YGNodeLayoutGetWidth(child_nodes_[i]),
+      YGNodeLayoutGetHeight(child_nodes_[i])};
+    layout_result_[i].position = Point{0, 0};
+  }
+}
+
+void Container::Arrange(Size container_size) {
+  (void)container_size;
+  for (size_t i = 0; i < child_nodes_.size(); i++) {
+    layout_result_[i].position = Point{
+        YGNodeLayoutGetLeft(child_nodes_[i]),
+        YGNodeLayoutGetTop(child_nodes_[i])};
+    children_[i]->SetBounds(Rect{
+        layout_result_[i].position.x,
+        layout_result_[i].position.y,
+        layout_result_[i].size.width,
+        layout_result_[i].size.height});
+  }
+}
+
 void Container::Draw(class Canvas& canvas) {
-  for (auto& child : children_) {
-    child->Draw(canvas);
+  for (size_t i = 0; i < children_.size(); ++i) {
+    if (!children_[i]->needs_layout() && !children_[i]->needs_draw()) {
+      continue;
+    }
+    canvas.Save();
+    canvas.Translate(layout_result_[i].position);
+    canvas.ClipRect(Rect{
+        0, 0,
+        layout_result_[i].size.width,
+        layout_result_[i].size.height});
+    children_[i]->Draw(canvas);
+    canvas.Restore();
   }
 }
 

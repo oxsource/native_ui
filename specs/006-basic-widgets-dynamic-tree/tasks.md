@@ -30,9 +30,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Update build configuration and public headers to support new widgets
 
-- [ ] T001 Update `widgets` cc_library in `native_ui/src/framework/widgets/BUILD.bazel` to add `//src/framework/render` dep
-- [ ] T002 [P] Update `native_ui/src/framework/public/include/native_ui/widgets.h` to re-export Text, Button, ImageWidget, ExternalImage, Stack headers
-- [ ] T003 Add `widgets_test` cc_test target in `native_ui/tests/BUILD.bazel` with dep on `//src/framework/widgets` and `//src/framework/render`
+- [x] T001 Update `widgets` cc_library in `native_ui/src/framework/widgets/BUILD.bazel` to add `//src/framework/render` dep
+- [x] T002 [P] Update `native_ui/src/framework/public/include/native_ui/widgets.h` to re-export Text, Button, ImageWidget, ExternalImage, Stack headers
+- [x] T003 Add `widgets_test` cc_test target in `native_ui/tests/BUILD.bazel` with dep on `//src/framework/widgets` and `//src/framework/render`
 
 ---
 
@@ -42,10 +42,10 @@ All paths are relative to `native_ui/` under the repository root.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add `SetBounds(Rect)` and `bounds()` to `Widget` base class in `native_ui/src/framework/widgets/widget.h` — stores the layout bounds assigned by parent Container for hit testing and position reference
-- [ ] T005 Integrate FlexLayout into Container: add `FlexLayout layout_` member and `std::vector<MeasureResult> layout_result_` to `native_ui/src/framework/widgets/container.h`; add dep on `//src/framework/layout` to `native_ui/src/framework/widgets/BUILD.bazel`
-- [ ] T006 Implement `Container::Measure(Size)` and `Container::Arrange(Size)` in `native_ui/src/framework/widgets/container.cc` — Measure delegates to FlexLayout, Arrange stores positions and calls `child->SetBounds()` for each child
-- [ ] T007 Rewrite `Container::Draw(Canvas&)` in `native_ui/src/framework/widgets/container.cc` — iterate children: `Save()`, `Translate(pos)`, `ClipRect(size)`, `child->Draw(canvas)`, `Restore()`
+- [x] T004 Add `SetBounds(Rect)` and `bounds()` to `Widget` base class in `native_ui/src/framework/widgets/widget.h` — stores the layout bounds assigned by parent Container for hit testing and position reference
+- [x] T005 Integrate FlexLayout into Container: add `FlexLayout layout_` member and `std::vector<MeasureResult> layout_result_` to `native_ui/src/framework/widgets/container.h`; add dep on `//src/framework/layout` to `native_ui/src/framework/widgets/BUILD.bazel`
+- [x] T006 Implement `Container::Measure(Size)` and `Container::Arrange(Size)` in `native_ui/src/framework/widgets/container.cc` — Measure delegates to FlexLayout, Arrange stores positions and calls `child->SetBounds()` for each child
+- [x] T007 Rewrite `Container::Draw(Canvas&)` in `native_ui/src/framework/widgets/container.cc` — iterate children: `Save()`, `Translate(pos)`, `ClipRect(size)`, `child->Draw(canvas)`, `Restore()`
 
 **Checkpoint**: Foundation ready — Container properly positions children via FlexLayout, translates/clips canvas per child, and sets child bounds for hit testing.
 
