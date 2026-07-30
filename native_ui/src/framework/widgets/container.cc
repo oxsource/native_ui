@@ -1,5 +1,6 @@
 #include "container.h"
 #include "canvas.h"
+#include "paint.h"
 
 namespace native::ui {
 
@@ -161,6 +162,14 @@ void Container::Arrange() {
 }
 
 void Container::Draw(class Canvas& canvas) {
+  Rect r = bounds();
+  auto c = style().background();
+  if (c.a > 0) {
+    Paint p;
+    p.SetColor(c);
+    canvas.DrawRoundRect(Rect{0, 0, r.width, r.height}, style().corner_radius(), p);
+  }
+
   for (size_t i = 0; i < children_.size(); ++i) {
     canvas.Save();
     canvas.Translate(layout_result_[i].position);

@@ -47,8 +47,8 @@ static std::unique_ptr<ui::Container> MakeCard(
       ui::Content{title},
       ui::FontSize{12},
       ui::TextAlign{ui::TextAlign::kCenter},
-      ui::Background{ui::Color{40, 40, 50}},
-      ui::TextColor{ui::kWhite},
+      ui::Background{ui::kTransparent},
+      ui::TextColor{ui::Color{60, 60, 70}},
       ui::Width{140},
       ui::Height{24});
   std::vector<std::unique_ptr<ui::Widget>> v;
@@ -80,7 +80,7 @@ int main() {
       ui::Direction{ui::Direction::kRow},
       ui::Gap{16},
       ui::Width{800}, ui::Height{280},
-      ui::Background{ui::Color{235, 235, 245}},
+      ui::Background{ui::Color{215, 215, 230}},
       ui::Padding{ui::EdgeInsets::All(20)},
       ui::Container::Children{std::move(cards)});
 

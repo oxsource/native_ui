@@ -34,7 +34,8 @@ static SkRect ToSkRect(Rect r) {
 }
 
 static void ApplyPaint(SkPaint& sk_paint, const Paint& paint) {
-  sk_paint.setColor(ToSkColor(paint.color()));
+  auto sk_color = ToSkColor(paint.color());
+  sk_paint.setColor(sk_color);
   sk_paint.setAntiAlias(paint.anti_alias());
   sk_paint.setStrokeWidth(paint.stroke_width());
   switch (paint.style()) {
@@ -48,7 +49,9 @@ static void ApplyPaint(SkPaint& sk_paint, const Paint& paint) {
       sk_paint.setStyle(SkPaint::kStrokeAndFill_Style);
       break;
   }
-  sk_paint.setAlpha(paint.alpha());
+  // Combine per-color alpha with paint-level alpha override
+  unsigned a = static_cast<unsigned>(SkColorGetA(sk_color)) * paint.alpha() / 255u;
+  sk_paint.setAlpha(static_cast<uint8_t>(a));
 }
 
 class CanvasImpl {
