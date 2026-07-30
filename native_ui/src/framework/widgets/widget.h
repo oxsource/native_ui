@@ -8,6 +8,10 @@
 
 namespace native::ui {
 
+struct Id {
+  std::string value;
+};
+
 class Widget {
 public:
   virtual ~Widget() = default;

@@ -20,6 +20,7 @@ public:
   template <typename... Args>
   explicit Text(Args&&... args);
 
+  void Watch(Property<std::string>& prop);
   void Draw(Canvas& canvas) override;
 
 private:
@@ -30,7 +31,7 @@ private:
 
   std::string content_;
   float font_size_ = 16.0f;
-  Color color_ = Color::kBlack;
+  Color color_ = kBlack;
   Property<std::string>* watched_prop_ = nullptr;
 };
 

@@ -59,8 +59,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Create `Text` header with tagged-parameter construction (Content, FontSize, Color, Id tags) in `native_ui/src/framework/widgets/text.h`
-- [ ] T009 [US1] Implement `Text::Draw(Canvas&)` using `Canvas::DrawText()` and Watch/UnwatchAll for data binding in `native_ui/src/framework/widgets/text.cc`
+- [x] T008 [P] [US1] Create `Text` header with tagged-parameter construction (Content, FontSize, Color, Id tags) in `native_ui/src/framework/widgets/text.h`
+- [x] T009 [US1] Implement `Text::Draw(Canvas&)` using `Canvas::DrawText()` and Watch/UnwatchAll for data binding in `native_ui/src/framework/widgets/text.cc`
 
 **Checkpoint**: Text widget compiles, renders text with correct position/size/color, and auto-redraws on State change.
 

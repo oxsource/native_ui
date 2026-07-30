@@ -9,10 +9,6 @@
 
 namespace native::ui {
 
-struct Id {
-  std::string value;
-};
-
 class Container : public Widget {
 public:
   template <typename... Args>
