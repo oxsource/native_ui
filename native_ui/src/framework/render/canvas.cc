@@ -155,12 +155,17 @@ void Canvas::DrawPath(const Path& path, const Paint& paint) {
 void Canvas::DrawImage(const Image& image, Rect dest) {
   SkImage* sk_img = image.sk_image();
   if (sk_img) {
-    impl_->sk_canvas->drawImage(sk_img, dest.x, dest.y);
+    impl_->sk_canvas->drawImageRect(sk_img, ToSkRect(dest), SkSamplingOptions());
   }
 }
 
 void Canvas::DrawImage(const Image& image, Rect src, Rect dest) {
-  DrawImage(image, dest);
+  SkImage* sk_img = image.sk_image();
+  if (sk_img) {
+    impl_->sk_canvas->drawImageRect(sk_img, ToSkRect(src), ToSkRect(dest),
+                                     SkSamplingOptions(), nullptr,
+                                     SkCanvas::kFast_SrcRectConstraint);
+  }
 }
 
 void Canvas::ClipRect(Rect rect) {
