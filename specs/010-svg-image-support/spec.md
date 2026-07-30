@@ -20,15 +20,15 @@
 
 ### User Story 1 - Developer Validates Image Loading in Composite Layout (Priority: P1)
 
-A developer runs a demo that displays a grid of ImageWidget + Text label pairs inside a single Container. Each ImageWidget uses a different ScaleType (kCenterCrop, kCenterInside) and image source (PNG, SVG), with a Text label below explaining the purpose. The entire layout is rendered to a single output PNG.
+A developer runs an example that displays a grid of ImageWidget + Text label pairs inside a single Container. Each ImageWidget uses a different ScaleType (kCenterCrop, kCenterInside) and image source (PNG, SVG), with a Text label below explaining the purpose. The entire layout is rendered to a single output PNG.
 
 **Why this priority**: This validates the full widget composition pipeline — Container layout, ImageWidget with async loading, Text labels, and ScaleType rendering — all in one scene.
 
-**Independent Test**: A developer runs the demo binary and verifies it produces a single output PNG showing 5 image+label cards (2 SVG + 3 PNG) in a column with correct layout and visible content.
+**Independent Test**: A developer runs the example binary and verifies it produces a single output PNG showing 5 image+label cards (2 SVG + 3 PNG) in a column with correct layout and visible content.
 
 **Acceptance Scenarios**:
 
-1. **Given** the demo source, **When** built and run, **Then** it produces `/tmp/image_gallery.png` containing 5 cards stacked vertically
+1. **Given** the example source, **When** built and run, **Then** it produces `/tmp/image_gallery.png` containing 5 cards stacked vertically
 2. **Given** the output PNG, **When** inspected, **Then** it shows `superdog.svg` with `ScaleType(kCenter)` (original size, no scaling) labeled "SVG Original"
 3. **Given** the output PNG, **When** inspected, **Then** it shows `superdog.svg` with `ScaleType(kCenterInside)` labeled "SVG Scaled"
 4. **Given** the output PNG, **When** inspected, **Then** it shows `police.png` with `ScaleType(kCenterCrop)`, `kCenterInside`, `kFillXY` labeled accordingly
@@ -60,9 +60,9 @@ An SVG file (`superdog.svg`) is parsed via the nanosvg library and rasterized to
 - What happens when SVG references external files (fonts, images) that don't exist?
 - What happens when an SVG with unsupported features (animations, scripts) is loaded?
 - What happens when Glide::Default() is null (not initialized)?
-- What happens when the demo is run from a different working directory where asset paths are invalid?
+- What happens when the example is run from a different working directory where asset paths are invalid?
 - What happens when an ImageWidget card has no image loaded (loading state)?
-- What happens when the demo Container height/width is too small for 4 cards?
+- What happens when the example Container height/width is too small for 4 cards?
 
 ## Requirements
 
@@ -71,7 +71,7 @@ An SVG file (`superdog.svg`) is parsed via the nanosvg library and rasterized to
 - **FR-001**: `Image::FromFile()` MUST support SVG files — detect `.svg` extension and route to nanosvg parser for rasterization
 - **FR-002**: nanosvg MUST be integrated as a header-only third-party library at `third_party/nanosvg/nanosvg.h`
 - **FR-003**: SVG MUST be rasterized to a Skia `SkBitmap`/`SkImage` at the widget's target resolution — the resulting `Image` object works with all `ImageWidget` ScaleType modes
-- **FR-004**: A dedicated demo (`examples/image_demo.cc`) MUST exist that:
+- **FR-004**: A dedicated example (`examples/image_gallery.cc`) MUST exist that:
   - Initializes Glide with `DefaultGlide`
   - Loads BOTH `police.png` and `superdog.svg` via `Glide::Load()` (async, worker thread)
   - SVG is parsed and rasterized via nanosvg inside Glide's worker thread — `Image::FromFile` detects `.svg` and calls nanosvg
@@ -95,13 +95,13 @@ An SVG file (`superdog.svg`) is parsed via the nanosvg library and rasterized to
 - **Image::FromFile (SVG path)**: Extended to detect `.svg` extension — routes to nanosvg parser, returns an `Image` wrapping a rasterized bitmap.
 - **ImageWidget**: Renders both PNG and SVG via the same `Draw(Canvas&)` path — `ScaleType`, `ScaleGravity` apply uniformly.
 - **Glide**: Async image loader — loads PNG files via `Image::FromFile` on worker thread, caches result.
-- **Demo Example**: `examples/image_demo.cc` — produces 6 output PNGs showing both PNG and SVG with 3 ScaleType modes each.
+- **Image Gallery Example**: `examples/image_gallery.cc` — produces 6 output PNGs showing both PNG and SVG with 3 ScaleType modes each.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The demo produces `/tmp/image_gallery.png` — a valid PNG showing all 5 image+label cards in a vertical column
+- **SC-001**: The example produces `/tmp/image_gallery.png` — a valid PNG showing all 5 image+label cards in a vertical column
 - **SC-002**: The output PNG contains SVG Original (kCenter, no scaling) and SVG Scaled (kCenterInside) — visibly different
 - **SC-003**: The output PNG contains 3 PNG ScaleType variants — kCenterCrop (fills bounds), kCenterInside (uniform), kFillXY (stretched)
 - **SC-004**: Each card has a Text label below identifying the image type and ScaleType
@@ -121,4 +121,4 @@ An SVG file (`superdog.svg`) is parsed via the nanosvg library and rasterized to
 - Each card is a Container(Column) containing ImageWidget + Text(Content) — arranged inside a master Container(Column)
 - Master Container size is fixed via `Width/Height` tags to accommodate 4 cards in a column
 - Animations, scripts, embedded fonts, and external references in SVG are NOT supported by nanosvg — silently ignored
-- Demo BUILD.bazel depends on `//src/framework/widgets`, `//src/framework/render`, `//src/framework/utils``
+- Example BUILD.bazel depends on `//src/framework/widgets`, `//src/framework/render`, `//src/framework/utils``
