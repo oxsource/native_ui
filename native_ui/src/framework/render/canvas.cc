@@ -65,6 +65,7 @@ void Canvas::DrawRect(Rect rect, const Paint& paint) {
 
 void Canvas::DrawText(const std::string& text, Point pos,
                        const Paint& paint) {
+  if (text.empty()) return;
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
   SkFont font;
@@ -85,7 +86,6 @@ void Canvas::DrawImage(const Image& image, Rect dest) {
 }
 
 void Canvas::DrawImage(const Image& image, Rect src, Rect dest) {
-  // Crop+scale variant — separate implementation if API is available
   DrawImage(image, dest);
 }
 
