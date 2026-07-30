@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/009-widget-property-enhancement/plan.md
+at specs/010-svg-image-support/plan.md
 For style/theme system, glide async loader, and property tag contracts, see:
 - specs/009-widget-property-enhancement/contracts/style.md
 - specs/009-widget-property-enhancement/contracts/glide.md
