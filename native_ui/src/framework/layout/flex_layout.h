@@ -51,7 +51,6 @@ struct FlexWrap {
   static constexpr int kWrapReverse = 2;
 };
 struct Gap { float value; };
-struct Padding { float value; };
 struct Margin { float value; };
 
 class FlexLayout {
@@ -74,7 +73,6 @@ private:
   void ProcessArg(AlignContent tag);
   void ProcessArg(FlexWrap tag);
   void ProcessArg(Gap tag);
-  void ProcessArg(Padding tag);
   void ProcessArg(Margin tag);
 
   YGNodeRef root_ = YGNodeNew();

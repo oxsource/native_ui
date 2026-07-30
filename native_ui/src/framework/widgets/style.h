@@ -71,6 +71,36 @@ public:
   static void SetDefault(const Style& s);
   static const Style& Default();
 
+  // -- Getters (read values, is_set indicates if explicitly set) --
+  float width() const { return data_.width_; }
+  float height() const { return data_.height_; }
+  float min_width() const { return data_.min_width_; }
+  float max_width() const { return data_.max_width_; }
+  EdgeInsets padding() const { return data_.padding_; }
+  Color background() const { return data_.background_; }
+  const Gradient& background_gradient() const { return data_.background_gradient_; }
+  bool enabled() const { return data_.enabled_; }
+  bool visible() const { return data_.visible_; }
+  float opacity() const { return data_.opacity_; }
+  float corner_radius() const { return data_.corner_radius_; }
+  float border_width() const { return data_.border_width_; }
+  Color border_color() const { return data_.border_color_; }
+  Point shadow_offset() const { return data_.shadow_offset_; }
+  float shadow_radius() const { return data_.shadow_radius_; }
+  Color shadow_color() const { return data_.shadow_color_; }
+  float font_size() const { return data_.font_size_; }
+  Color text_color() const { return data_.text_color_; }
+  TextAlign text_align() const { return data_.text_align_; }
+  const std::string& font_family() const { return data_.font_family_; }
+  int font_weight() const { return data_.font_weight_; }
+  float line_height() const { return data_.line_height_; }
+  int max_lines() const { return data_.max_lines_; }
+  TextDecoration text_decoration() const { return data_.text_decoration_; }
+  ScaleMode scale_type() const { return data_.scale_type_; }
+  Gravity scale_gravity() const { return data_.scale_gravity_; }
+  const std::string& placeholder() const { return data_.placeholder_; }
+  const std::string& error_image() const { return data_.error_image_; }
+
 private:
   friend Style Merge(const Style& base, const Style& overlay);
 

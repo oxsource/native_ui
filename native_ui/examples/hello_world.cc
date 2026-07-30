@@ -6,6 +6,7 @@
 #include "button.h"
 #include "canvas.h"
 #include "container.h"
+#include "edge_insets.h"
 #include "paint.h"
 #include "png_writer.h"
 #include "state.h"
@@ -21,8 +22,10 @@ public:
 
 static void RenderAndSave(ui::Container* root, const char* path) {
   root->Layout();
-  auto surface = ui::Surface::Create(
-      root->layout_size().width, root->layout_size().height);
+  auto w = static_cast<int>(root->style().width());
+  auto h = static_cast<int>(root->style().height());
+  if (w <= 0 || h <= 0) return;
+  auto surface = ui::Surface::Create(w, h);
   if (!surface) return;
   {
     ui::Canvas canvas(*surface);
@@ -44,9 +47,10 @@ int main() {
 
   auto tree = std::make_unique<ui::Container>(
       ui::Direction{ui::Direction::kRow},
-      ui::Padding{16},
       ui::Gap{8},
-      ui::Size{800, 600},
+      ui::Width{800},
+      ui::Height{600},
+      ui::Padding{ui::EdgeInsets::All(16)},
       ui::Container::Children{std::move(children)});
 
   label_raw->Watch(state->count);

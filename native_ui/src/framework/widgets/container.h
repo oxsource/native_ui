@@ -21,6 +21,9 @@ public:
     std::vector<std::unique_ptr<Widget>> value;
   };
 
+  // Bring Widget base ProcessArg overloads into scope (prevent name hiding)
+  using Widget::ProcessArg;
+
   ~Container() override;
 
   void AddChild(std::unique_ptr<Widget> child);
@@ -31,24 +34,19 @@ public:
   int ChildCount() const override;
   int IndexOf(Widget* child) const override;
 
-  const Size& layout_size() const { return layout_size_; }
-
   void Layout();
-  void Layout(Size size) { layout_size_ = size; Layout(); }
+  void Layout(float w, float h) { style_.setWidth(w); style_.setHeight(h); Layout(); }
   void Measure();
   void Arrange();
   void Draw(class Canvas& canvas) override;
 
 private:
   void ProcessArg(Direction tag);
-  void ProcessArg(Padding tag);
   void ProcessArg(Gap tag);
   void ProcessArg(Margin tag);
   void ProcessArg(Children tag);
   void ProcessArg(Id tag);
-  void ProcessArg(Size tag);
 
-  Size layout_size_{0, 0};
   std::vector<std::unique_ptr<Widget>> children_;
   std::vector<YGNodeRef> child_nodes_;
   YGNodeRef root_ = nullptr;
