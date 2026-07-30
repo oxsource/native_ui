@@ -19,6 +19,7 @@
 - Q: Widget 基础属性范围 + Width/Height 语义 → A: Widget 基类应有 Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor 等基础属性；Width/Height 为 CSS 语义的首选尺寸，作为 Yoga 布局约束而非强制固定
 - Q: Style 优先级 + 默认值机制 → A: Style 对象内部携带 `StylePriority` 枚举值（kGlobal=100 → kTheme=200 → kClass=300 → kInstance=400 → kExplicit=500），合并两个 Style 时按优先级裁决：同属性取优先级高者，同优先级取后者。每个属性有独立 is_set 标志，未设置的属性不参与合并。`Style::SetDefault` 设 kGlobal 级别，Widget 构造时设 kClass 级别，ApplyStyle 设 kInstance 级别，显式标签设 kExplicit 级别
 - Q: 补充缺失属性（Padding/Shadow/MinMax/Gradient）→ A: 新增 Padding(EdgeInsets)、MinWidth(float)/MaxWidth(float)、Shadow(offset,radius,color)、BackgroundGradient(Gradient) 属性——Padding 为 Widget 基类属性（CSS 语义内边距），MinWidth/MaxWidth 通过 Yoga 约束实现，Shadow 使用 Skia 阴影绘制，Gradient 支持线性/径向渐变
+- Q: Image 缩放/裁剪模式 → A: 参考 Android ImageView ScaleType，Image 控件新增 `ScaleType(ScaleMode)` 和 `CropGravity(Gravity)` 属性。ScaleMode 枚举：kCenter（不缩放）、kCenterCrop（等比填充+裁剪）、kCenterInside（等比缩放到完全可见）、kFitEnd/FitStart（对齐边界的等比缩放）、kFillXY（拉伸填满）；CropGravity 控制裁剪对齐位置（kTop/kCenter/kBottom/kLeft/kRight）
 
 ## User Scenarios & Testing
 
@@ -72,19 +73,21 @@ A developer creates a Button that inherits all Text properties (font size, text 
 
 ---
 
-### User Story 4 - Developer Adds Image Fit Modes (Priority: P2)
+### User Story 4 - Developer Controls Image Scaling and Cropping (Priority: P2)
 
-A developer configures how an Image widget scales its content within the widget bounds using fit modes: fill, contain, cover, or stretch.
+A developer configures how an Image widget scales and crops its content within the widget bounds using Android ImageView-inspired ScaleType modes: center, center-crop, center-inside, fit-start/end, and fill.
 
-**Why this priority**: Image fit modes are essential for displaying photos and icons correctly without distortion or cropping.
+**Why this priority**: Different image types need different scale behaviors — avatars use center-crop, product photos use center-inside, banners use fill. Missing modes force developers to manually calculate transforms.
 
-**Independent Test**: A developer creates two Image widgets with different FitMode values (kContain vs kCover), renders them with the same image and bounds, and verifies the output pixel content differs.
+**Independent Test**: A developer creates two Image widgets with different ScaleType + ScaleGravity combinations (kCenterCrop+kTop vs kCenterCrop+kCenter), renders them with the same image, and verifies the visible regions differ.
 
 **Acceptance Scenarios**:
 
-1. **Given** an Image widget with `FitMode(kContain)`, **When** drawn with aspect ratio different from bounds, **Then** the image is scaled to fit within bounds preserving aspect ratio
-2. **Given** an Image widget with `FitMode(kCover)`, **When** drawn, **Then** the image fills the bounds, cropping excess
-3. **Given** an Image widget with `FitMode(kFill)`, **When** drawn, **Then** the image stretches to fill bounds exactly
+1. **Given** an Image widget with `ScaleType(kCenterCrop)`, **When** drawn with different aspect ratio, **Then** the image fills the bounds uniformly, cropping excess, with center gravity by default
+2. **Given** an Image widget with `ScaleType(kCenterInside)`, **When** drawn with different aspect ratio, **Then** the image is scaled to fit entirely within bounds while preserving aspect ratio
+3. **Given** an Image widget with `ScaleType(kCenter)`, **When** drawn, **Then** the image is rendered at its natural size, centered in widget bounds, no scaling
+4. **Given** an Image widget with `ScaleType(kCenterCrop)` and `ScaleGravity(kTop)`, **When** drawn, **Then** the visible crop region is anchored to the top of the image
+5. **Given** an Image widget with `ScaleType(kFillXY)`, **When** drawn with different aspect ratio, **Then** the image stretches to fill bounds exactly (aspect ratio not preserved)
 
 ---
 
@@ -109,13 +112,17 @@ A developer configures how an Image widget scales its content within the widget 
 - What happens when ShadowRadius is 0?
 - What happens when MinWidth > MaxWidth?
 - What happens when a linear gradient has zero-length from→to vector?
+- What happens when ScaleType(kCenter) is used and the image is larger than widget bounds?
+- What happens when ScaleType(kCenterInside) is used and the image is smaller than widget bounds — is it upscaled?
+- What happens when ScaleGravity is set but ScaleType doesn't support gravity (e.g., kFillXY)?
+- What happens when Image has no source set (null image)?
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: A `Style` class MUST support chainable property setting: `Style().setFontSize(16).setTextColor(kRed).setWidth(200).setHeight(48)` — all properties are optional
-- **FR-002**: `Style` MUST cover at minimum: Width, Height, MinWidth, MaxWidth, Padding, Background, BackgroundGradient, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, ShadowOffset, ShadowRadius, ShadowColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines
+- **FR-002**: `Style` MUST cover at minimum: Width, Height, MinWidth, MaxWidth, Padding, Background, BackgroundGradient, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, ShadowOffset, ShadowRadius, ShadowColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, ScaleType, ScaleGravity
 - **FR-003**: Style MUST carry a `StylePriority` enum value (kGlobal=100, kTheme=200, kClass=300, kInstance=400, kExplicit=500) — each property inherits the Style's priority
 - **FR-004**: A free function `Style Merge(const Style& base, const Style& overlay)` MUST merge two Styles per-property: for each property where `overlay.is_set`, if `overlay.priority >= base.priority`, overlay wins; unset properties are ignored
 - **FR-005**: Style MUST support `Style::SetDefault(const Style&)` — sets a global default (kGlobal priority) applied to all subsequently created widgets (main-thread-only)
@@ -130,7 +137,8 @@ A developer configures how an Image widget scales its content within the widget 
 - **FR-012**: Widget base MUST support `ShadowOffset(Point)`, `ShadowRadius(float)`, `ShadowColor(Color)` — 控件阴影，通过 Skia 阴影 API 绘制在背景层下方
 - **FR-013**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
 - **FR-014**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
-- **FR-015**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover, kStretch
+- **FR-015**: Image widget MUST support `ScaleType(ScaleMode)` — kCenter (不缩放居中), kCenterCrop (等比填充裁剪), kCenterInside (等比缩放到完全可见), kFitStart (等比缩放＋左上对齐), kFitEnd (等比缩放＋右下对齐), kFillXY (拉伸填满)
+- **FR-016**: Image widget MUST support `ScaleGravity(Gravity)` — 控制缩放后图像在 widget bounds 内的对齐/裁剪位置：kTop, kBottom, kLeft, kRight, kCenter; 与 ScaleType 组合使用（如 kCenterCrop + kTop 表示从顶部开始裁剪）
 - **FR-016**: Image widget MUST support `CornerRadius(float)` for rounded corners
 - **FR-017**: All properties MUST be configurable via tagged parameters in the constructor AND via Style
 - **FR-018**: `Gradient` type MUST support `Linear(Point from, Point to, std::vector<ColorStop>)` and `Radial(Point center, float radius, std::vector<ColorStop>)` — 通过 Skia `SkGradientShader` 实现
@@ -141,7 +149,7 @@ A developer configures how an Image widget scales its content within the widget 
 - **Style**: A reusable bundle of visual and typographic properties. Carries a `StylePriority` enum value (kGlobal/kTheme/kClass/kInstance/kExplicit). Each property has an `is_set` flag. Two Styles merge via `Merge(base, overlay)`: for each set property in overlay, if `overlay.priority >= base.priority`, overlay's value wins. Supports chainable setters and `Style::SetDefault()`.
 - **Text**: Inherits Widget base properties (Width, Height, Background, etc.) plus owns typographic properties (FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration).
 - **Button**: Inherits from Text — gets all Text + Widget properties automatically. Adds interactive properties: OnClick, NormalColor, PressedColor. Inherits Enabled from Widget base (Disabled behavior unified across all widgets). Button's Draw uses state color for background and Text properties for label rendering.
-- **Image Widget**: Displays images with FitMode control. Supports CornerRadius for rounded corners.
+- **Image Widget**: Displays images with Android ImageView-inspired scale/crop control. `ScaleType(ScaleMode)` selects scale algorithm (kCenter, kCenterCrop, kCenterInside, kFitStart, kFitEnd, kFillXY). `ScaleGravity(Gravity)` selects crop/anchor position (kTop/kBottom/kLeft/kRight/kCenter). Supports CornerRadius for rounded corners.
 - **Widget Base Properties**: Width, Height, MinWidth, MaxWidth, Padding, Background, BackgroundGradient, ShadowOffset, ShadowRadius, ShadowColor, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor — ALL widget types share these common visual/behavioral/layout properties
 - **Gradient**: Describes a linear or radial color gradient. `Linear(from, to, colorStops)` for linear gradients; `Radial(center, radius, colorStops)` for radial. Each ColorStop is `(position, color)`. Rendered via Skia gradient shader.
 
@@ -154,13 +162,14 @@ A developer configures how an Image widget scales its content within the widget 
 - **SC-003**: A developer can set Opacity(0.5) on any widget and verify the output pixels have 50% reduced alpha — testable via pixel readback
 - **SC-004**: A developer can set Background + CornerRadius on any Container and verify rounded rect rendering — testable via pixel readback
 - **SC-005**: Text with FontWeight(700) renders visibly thicker glyphs than FontWeight(400) — testable via pixel comparison
-- **SC-006**: Image with FitMode(kCover) fills the entire widget bounds — testable via edge pixel verification
-- **SC-007**: All new properties are settable via tagged parameters and do not break existing construction patterns — verified by existing test suite
-- **SC-008**: A Text widget with MaxLines(1) and overflow truncates content with an ellipsis — testable via pixel readback
-- **SC-009**: A developer can set Padding(8) on a Container and verify children are inset by 8px — testable via layout result positions
-- **SC-010**: A developer can set MinWidth(100) and MaxWidth(400) on a Container and verify Yoga respects the clamp — testable via Measure output
-- **SC-011**: A developer can set Shadow on a Container and verify a shadow is rendered below the background — testable via pixel readback
-- **SC-012**: A developer can set BackgroundGradient(Linear(...)) on a Container and verify smooth color transition — testable via pixel sampling at gradient endpoints
+- **SC-006**: Image with ScaleType(kCenterCrop) fills the entire widget bounds, cropping uniformly — testable via edge pixel verification
+- **SC-007**: Image with ScaleType(kCenterCrop) + ScaleGravity(kTop) crops from the top edge — different edge pixels compared to kCenter gravity
+- **SC-008**: All new properties are settable via tagged parameters and do not break existing construction patterns — verified by existing test suite
+- **SC-009**: A Text widget with MaxLines(1) and overflow truncates content with an ellipsis — testable via pixel readback
+- **SC-010**: A developer can set Padding(8) on a Container and verify children are inset by 8px — testable via layout result positions
+- **SC-011**: A developer can set MinWidth(100) and MaxWidth(400) on a Container and verify Yoga respects the clamp — testable via Measure output
+- **SC-012**: A developer can set Shadow on a Container and verify a shadow is rendered below the background — testable via pixel readback
+- **SC-013**: A developer can set BackgroundGradient(Linear(...)) on a Container and verify smooth color transition — testable via pixel sampling at gradient endpoints
 
 ## Assumptions
 
@@ -180,7 +189,10 @@ A developer configures how an Image widget scales its content within the widget 
 - CornerRadius uses Skia's `SkRRect` for drawing rounded rects
 - Font properties use Skia's `SkFont` — TextLayout (SkParagraph) is still deferred post-MVP
 - Button state defaults: NormalColor=light gray, PressedColor=darker gray; Enabled(true) by default
-- FitMode is implemented via `Canvas::DrawImage` with source/dest rect transformations
+- ScaleType is implemented via `Canvas::DrawImage` with source/dest rect transformations based on image natural size and widget bounds
+- ScaleGravity defaults to kCenter when not set; ignored by ScaleType(kFillXY) which fills regardless
+- kCenterInside does NOT upscale images smaller than widget bounds — image stays at natural size, centered
+- kCenter renders image at natural size, centered, no scaling — if larger than bounds, edges are clipped
 - Visible(false) skips Draw but does NOT remove the widget from layout
 - Label("OK") on Button is synonymous with Content("OK") for convenience
 - Padding is implemented as Yoga padding (`YGNodeStyleSetPadding`) — affects child layout positions inside Container/Stack
