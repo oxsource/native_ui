@@ -37,7 +37,8 @@ void Container::ProcessArg(Id tag) {
 }
 
 void Container::AddChild(std::unique_ptr<Widget> child) {
-  YGNodeRef child_node = YGNodeNew();
+  auto* container = dynamic_cast<Container*>(child.get());
+  YGNodeRef child_node = container ? container->root_ : YGNodeNew();
   YGNodeStyleSetFlexGrow(child_node, 1);
   YGNodeStyleSetFlexShrink(child_node, 1);
   YGNodeInsertChild(root_, child_node, static_cast<int32_t>(child_nodes_.size()));
@@ -50,7 +51,7 @@ void Container::RemoveChild(Widget* child) {
   for (size_t i = 0; i < children_.size(); ++i) {
     if (children_[i].get() == child) {
       YGNodeRemoveChild(root_, child_nodes_[i]);
-      YGNodeFree(child_nodes_[i]);
+      if (!dynamic_cast<Container*>(child)) YGNodeFree(child_nodes_[i]);
       child_nodes_.erase(child_nodes_.begin() + static_cast<ptrdiff_t>(i));
       children_.erase(children_.begin() + static_cast<ptrdiff_t>(i));
       RequestLayout();
@@ -60,9 +61,9 @@ void Container::RemoveChild(Widget* child) {
 }
 
 void Container::ClearChildren() {
-  for (auto* node : child_nodes_) {
-    YGNodeRemoveChild(root_, node);
-    YGNodeFree(node);
+  for (size_t i = 0; i < child_nodes_.size(); ++i) {
+    YGNodeRemoveChild(root_, child_nodes_[i]);
+    if (!dynamic_cast<Container*>(children_[i].get())) YGNodeFree(child_nodes_[i]);
   }
   child_nodes_.clear();
   children_.clear();
@@ -90,8 +91,32 @@ int Container::IndexOf(Widget* child) const {
 }
 
 void Container::Layout() {
+  PrepareLayout();
   Measure();
   Arrange();
+  PropagateLayout();
+}
+
+void Container::PrepareLayout() {
+  for (size_t i = 0; i < children_.size(); i++) {
+    float cw = children_[i]->style().width();
+    float ch = children_[i]->style().height();
+    if (cw > 0) YGNodeStyleSetWidth(child_nodes_[i], cw);
+    if (ch > 0) YGNodeStyleSetHeight(child_nodes_[i], ch);
+    if (auto* c = dynamic_cast<Container*>(children_[i].get())) {
+      c->PrepareLayout();
+    }
+  }
+}
+
+void Container::PropagateLayout() {
+  for (size_t i = 0; i < children_.size(); ++i) {
+    if (auto* c = dynamic_cast<Container*>(children_[i].get())) {
+      c->ReadChildLayout();
+      c->Arrange();
+      c->PropagateLayout();
+    }
+  }
 }
 
 void Container::Measure() {
@@ -109,6 +134,10 @@ void Container::Measure() {
 
   YGNodeCalculateLayout(root_, YGUndefined, YGUndefined, YGDirectionLTR);
 
+  ReadChildLayout();
+}
+
+void Container::ReadChildLayout() {
   layout_result_.resize(child_nodes_.size());
   for (size_t i = 0; i < child_nodes_.size(); i++) {
     layout_result_[i].size = Size{
@@ -134,9 +163,11 @@ void Container::Arrange() {
 void Container::Draw(class Canvas& canvas) {
   for (size_t i = 0; i < children_.size(); ++i) {
     canvas.Save();
-    Rect b = children_[i]->bounds();
-    canvas.Translate(Point{b.x, b.y});
-    canvas.ClipRect(Rect{0, 0, b.width, b.height});
+    canvas.Translate(layout_result_[i].position);
+    canvas.ClipRect(Rect{
+        0, 0,
+        layout_result_[i].size.width,
+        layout_result_[i].size.height});
     children_[i]->Draw(canvas);
     canvas.Restore();
   }

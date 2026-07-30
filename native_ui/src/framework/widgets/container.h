@@ -49,6 +49,10 @@ private:
   void ProcessArg(Children tag);
   void ProcessArg(Id tag);
 
+  void PrepareLayout();
+  void ReadChildLayout();
+  void PropagateLayout();
+
   std::vector<std::unique_ptr<Widget>> children_;
   std::vector<YGNodeRef> child_nodes_;
   YGNodeRef root_ = nullptr;

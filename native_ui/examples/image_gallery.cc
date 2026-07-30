@@ -45,7 +45,8 @@ static std::unique_ptr<ui::Container> MakeCard(
       ui::Content{title},
       ui::FontSize{12},
       ui::TextAlign{ui::TextAlign::kCenter},
-      ui::Width{140});
+      ui::Width{140},
+      ui::Height{24});
   std::vector<std::unique_ptr<ui::Widget>> v;
   v.push_back(std::move(img));
   v.push_back(std::move(label));
@@ -55,13 +56,11 @@ static std::unique_ptr<ui::Container> MakeCard(
       ui::AlignItems{ui::AlignItems::kCenter},
       ui::Background{ui::Color{255, 255, 255}},
       ui::Padding{ui::EdgeInsets::All(12)},
-      ui::CornerRadius{12},
       ui::Container::Children{std::move(v)});
 }
 
 int main() {
-  std::string base = "assets/photo/";
-  std::string svg = base + "superdog.svg";
+  std::string svg = "assets/photo/superdog.svg";
   std::vector<std::unique_ptr<ui::Widget>> cards;
   cards.push_back(MakeCard("SVG kCenter",      svg, ui::ScaleMode::kCenter));
   cards.push_back(MakeCard("SVG kCenterInside", svg, ui::ScaleMode::kCenterInside));
@@ -72,7 +71,7 @@ int main() {
   auto tree = std::make_unique<ui::Container>(
       ui::Direction{ui::Direction::kRow},
       ui::Gap{16},
-      ui::Width{800}, ui::Height{260},
+      ui::Width{800}, ui::Height{280},
       ui::Background{ui::Color{235, 235, 245}},
       ui::Padding{ui::EdgeInsets::All(20)},
       ui::Container::Children{std::move(cards)});
