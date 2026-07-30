@@ -35,7 +35,7 @@ cc_test(
     name = "property_test",
     srcs = ["property_test.cc"],
     deps = [
-        "//src/framework/viewmodel",
+        "//src/framework/state",
         "@com_google_googletest//:gtest_main",
     ],
 )

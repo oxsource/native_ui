@@ -44,4 +44,4 @@ docs(arch): add threading model
 ```
 
 Types: feat, fix, docs, refactor, test, build
-Scopes: core, layout, render, surface, viewmodel, widgets, event, public, spike, docs, build
+Scopes: core, layout, render, surface, state, widgets, event, public, spike, docs, build

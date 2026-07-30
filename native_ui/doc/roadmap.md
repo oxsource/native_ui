@@ -66,7 +66,7 @@ Phase 1 ──→ Phase 2 ──→ Phase 3 ──→ ... ──→ Phase 8 ─�
 | `src/framework/layout/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/render/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/surface/BUILD.bazel` | Empty `cc_library` target |
-| `src/framework/viewmodel/BUILD.bazel` | Empty `cc_library` stub for State module |
+| `src/framework/state/BUILD.bazel` | Empty `cc_library` stub for State module |
 | `src/framework/widgets/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/event/BUILD.bazel` | Empty `cc_library` target |
 | `src/framework/public/BUILD.bazel` | Umbrella target aggregating all modules |
@@ -141,7 +141,7 @@ Yoga spike validates:
 | `doc/api/layout_contract.md` | FlexLayout interface, measure/arrange protocol, adding new layouts |
 | `doc/api/render_contract.md` | Canvas/Paint/Path contract, Skia isolation rules |
 | `doc/api/event_contract.md` | Event dispatch protocol, bubble/capture, adding event types |
-| `doc/api/viewmodel_contract.md` | `State` + `Property<T>` template, `Property<T>::operator=`, `Watch(Property<T>&)`, extension hooks, thread safety |
+| `doc/api/state_contract.md` | `State` + `Property<T>` template, `Property<T>::operator=`, `Watch(Property<T>&)`, extension hooks, thread safety |
 
 ### Engineering Standards
 
@@ -185,7 +185,7 @@ CI checks at minimum:
 
 | File | Purpose |
 |------|---------|
-| `src/framework/viewmodel/BUILD.bazel` | Empty `cc_library` stub for future State module |
+| `src/framework/state/BUILD.bazel` | Empty `cc_library` stub for future State module |
 
 ### Acceptance Criteria
 
@@ -220,7 +220,7 @@ CI checks at minimum:
 | `src/framework/core/size.h / size.cc` | `Size` — width/height |
 | `src/framework/core/color.h / color.cc` | `Color` — RGBA, named colors (`kRed`, `kBlue`, etc.) |
 | `src/framework/core/edge_insets.h / edge_insets.cc` | `EdgeInsets` — symmetric, per-side |
-| `src/framework/viewmodel/state.h / state.cc` | `State` base + `Property<T>` template — property change notification via `operator=`, thread-safe update, `Watch(Property<T>&)`, extension hooks |
+| `src/framework/state/state.h / state.cc` | `State` base + `Property<T>` template — property change notification via `operator=`, thread-safe update, `Watch(Property<T>&)`, extension hooks |
 | `src/framework/widgets/widget.h / widget.cc` | `Widget` base — `SetId`, `FindById`, `RequestLayout`, `RequestRedraw`, `ChildAt`, `ChildCount` |
 | `src/framework/widgets/container.h / container.cc` | `Container` — tagged-parameter ctor, `AddChild`, `RemoveChild`, `ClearChildren` |
 

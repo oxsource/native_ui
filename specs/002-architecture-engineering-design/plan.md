@@ -28,7 +28,7 @@ Design and document the complete architecture of the native_ui framework — mod
 
 **Constraints**: Skia must be isolated behind the render/ and surface/ modules; no other module may depend on Skia directly. Build must work on both macOS ARM64 and Linux x86_64. C++17 standard only.
 
-**Scale/Scope**: Single library with 8 internal modules (core, layout, render, surface, viewmodel, widgets, event, public) + examples + tests + spikes.
+**Scale/Scope**: Single library with 8 internal modules (core, layout, render, surface, state, widgets, event, public) + examples + tests + spikes.
 
 ## Constitution Check
 
@@ -80,7 +80,7 @@ native_ui/doc/api/
 ├── layout-contract.md           # FlexLayout interface, measure/arrange protocol
 ├── render-contract.md           # Canvas/Paint/Path contract, Skia isolation rules
 ├── event-contract.md            # Event dispatch protocol, bubble/capture
-└── viewmodel-contract.md        # State + Property<T> API, typed Watch, extension hooks
+└── state-contract.md        # State + Property<T> API, typed Watch, extension hooks
 
 native_ui/doc/
 ├── testing-strategy.md          # Unit test structure, mock patterns, golden tests
@@ -118,7 +118,7 @@ graph TD
             RENDER["render<br/>Canvas, Paint, Path wrappers"]
             SURFACE["surface<br/>Surface, HardwareBuffer"]
             WIDGETS["widgets<br/>Widget, Container, Text, Button"]
-            VIEWMODEL["viewmodel<br/>State + Property<T>"]
+            VIEWMODEL["state<br/>State + Property<T>"]
             EVENT["event<br/>HitTester, Event dispatch"]
             PUBLIC["public<br/>Umbrella header, export macro"]
         end

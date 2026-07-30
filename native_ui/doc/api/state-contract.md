@@ -1,4 +1,4 @@
-# ViewModel Module Contract
+# State Module Contract
 
 **Last Updated**: 2026-07-29
 

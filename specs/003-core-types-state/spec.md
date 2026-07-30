@@ -116,6 +116,6 @@ A developer constructs a declarative UI using `Container` with tagged parameters
 - Property<T> stores values inline (not heap-allocated) for cache efficiency
 - Widget Invalidation flags (`needs_layout_`, `needs_draw_`) are internal implementation details
 - Container uses FlexLayout internally (Yoga-based) — the Yoga integration comes from existing P1 dependency
-- The viewmodel module directory (`src/framework/viewmodel/`) already exists as a BUILD stub from P1
+- The state module directory (`src/framework/state/`) already exists as a BUILD stub from P1
 - Tests use googletest and can run headless (no display required)
 - Cross-thread Property notification uses a lock-free queue or mutex-protected queue internally

@@ -31,14 +31,14 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 **Purpose**: Document 8-module architecture, dependency graph, error handling (StatusOr + LogSlot), memory ownership (unique_ptr), widget lifecycle, data binding (React-inspired `State`), threading (main-thread frame loop + worker threads), and logging slot (LogSlot interface)
 
 - [x] T001 [P] [US1] Create `native_ui/doc/architecture/README.md` with architecture overview (8-module diagram), key decisions index, and cross-references to all other architecture docs
-- [x] T002 [P] [US1] Create `native_ui/doc/architecture/module-dependencies.md` with formal module dependency graph (core → layout/render/viewmodel → widgets → public), Bazel visibility rules, and Skia isolation policy
+- [x] T002 [P] [US1] Create `native_ui/doc/architecture/module-dependencies.md` with formal module dependency graph (core → layout/render/state → widgets → public), Bazel visibility rules, and Skia isolation policy
 - [x] T003 [P] [US1] Create `native_ui/doc/architecture/error-handling.md` with StatusOr strategy for recoverable errors, no-exceptions convention, and LogSlot-based diagnostic logging (cross-ref logging-slot.md)
 - [x] T004 [P] [US1] Create `native_ui/doc/architecture/memory-model.md` with unique_ptr ownership for widget tree, raw pointer observation (FindById, event dispatch), and no shared_ptr rule
 - [x] T005 [P] [US1] Create `native_ui/doc/architecture/lifecycle-model.md` with Widget lifecycle state machine (Created → Mounted → Measured → Arranged → Ready → Unmounted) and mount/unmount semantics
 - [x] T006 [US1] Create `native_ui/doc/architecture/data-binding.md` with React-inspired `State` pattern — typed `Property<T>` members, `Property<T>::operator=` trigger, `Watch(Property<T>&)` lifecycle, automatic batch RequestRedraw, extension hooks (`OnBeforeSet`, `OnAfterSet`), and unidirectional data flow (props ↓, events ↑)
 - [x] T007 [US1] Create `native_ui/doc/architecture/threading.md` with main-thread frame loop (React-style batch model: PostTask → Event → Batch State changes → Layout → Render → PostNextFrame → Wait vsync), worker-thread logic processing, State cross-thread bridge (thread-safe property update, main-thread notification), and scheduling primitives (PostTask pre-render, PostNextFrame post-render, ScheduleTimer cross-frame)
 - [x] T008 [US1] Create `native_ui/doc/architecture/logging-slot.md` with LogSlot abstract interface (Log(level, message, metadata)), 4 log levels (debug/info/warn/error), no-op fallback when no sink registered, thread-safe contract, and SetLogSlot registration API
-- [x] T009 [US1] Add viewmodel module stub at `src/framework/viewmodel/BUILD.bazel` as empty `cc_library` depending on `//src/framework/core`
+- [x] T009 [US1] Add state module stub at `src/framework/state/BUILD.bazel` as empty `cc_library` depending on `//src/framework/core`
 
 **Checkpoint**: All 8 architecture design documents (README, module-dependencies, error-handling, memory-model, lifecycle-model, data-binding, threading, logging-slot) are written and internally consistent. A developer can understand the full 8-module architecture by reading them.
 
@@ -46,13 +46,13 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 ## Phase 2: API & Interface Contracts (User Story 2)
 
-**Purpose**: Define public API contracts for all 8 framework modules (core, layout, render, surface, viewmodel, widgets, event, public)
+**Purpose**: Define public API contracts for all 8 framework modules (core, layout, render, surface, state, widgets, event, public)
 
 - [x] T010 [P] [US2] Create `native_ui/doc/api/widget-contract.md` with Widget virtual interface (Draw, ChildAt, ChildCount), extension points for custom widgets, tagged-parameter constructor convention, and RequestLayout/RequestRedraw invalidation protocol
 - [x] T011 [P] [US2] Create `native_ui/doc/api/layout-contract.md` with FlexLayout interface, Measure/Arrange protocol, tagged parameters (Direction, JustifyContent, AlignItems, Gap, Padding, Margin), and guide for adding new layouts
 - [x] T012 [P] [US2] Create `native_ui/doc/api/render-contract.md` with Canvas RAII wrapper (auto save/restore), Paint chainable builder, Path construction, and Skia isolation rules (only render/ + surface/ may depend on Skia)
 - [x] T013 [P] [US2] Create `native_ui/doc/api/event-contract.md` with event types (Mouse, Key, Touch), DFS hit testing, bubble/capture dispatch protocol, and stop-propagation semantics
-- [x] T014 [US2] Create `native_ui/doc/api/viewmodel-contract.md` with `State` base + `Property<T>` template, `Property<T>::operator=` trigger, `Watch(Property<T>&)` lifecycle, extension hooks (`OnBeforeSet`, `OnAfterSet`), thread-safe update contract, communication protocol between worker threads (assign Property) → main thread (notification + auto batch → RequestRedraw), and LogSlot registration API
+- [x] T014 [US2] Create `native_ui/doc/api/state-contract.md` with `State` base + `Property<T>` template, `Property<T>::operator=` trigger, `Watch(Property<T>&)` lifecycle, extension hooks (`OnBeforeSet`, `OnAfterSet`), thread-safe update contract, communication protocol between worker threads (assign Property) → main thread (notification + auto batch → RequestRedraw), and LogSlot registration API
 
 **Checkpoint**: A widget implementer can create a custom widget by following these contracts without consulting the architecture team.
 
@@ -93,8 +93,8 @@ All paths are relative to the Bazel workspace root (`native_ui/`).
 
 - [ ] T026 Run consistency review: verify all 8 architecture documents and 5 API contracts have zero contradictions with each other and with `project_bootstrap.md` (SC-005). Check cross-references between error-handling.md ↔ logging-slot.md, threading.md ↔ data-binding.md, lifecycle-model.md ↔ widget-contract.md
 - [ ] T027 Verify spec-kit templates support both YAML and Markdown formats (SC-006), and both templates include interface signature + behavior + edge cases + test points sections
-- [ ] T028 Verify all 8 framework module stub directories exist with BUILD.bazel files (core, layout, render, surface, viewmodel, widgets, event, public)
-- [ ] T029 Add `src/framework/viewmodel/BUILD.bazel` to the root `//:native_ui` alias deps in `native_ui/BUILD.bazel`
+- [ ] T028 Verify all 8 framework module stub directories exist with BUILD.bazel files (core, layout, render, surface, state, widgets, event, public)
+- [ ] T029 Add `src/framework/state/BUILD.bazel` to the root `//:native_ui` alias deps in `native_ui/BUILD.bazel`
 - [ ] T030 Final validation: `bazel build //...` + `bazel test //...` both pass after all documentation. Commit and push to trigger CI pipeline smoke test
 
 ---

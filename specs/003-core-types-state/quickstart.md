@@ -7,7 +7,7 @@
 bazel build //src/framework/core
 
 # Build all Phase 3 modules
-bazel build //src/framework/core //src/framework/viewmodel //src/framework/widgets
+bazel build //src/framework/core //src/framework/state //src/framework/widgets
 
 # Run tests
 bazel test //tests:core_test
@@ -20,7 +20,7 @@ bazel test //tests:widget_test
 ```text
 native_ui/src/framework/
 ├── core/                # Rect.h, Point.h, Size.h, Color.h, EdgeInsets.h
-├── viewmodel/           # state.h, state.cc, property.h
+├── state/           # state.h, state.cc, property.h
 └── widgets/             # widget.h, widget.cc, container.h, container.cc
 
 native_ui/tests/

@@ -28,7 +28,7 @@ This document is the entry point for the native_ui framework architecture. It de
 │       └──────┬────┘           │            │            │
 │              │               │            │            │
 │  ┌───────────▼────┐  ┌───────▼────────┐   │            │
-│  │   viewmodel    │  │    widgets     │   │            │
+│  │   state    │  │    widgets     │   │            │
 │  │   (data bind)  │  │ Widget, Text   │   │            │
 │   │    State       │  │ Button, Image  │   │            │
 │  │   Property Not.│  │ Container,Stack│   │            │

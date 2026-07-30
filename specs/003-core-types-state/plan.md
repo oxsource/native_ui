@@ -28,7 +28,7 @@ Implement the foundational C++ types (`Rect`, `Point`, `Size`, `Color`, `EdgeIns
 
 **Constraints**: C++17 only, no exceptions. State property updates must be thread-safe. Core types must be trivially copyable where possible.
 
-**Scale/Scope**: 3 modules (core, viewmodel, widgets) × ~15 source files + test files.
+**Scale/Scope**: 3 modules (core, state, widgets) × ~15 source files + test files.
 
 ## Constitution Check
 
@@ -69,7 +69,7 @@ native_ui/src/framework/
 │   ├── size.h          # Size — width, height
 │   ├── color.h         # Color — RGBA, named constants
 │   └── edge_insets.h   # EdgeInsets — top, left, bottom, right
-├── viewmodel/
+├── state/
 │   ├── BUILD.bazel     # exists from P1 stub
 │   ├── state.h         # State base class
 │   ├── state.cc        # State implementation

@@ -13,7 +13,7 @@
               ┌─────────────┼─────────────┐
               │             │             │
         ┌─────▼────┐  ┌────▼─────┐  ┌────▼─────┐
-        │ widgets  │  │ viewmodel│  │  event   │
+        │ widgets  │  │ state│  │  event   │
         └─────┬────┘  └────┬─────┘  └────┬─────┘
               │             │             │
         ┌─────┼─────────────┼─────────────┘
@@ -44,10 +44,10 @@
 | `layout` | core | Yoga |
 | `render` | — | Skia |
 | `surface` | — | Skia, platform headers |
-| `viewmodel` | core | — |
-| `widgets` | core, viewmodel, layout, render, event | — |
+| `state` | core | — |
+| `widgets` | core, state, layout, render, event | — |
 | `event` | core | — |
-| `public` | core, layout, render, surface, viewmodel, widgets, event | — |
+| `public` | core, layout, render, surface, state, widgets, event | — |
 
 ## Bazel Visibility Rules
 

@@ -19,7 +19,7 @@
 | Module | Test File | Key Tests |
 |--------|-----------|-----------|
 | `core` | `tests/core_test.cc` | Rect, Point, Size, Color, EdgeInsets |
-| `viewmodel` | `tests/state_test.cc` | State property notification, Watch/Unwatch, thread-safe update |
+| `state` | `tests/state_test.cc` | State property notification, Watch/Unwatch, thread-safe update |
 | `layout` | `tests/layout_test.cc` | FlexLayout Measure/Arrange, direction, gap, wrap |
 | `widgets` | `tests/widget_test.cc` | Widget ID, Container add/remove, Draw invalidation |
 

@@ -9,7 +9,7 @@
 #include "native_ui/widgets.h"    // Widget, Container, Text, Button, Stack, Id, Content, Label, OnClick, Direction, Padding, Gap
 #include "native_ui/render.h"     // Canvas, Paint, Path
 #include "native_ui/surface.h"    // Surface
-#include "native_ui/viewmodel.h"  // State, Property<T>
+#include "native_ui/state.h"  // State, Property<T>
 #include "native_ui/event.h"      // EventHub, MouseEvent, DispatchResult
 ```
 

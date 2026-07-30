@@ -8,7 +8,7 @@ cc_library(
         "//src/framework/core",
         "//src/framework/layout",
         "//src/framework/render",
-        "//src/framework/viewmodel",
+        "//src/framework/state",
         "@yoga//:yoga",
     ],
 )

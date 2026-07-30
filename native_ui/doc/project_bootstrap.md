@@ -169,7 +169,7 @@ native_ui/src/framework/
 ├── layout/        # 布局引擎：Flexbox measure + arrange
 ├── render/        # Skia 渲染封装：Canvas, Paint, Path, Image (PNG/SVG/Buffer), TextLayout
 ├── surface/       # 平台 Buffer 封装：Surface, HardwareBuffer, SurfaceFactory
-├── viewmodel/     # 数据绑定：State 基类、属性通知、Watch/Unwatch 生命周期
+├── state/     # 数据绑定：State 基类、属性通知、Watch/Unwatch 生命周期
 ├── widgets/       # 基础控件：Text, Button, Image, Container, Stack, Surface
 ├── event/         # 事件处理：Event, HitTester, InputHandler
 └── public/        # 公开 API 汇总入口
@@ -183,8 +183,8 @@ native_ui/src/framework/
 | `layout` | Flexbox measure/arrange 算法 | Yoga |
 | `render` | Skia Canvas 封装、Paint、Path、Text | Skia |
 | `surface` | 平台 Buffer 封装：Surface, HardwareBuffer, SurfaceFactory | Skia, platform headers |
-| `viewmodel` | 数据绑定：`State` 基类、属性通知 | core |
-| `widgets` | 基础控件、Widget 基类、组合规则 | core, viewmodel, layout, render, event, surface |
+| `state` | 数据绑定：`State` 基类、属性通知 | core |
+| `widgets` | 基础控件、Widget 基类、组合规则 | core, state, layout, render, event, surface |
 | `event` | Event 类型定义、HitTesting、分发机制 | core |
 | `public` | Umbrella header、export macro、汇总 target | 所有模块 |
 
@@ -253,9 +253,9 @@ native_ui/                        # Bazel workspace root
 │       │   ├── platform_surface.h / platform_surface.cc
 │       │   ├── buffer_handle.h
 │       │   └── surface_factory.h / surface_factory.cc
-│       ├── viewmodel/
+│       ├── state/
 │       │   ├── BUILD.bazel
-│       │   ├── viewmodel.h / viewmodel.cc
+│       │   ├── state.h / state.cc
 │       │   └── logging_slot.h
 │       ├── widgets/
 │       │   ├── BUILD.bazel
@@ -278,7 +278,7 @@ native_ui/                        # Bazel workspace root
 │               ├── layout.h
 │               ├── render.h
 │               ├── surface.h
-│               ├── viewmodel.h
+│               ├── state.h
 │               ├── widgets.h
 │               └── event.h
 │
@@ -890,9 +890,9 @@ cc_library(
     visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
 )
 
-# src/framework/viewmodel/BUILD.bazel
+# src/framework/state/BUILD.bazel
 cc_library(
-    name = "viewmodel",
+    name = "state",
     srcs = glob(["*.cc"]),
     hdrs = glob(["*.h"]),
     deps = [
@@ -908,7 +908,7 @@ cc_library(
     hdrs = glob(["*.h"]),
     deps = [
         "//src/framework/core",
-        "//src/framework/viewmodel",
+        "//src/framework/state",
         "//src/framework/layout",
         "//src/framework/render",
         "//src/framework/event",
@@ -936,7 +936,7 @@ cc_library(
         "//src/framework/layout",
         "//src/framework/render",
         "//src/framework/surface",
-        "//src/framework/viewmodel",
+        "//src/framework/state",
         "//src/framework/widgets",
         "//src/framework/event",
     ],
@@ -1103,7 +1103,7 @@ docs: add project bootstrap doc
 #include "native_ui/layout.h"
 #include "native_ui/render.h"
 #include "native_ui/surface.h"
-#include "native_ui/viewmodel.h"
+#include "native_ui/state.h"
 #include "native_ui/widgets.h"
 #include "native_ui/event.h"
 ```

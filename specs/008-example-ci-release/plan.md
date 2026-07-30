@@ -14,7 +14,7 @@ Build an end-to-end Hello World example demonstrating the full MVP pipeline (wid
 
 **Build System**: Bazel 6.5.0, GitHub Actions
 
-**Primary Dependencies**: All framework modules (core, layout, render, surface, viewmodel, widgets, event, public)
+**Primary Dependencies**: All framework modules (core, layout, render, surface, state, widgets, event, public)
 
 **Storage**: N/A (file-based PNG output)
 
@@ -90,7 +90,7 @@ flowchart LR
     end
 
     subgraph "Dependencies (P1-P7)"
-        ALL_MODULES["core + layout + render +<br/>surface + viewmodel +<br/>widgets + event + public"]
+        ALL_MODULES["core + layout + render +<br/>surface + state +<br/>widgets + event + public"]
     end
 
     ALL_MODULES --> HW

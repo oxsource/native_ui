@@ -14,7 +14,7 @@ Implement `Text`, `Button`, `Image`, `ExternalImage`, `Stack` widgets with tagge
 
 **Build System**: Bazel 6.5.0
 
-**Primary Dependencies**: core types (Rect, Point, Size, Color), render (Canvas, Paint, Image, Path), viewmodel (State, Property\<T\>), widgets (Widget, Container), Yoga
+**Primary Dependencies**: core types (Rect, Point, Size, Color), render (Canvas, Paint, Image, Path), state (State, Property\<T\>), widgets (Widget, Container), Yoga
 
 **Storage**: N/A
 
@@ -89,7 +89,7 @@ flowchart LR
         WIDGET["Widget base<br/>(Watch, RequestRedraw)"]
         CONTAINER["Container<br/>(AddChild, RemoveChild)"]
         RENDER["render/<br/>Canvas, Paint, Image"]
-        VM["viewmodel/<br/>State, Property<T>"]
+        VM["state/<br/>State, Property<T>"]
     end
 
     WIDGET --> TEXT
