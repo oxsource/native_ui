@@ -74,8 +74,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 ### Implementation for User Story 2
 
-- [ ] T010 [P] [US2] Create `Button` header with tagged-parameter construction (Label, OnClick, Id tags) and `HitTest(Point)` method in `native_ui/src/framework/widgets/button.h`
-- [ ] T011 [US2] Implement `Button::Draw(Canvas&)` with background rect + centered text, `HitTest()` using `bounds()` from Widget base, `OnClick` dispatch, and data binding in `native_ui/src/framework/widgets/button.cc`
+- [x] T010 [P] [US2] Create `Button` header with tagged-parameter construction (Label, OnClick, Id tags) and `HitTest(Point)` method in `native_ui/src/framework/widgets/button.h`
+- [x] T011 [US2] Implement `Button::Draw(Canvas&)` with background rect + centered text, `HitTest()` using `bounds()` from Widget base, `OnClick` dispatch, and data binding in `native_ui/src/framework/widgets/button.cc`
 
 **Checkpoint**: Button renders label, detects hits correctly, invokes callback, and updates on State change.
 

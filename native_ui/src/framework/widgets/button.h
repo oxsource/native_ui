@@ -22,6 +22,7 @@ public:
   explicit Button(Args&&... args);
 
   bool HitTest(Point p) const;
+  void Watch(Property<std::string>& prop);
   void Draw(Canvas& canvas) override;
 
 private:
