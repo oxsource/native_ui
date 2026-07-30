@@ -30,9 +30,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Create event module BUILD, public headers, and project structure
 
-- [ ] T001 Create `event` cc_library in `native_ui/src/framework/event/BUILD.bazel` with deps on `//src/framework/core`, `//src/framework/widgets`
-- [ ] T002 [P] Create public re-export header `native_ui/src/framework/public/include/native_ui/event.h` for EventHub, HitTester, DispatchResult
-- [ ] T003 [P] Create public re-export header `native_ui/src/framework/public/include/native_ui/debug_overlay.h` for DebugOverlay
+- [x] T001 Create `event` cc_library in `native_ui/src/framework/event/BUILD.bazel` with deps on `//src/framework/core`, `//src/framework/widgets`
+- [x] T002 [P] Create public re-export header `native_ui/src/framework/public/include/native_ui/event.h` for EventHub, HitTester, DispatchResult
+- [x] T003 [P] Create public re-export header `native_ui/src/framework/public/include/native_ui/debug_overlay.h` for DebugOverlay
 
 ---
 
@@ -42,8 +42,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `dispatch_result.h` in `native_ui/src/framework/event/dispatch_result.h` with `DispatchStatus` enum (kHandled, kUnhandled, kRejected, kNoTarget) and `DispatchResult` struct (status + target Widget*)
-- [ ] T005 [P] Create `event_types.h` in `native_ui/src/framework/event/event_types.h` with `MouseEvent` (position, button, modifiers), `KeyEvent` (key_code, modifiers), `MouseButton`, `ModifierFlags` structs
+- [x] T004 Create `dispatch_result.h` in `native_ui/src/framework/event/dispatch_result.h` with `DispatchStatus` enum (kHandled, kUnhandled, kRejected, kNoTarget) and `DispatchResult` struct (status + target Widget*)
+- [x] T005 [P] Create `event_types.h` in `native_ui/src/framework/event/event_types.h` with `MouseEvent` (position, button, modifiers), `KeyEvent` (key_code, modifiers), `MouseButton`, `ModifierFlags` structs
 
 **Checkpoint**: Foundation ready — event types and DispatchResult compile.
 
@@ -55,8 +55,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create Container with two overlapping children, call HitTester::Test at overlap point, verify deepest widget returned. Test outside bounds returns null.
 
-- [ ] T006 [P] [US2] Create `HitTester` header with `Test(Widget* root, Point point) -> HitTestResult` and `HitTestResult` struct in `native_ui/src/framework/event/hit_tester.h`
-- [ ] T007 [US2] Implement `HitTester::Test` DFS algorithm in `native_ui/src/framework/event/hit_tester.cc` — iterate Container/Stack children in reverse (topmost first), check `bounds().Contains(point)`, return deepest match with local_pos
+- [x] T006 [P] [US2] Create `HitTester` header with `Test(Widget* root, Point point) -> HitTestResult` and `HitTestResult` struct in `native_ui/src/framework/event/hit_tester.h`
+- [x] T007 [US2] Implement `HitTester::Test` DFS algorithm in `native_ui/src/framework/event/hit_tester.cc` — iterate Container/Stack children in reverse (topmost first), check `bounds().Contains(point)`, return deepest match with local_pos
 
 **Checkpoint**: HitTester correctly returns deepest widget for overlapping and non-overlapping cases.
 
