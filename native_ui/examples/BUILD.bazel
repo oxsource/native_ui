@@ -1,0 +1,10 @@
+cc_binary(
+    name = "hello_world",
+    srcs = ["hello_world.cc"],
+    deps = [
+        "//src/framework/public:native_ui",
+        "//src/framework/surface",
+        "//src/spike:png_writer",
+        "@skia//:skia",
+    ],
+)

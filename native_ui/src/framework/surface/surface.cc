@@ -37,6 +37,10 @@ SkCanvas* Surface::sk_canvas() const {
   return impl_->sk_surface->getCanvas();
 }
 
+SkSurface* Surface::sk_surface() const {
+  return impl_ ? impl_->sk_surface.get() : nullptr;
+}
+
 void Surface::Flush() {
   // Raster surfaces do not require flushing.
   // GPU-backed surfaces (IOSurface, DMA-BUF) will call

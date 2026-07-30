@@ -5,6 +5,7 @@
 #include "hardware_buffer.h"
 
 class SkCanvas;
+class SkSurface;
 
 namespace native::ui {
 
@@ -20,8 +21,9 @@ public:
   int width() const;
   int height() const;
 
-  // Internal: accessed by Canvas
+  // Internal: accessed by Canvas and examples
   SkCanvas* sk_canvas() const;
+  SkSurface* sk_surface() const;
 
 private:
   friend class Canvas;

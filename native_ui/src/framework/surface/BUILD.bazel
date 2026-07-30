@@ -3,7 +3,7 @@ cc_library(
     hdrs = glob(["*.h"]),
     srcs = glob(["*.cc"]),
     includes = ["."],
-    visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__"],
+    visibility = ["//src/framework:__subpackages__", "//tests:__subpackages__", "//examples:__subpackages__"],
     deps = [
         "//src/framework/core",
         "@skia//:skia",

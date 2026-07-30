@@ -4,6 +4,8 @@ cc_library(
     name = "png_writer",
     srcs = ["png_writer.cc"],
     hdrs = ["png_writer.h"],
+    includes = ["."],
+    visibility = ["//examples:__subpackages__", "//src/spike:__subpackages__"],
     deps = [
         "@skia//:skia",
         "@stblib//:stb_image_write",

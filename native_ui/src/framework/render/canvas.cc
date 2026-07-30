@@ -7,9 +7,15 @@
 
 #include "SkCanvas.h"
 #include "SkFont.h"
+#include "SkFontMgr.h"
 #include "SkImage.h"
+#include "SkTypeface.h"
 #include "SkPaint.h"
 #include "SkRect.h"
+
+#if __APPLE__
+#include "ports/SkFontMgr_mac_ct.h"
+#endif
 
 namespace native::ui {
 
@@ -65,9 +71,16 @@ void Canvas::DrawRect(Rect rect, const Paint& paint) {
 
 void Canvas::DrawText(const std::string& text, Point pos,
                        const Paint& paint) {
+  if (text.empty()) return;
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
+#if __APPLE__
+  static sk_sp<SkFontMgr> font_mgr = SkFontMgr_New_CoreText(nullptr);
+  sk_sp<SkTypeface> tf = font_mgr->matchFamilyStyle(nullptr, SkFontStyle());
+  SkFont font(tf, 16.0f);
+#else
   SkFont font;
+#endif
   impl_->sk_canvas->drawString(text.c_str(), pos.x, pos.y, font, sk_paint);
 }
 
@@ -85,7 +98,6 @@ void Canvas::DrawImage(const Image& image, Rect dest) {
 }
 
 void Canvas::DrawImage(const Image& image, Rect src, Rect dest) {
-  // Crop+scale variant — separate implementation if API is available
   DrawImage(image, dest);
 }
 

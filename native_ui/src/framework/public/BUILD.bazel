@@ -19,3 +19,9 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
 )
+
+cc_binary(
+    name = "native_ui_shared",
+    linkshared = True,
+    deps = [":native_ui"],
+)

@@ -30,15 +30,13 @@ void Button::Draw(Canvas& canvas) {
 
   Paint bg;
   bg.SetColor(Color{uint8_t{200}, uint8_t{200}, uint8_t{200}, uint8_t{255}});
-  canvas.DrawRect(bb, bg);
+  canvas.DrawRect(Rect{0, 0, bb.width, bb.height}, bg);
 
   if (text.empty()) return;
 
   Paint fg;
   fg.SetColor(kBlack);
-  float cx = bb.x + bb.width / 2.0f;
-  float cy = bb.y + bb.height / 2.0f;
-  canvas.DrawText(text, Point{cx, cy}, fg);
+  canvas.DrawText(text, Point{bb.width / 2.0f, bb.height / 2.0f}, fg);
 }
 
 }  // namespace native::ui
