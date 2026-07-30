@@ -84,8 +84,10 @@ int main() {
       ui::Padding{ui::EdgeInsets::All(20)},
       ui::Container::Children{std::move(cards)});
 
-  // Wait for async Glide loads to complete
+  // Wait for async Glide loads to complete, then drain callbacks to main thread
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  auto* glide = ui::Glide::Default();
+  if (glide) glide->DrainPendingCallbacks();
 
   RenderAndSave(tree.get(), "/tmp/image_gallery.png");
   std::printf("Generated: /tmp/image_gallery.png\n");

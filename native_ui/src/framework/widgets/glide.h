@@ -32,6 +32,7 @@ public:
                         const LoadOptions& options = {}) = 0;
   virtual void Cancel(uint64_t request_id) = 0;
   virtual void ClearCache() = 0;
+  virtual void DrainPendingCallbacks() = 0;
 };
 
 // Default LRU-backed implementation used by framework examples.
@@ -46,6 +47,7 @@ public:
                 const LoadOptions& options = {}) override;
   void Cancel(uint64_t request_id) override;
   void ClearCache() override;
+  void DrainPendingCallbacks() override;
 
 private:
   struct Impl;

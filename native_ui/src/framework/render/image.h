@@ -24,9 +24,10 @@ public:
   int width() const;
   int height() const;
 
+  SkImage* sk_image() const;
+
 private:
   friend class Canvas;
-  SkImage* sk_image() const;
 
   Image();
   ImageImpl* impl_ = nullptr;
