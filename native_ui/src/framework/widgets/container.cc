@@ -10,6 +10,14 @@ void Container::ProcessArg(Direction tag) {
       root_, static_cast<YGFlexDirection>(tag.value));
 }
 
+void Container::ProcessArg(JustifyContent tag) {
+  YGNodeStyleSetJustifyContent(root_, static_cast<YGJustify>(tag.value));
+}
+
+void Container::ProcessArg(AlignItems tag) {
+  YGNodeStyleSetAlignItems(root_, static_cast<YGAlign>(tag.value));
+}
+
 void Container::ProcessArg(Gap tag) {
   YGNodeStyleSetGap(root_, YGGutterAll, tag.value);
 }

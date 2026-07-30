@@ -3,6 +3,15 @@
 #include "event_types.h"
 #include "paint.h"
 
+#include "SkFont.h"
+#include "SkFontMgr.h"
+#include "SkFontTypes.h"
+#include "SkRect.h"
+#include "SkTypeface.h"
+#if __APPLE__
+#include "ports/SkFontMgr_mac_ct.h"
+#endif
+
 namespace native::ui {
 
 void Button::ProcessArg(Label tag) { content_ = std::move(tag.value); }
@@ -24,19 +33,38 @@ void Button::Draw(Canvas& canvas) {
   auto& s = style();
   Rect bb = bounds();
 
-  // Draw state background color (overrides the default Text background)
+  // Draw state background
   Color bg_color = pressed_ ? s.pressed_color() : s.normal_color();
   Paint bg;
   bg.SetColor(bg_color);
-  canvas.DrawRect(Rect{0, 0, bb.width, bb.height}, bg);
+  float cr = s.corner_radius();
+  if (cr > 0) {
+    canvas.DrawRoundRect(Rect{0, 0, bb.width, bb.height}, cr, bg);
+  } else {
+    canvas.DrawRect(Rect{0, 0, bb.width, bb.height}, bg);
+  }
 
-  // Draw text label (inherits FontSize, TextColor, etc. from Text)
+  // Draw centered text
   std::string text = watched_prop_ ? watched_prop_->value() : content_;
   if (!text.empty()) {
     Paint fg;
     fg.SetColor(s.text_color());
     float size = s.font_size() > 0.0f ? s.font_size() : 16.0f;
-    canvas.DrawText(text, Point{bb.width / 2.0f, bb.height / 2.0f}, fg, size);
+
+    // Measure text width for horizontal centering
+#if __APPLE__
+    static sk_sp<SkFontMgr> font_mgr = SkFontMgr_New_CoreText(nullptr);
+    sk_sp<SkTypeface> tf = font_mgr->matchFamilyStyle(nullptr, SkFontStyle());
+    SkFont sk_font(tf, size);
+#else
+    SkFont sk_font(nullptr, size);
+#endif
+    SkRect text_bounds;
+    sk_font.measureText(text.c_str(), text.size(), SkTextEncoding::kUTF8, &text_bounds);
+    float tx = (bb.width - text_bounds.width()) / 2.0f - text_bounds.left();
+    float ty = (bb.height - size) / 2.0f + size;
+
+    canvas.DrawText(text, Point{tx, ty}, fg, size);
   }
 
   // Dim if disabled

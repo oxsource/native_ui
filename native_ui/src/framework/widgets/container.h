@@ -42,6 +42,8 @@ public:
 
 private:
   void ProcessArg(Direction tag);
+  void ProcessArg(JustifyContent tag);
+  void ProcessArg(AlignItems tag);
   void ProcessArg(Gap tag);
   void ProcessArg(Margin tag);
   void ProcessArg(Children tag);

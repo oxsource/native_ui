@@ -38,35 +38,33 @@ static void RenderAndSave(ui::Container* root, const char* path) {
 int main() {
   auto state = std::make_shared<CounterState>();
 
-  // ── Styles ──
-  auto countSty = ui::Style()
-    .setFontSize(48)
-    .setTextColor(ui::Color{uint8_t{60}, uint8_t{60}, uint8_t{200}, uint8_t{255}})
-    .setFontWeight(700);
-
-  auto btnSty = ui::Style()
-    .setWidth(200).setHeight(50)
-    .setCornerRadius(25)
-    .setFontSize(18)
-    .setFontWeight(600)
-    .setNormalColor(ui::Color{uint8_t{60}, uint8_t{60}, uint8_t{200}, uint8_t{255}})
-    .setPressedColor(ui::Color{uint8_t{40}, uint8_t{40}, uint8_t{140}, uint8_t{255}})
-    .setTextColor(ui::kWhite);
-
-  // ── Widgets ──
   auto label = std::make_unique<ui::Text>(
-      ui::Content{"0"}, countSty, ui::Id{"label"});
+      ui::Content{"0"},
+      ui::Style().setFontSize(64).setFontWeight(700)
+         .setTextColor(ui::Color{50, 60, 80}),
+      ui::TextAlign{ui::TextAlign::kCenter},
+      ui::Id{"label"});
   auto* raw = label.get();
+
+  auto btn = std::make_unique<ui::Button>(
+      ui::Label{"Increment"},
+      ui::Style().setWidth(140).setHeight(50).setCornerRadius(22)
+         .setFontSize(16).setFontWeight(600)
+         .setNormalColor(ui::Color{50, 130, 210})
+         .setPressedColor(ui::Color{30, 90, 170})
+         .setTextColor(ui::kWhite),
+      ui::Id{"btn"});
 
   std::vector<std::unique_ptr<ui::Widget>> v;
   v.push_back(std::move(label));
-  v.push_back(std::make_unique<ui::Button>(ui::Label{"Increment"}, btnSty, ui::Id{"btn"}));
+  v.push_back(std::move(btn));
 
   auto tree = std::make_unique<ui::Container>(
       ui::Direction{ui::Direction::kColumn},
       ui::Gap{16},
-      ui::Width{300}, ui::Height{240},
-      ui::Padding{ui::EdgeInsets::All(24)},
+      ui::Width{320}, ui::Height{260},
+      ui::Background{ui::Color{250, 250, 255}},
+      ui::Padding{ui::EdgeInsets::All(32)},
       ui::Container::Children{std::move(v)});
 
   raw->Watch(state->count);

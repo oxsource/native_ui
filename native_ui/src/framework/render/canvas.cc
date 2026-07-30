@@ -14,6 +14,7 @@
 #include "SkImage.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
+#include "SkRRect.h"
 #include "SkRect.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
@@ -72,6 +73,15 @@ void Canvas::DrawRect(Rect rect, const Paint& paint) {
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
   impl_->sk_canvas->drawRect(ToSkRect(rect), sk_paint);
+}
+
+void Canvas::DrawRoundRect(Rect rect, float radius, const Paint& paint) {
+  if (radius <= 0) { DrawRect(rect, paint); return; }
+  SkPaint sk_paint;
+  ApplyPaint(sk_paint, paint);
+  sk_paint.setAntiAlias(true);
+  SkRRect rrect = SkRRect::MakeRectXY(ToSkRect(rect), radius, radius);
+  impl_->sk_canvas->drawRRect(rrect, sk_paint);
 }
 
 void Canvas::DrawGradientRect(Rect rect, const Gradient& gradient) {
