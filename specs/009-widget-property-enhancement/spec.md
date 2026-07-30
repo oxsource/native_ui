@@ -17,6 +17,7 @@
 - Q: Button 与 Text 的继承关系 → A: Button 继承自 Text，获得 Text 全部属性（Content、FontSize、TextColor、TextAlign 等），在此基础上增加 OnClick、NormalColor、PressedColor、Disabled 等交互属性
 - Q: 需要 Style 复用机制 → A: 设计 Style 对象，支持链式设置（`Style().setFontSize(16).setTextColor(kRed)`），可通过构造函数标签 `Text(Content("Hi"), myStyle)` 或运行时 `widget->ApplyStyle(myStyle)` 应用
 - Q: Widget 基础属性范围 + Width/Height 语义 → A: Widget 基类应有 Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor 等基础属性；Width/Height 为 CSS 语义的首选尺寸，作为 Yoga 布局约束而非强制固定
+- Q: Style 优先级 + 默认值机制 → A: 四级优先级：① 全局默认样式 (Style::SetDefault) ② 控件类硬编码默认值 ③ 实例 Style (构造参数/ApplyStyle) ④ 显式标签参数（最高）；高优先级覆盖低优先级，未设置的属性透传至更低级；Style 使用值拷贝，每个属性有独立 is_set 标志；Style::SetDefault 仅影响后续创建的控件，线程安全限制为 main-thread-only
 
 ## User Scenarios & Testing
 
@@ -109,23 +110,25 @@ A developer configures how an Image widget scales its content within the widget 
 
 - **FR-001**: A `Style` class MUST support chainable property setting: `Style().setFontSize(16).setTextColor(kRed).setWidth(200).setHeight(48)` — all properties are optional
 - **FR-002**: `Style` MUST cover at minimum: Width, Height, Background, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines
-- **FR-003**: `Style` MUST be applicable via tagged constructor parameter (`Text(Content("Hi"), myStyle)`) and via runtime method (`widget->ApplyStyle(myStyle)`)
-- **FR-004**: Explicit widget tags override Style properties when both specify the same property — Style is a fallback/default layer
-- **FR-005**: Widget base MUST support `Width(float)` and `Height(float)` — CSS 语义的首选尺寸，作为 Yoga 布局约束，可能被父容器拉伸
-- **FR-006**: Widget base MUST support `Enabled(bool)` — when false, widget does not respond to events and renders with visual dimming; true by default
-- **FR-007**: Widget base MUST support `Background(Color)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
-- **FR-008**: Text widget MUST own the following tagged properties: `Content(string)`, `FontSize(float)`, `TextColor(Color)`, `TextAlign(TextAlign)`, `FontFamily(string)`, `FontWeight(int)`, `LineHeight(float)`, `MaxLines(int)`, `TextDecoration(TextDecoration)`
-- **FR-009**: Text widget MUST support `TextAlign(TextAlign)` — kLeft, kCenter, kRight (horizontal), and `kTop`, kCenter, kBottom (vertical)
-- **FR-010**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
-- **FR-011**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
-- **FR-012**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover, kStretch
-- **FR-013**: Image widget MUST support `CornerRadius(float)` for rounded corners
-- **FR-014**: All properties MUST be configurable via tagged parameters in the constructor AND via Style
-- **FR-015**: Properties MUST NOT break existing widget API — all existing constructors remain valid
+- **FR-003**: Style MUST support `Style::SetDefault(const Style&)` — sets a global default theme applied to all subsequently created widgets (main-thread-only)
+- **FR-004**: Style MUST track per-property `is_set` flags — an unset property falls through to the next priority level without overriding
+- **FR-005**: Style priority hierarchy MUST be (low→high): Global default → Widget class default → Instance Style (via ApplyStyle or constructor) → Explicit constructor tags
+- **FR-006**: Style MUST be copyable via value copy (no shared pointers) — each widget holds its own Style copy after ApplyStyle
+- **FR-007**: Widget base MUST support `Width(float)` and `Height(float)` — CSS 语义的首选尺寸，作为 Yoga 布局约束，可能被父容器拉伸
+- **FR-008**: Widget base MUST support `Enabled(bool)` — when false, widget does not respond to events and renders with visual dimming; true by default
+- **FR-009**: Widget base MUST support `Background(Color)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
+- **FR-010**: Text widget MUST own the following tagged properties: `Content(string)`, `FontSize(float)`, `TextColor(Color)`, `TextAlign(TextAlign)`, `FontFamily(string)`, `FontWeight(int)`, `LineHeight(float)`, `MaxLines(int)`, `TextDecoration(TextDecoration)`
+- **FR-011**: Text widget MUST support `TextAlign(TextAlign)` — kLeft, kCenter, kRight (horizontal), and `kTop`, kCenter, kBottom (vertical)
+- **FR-012**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
+- **FR-013**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
+- **FR-014**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover, kStretch
+- **FR-015**: Image widget MUST support `CornerRadius(float)` for rounded corners
+- **FR-016**: All properties MUST be configurable via tagged parameters in the constructor AND via Style
+- **FR-017**: Properties MUST NOT break existing widget API — all existing constructors remain valid
 
 ### Key Entities
 
-- **Style**: A reusable bundle of visual and typographic properties (FontSize, TextColor, Background, TextAlign, etc.). Supports chainable setters. Applied via constructor tag or `ApplyStyle()`. Explicit widget tags override Style values.
+- **Style**: A reusable bundle of visual and typographic properties. Supports chainable setters. Per-property `is_set` flag enables priority layering. Four priority levels (low→high): Global default → Class default → Instance Style → Explicit tags. `Style::SetDefault()` sets global theme (main-thread-only, affects future widgets only). `ApplyStyle()` merges instance Style into widget.
 - **Text**: Inherits Widget base properties (Width, Height, Background, etc.) plus owns typographic properties (FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration).
 - **Button**: Inherits from Text — gets all Text + Widget properties automatically. Adds interactive properties: OnClick, NormalColor, PressedColor. Inherits Enabled from Widget base (Disabled behavior unified across all widgets). Button's Draw uses state color for background and Text properties for label rendering.
 - **Image Widget**: Displays images with FitMode control. Supports CornerRadius for rounded corners.
@@ -146,8 +149,10 @@ A developer configures how an Image widget scales its content within the widget 
 
 ## Assumptions
 
-- Style is a plain data class (no widgets, no Canvas) — it only stores property values
-- ApplyStyle(style) merges Style into the widget's own properties — explicit widget tags always win
+- Style is a plain data class with per-property `is_set` flags and value semantics (copyable)
+- Style::SetDefault() is main-thread-only and only affects widgets created AFTER the call
+- ApplyStyle merges only properties where `is_set == true` — unset properties are ignored (fall through)
+- Priority: explicit tags > instance Style > class default > global default
 - Button inherits from Text: `class Button : public Text` — Button's Draw first draws Text (label + styling), then applies state color overlay
 - Text alignment uses Skia's `SkFont` horizontal alignment; vertical alignment adjusts text Y position within bounds
 - Background color on ANY widget draws a filled rect before content — Canvas draws the background rect, then clips, then calls the widget's Draw
@@ -157,7 +162,7 @@ A developer configures how an Image widget scales its content within the widget 
 - Opacity is implemented as a canvas alpha multiplier via `Canvas::SaveLayer` or paint alpha
 - CornerRadius uses Skia's `SkRRect` for drawing rounded rects
 - Font properties use Skia's `SkFont` — TextLayout (SkParagraph) is still deferred post-MVP
-- Button state defaults: NormalColor=light gray, PressedColor=darker gray, Disabled=gray with 0.5 opacity
+- Button state defaults: NormalColor=light gray, PressedColor=darker gray; Enabled(true) by default
 - FitMode is implemented via `Canvas::DrawImage` with source/dest rect transformations
 - Visible(false) skips Draw but does NOT remove the widget from layout
 - Label("OK") on Button is synonymous with Content("OK") for convenience
