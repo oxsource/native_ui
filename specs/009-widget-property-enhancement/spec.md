@@ -8,53 +8,63 @@
 
 **Input**: User description: "对基础控件的属性进行丰富完善"
 
+## Clarifications
+
+### Session 2026-07-30
+
+- Q: Text 属性设计参考方向 → A: 参考 Android TextView 设计——Text 拥有 TextColor(文字颜色)、TextAlign(对齐)、FontSize(字体大小)、FontFamily、LineHeight、MaxLines 等自有属性
+- Q: 背景色归属范围 → A: 背景色归属于 Widget 基类，所有控件（Text、Button、Image、Container、Stack 等）都必须支持设置背景色
+- Q: Button 与 Text 的继承关系 → A: Button 继承自 Text，获得 Text 全部属性（Content、FontSize、TextColor、TextAlign 等），在此基础上增加 OnClick、NormalColor、PressedColor、Disabled 等交互属性
+- Q: 需要 Style 复用机制 → A: 设计 Style 对象，支持链式设置（`Style().setFontSize(16).setTextColor(kRed)`），可通过构造函数标签 `Text(Content("Hi"), myStyle)` 或运行时 `widget->ApplyStyle(myStyle)` 应用
+- Q: Widget 基础属性范围 + Width/Height 语义 → A: Widget 基类应有 Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor 等基础属性；Width/Height 为 CSS 语义的首选尺寸，作为 Yoga 布局约束而非强制固定
+
 ## User Scenarios & Testing
 
-### User Story 1 - Developer Configures Visual Properties on All Widgets (Priority: P1)
+### User Story 1 - Developer Configures Visual Properties via Style (Priority: P1)
 
-A developer sets common visual properties — opacity, visibility, background color, corner radius, and border — on Text, Button, Image, and Container widgets using tagged parameters. These properties affect rendering without requiring custom Draw overrides.
+A developer defines a reusable `Style` object bundling common widget properties (width, height, background, enabled, opacity, corner radius) and typographic properties (font size, text color, alignment) — and applies it to multiple Text and Button widgets. The Style reduces duplication and ensures consistent appearance.
 
-**Why this priority**: Visual properties are the most requested customization for any UI framework. Enabling them on the base Widget level eliminates repetitive code and enables declarative styling.
+**Why this priority**: Style is the core reuse mechanism. Without it, every widget must repeat the same property tags, making UIs verbose and inconsistent.
 
-**Independent Test**: A developer creates a Text widget with Opacity(0.5) and renders it, then verifies the output pixels have reduced alpha compared to an identical widget without opacity.
+**Independent Test**: A developer creates a `Style` with FontSize(16) and TextColor(kBlue), applies it to two different Text widgets, and verifies both render with the same font size and color.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Text widget with `Opacity(0.5)`, **When** drawn on a Canvas, **Then** the rendered pixels have ~50% alpha compared to the same widget at full opacity
-2. **Given** a Container with `Background(kBlue)` and `CornerRadius(8)`, **When** drawn, **Then** a rounded blue rect fills the container bounds
-3. **Given** a Button with `BorderWidth(2)` and `BorderColor(kRed)`, **When** drawn, **Then** a 2px red border surrounds the button
-4. **Given** any widget with `Visible(false)`, **When** drawn, **Then** nothing is rendered
+1. **Given** a Style with `FontSize(18)` and `TextColor(kRed)`, **When** applied to a Text widget, **Then** the widget renders text at size 18 in red
+2. **Given** a Style applied to a Button (which inherits from Text), **When** the Button is drawn, **Then** the Button label uses the Style's font and color
+3. **Given** a Style applied at construction (`Text(Content("Hi"), myStyle)`), **When** drawn, **Then** the Style properties take effect
+4. **Given** a widget with both explicit tags and a Style, **When** drawn, **Then** explicit tags override Style properties
 
 ---
 
 ### User Story 2 - Developer Customizes Text Appearance (Priority: P1)
 
-A developer configures advanced text properties: font family, alignment, line height, text overflow behavior, and text decoration.
+A developer configures Text and Button appearance using Android-inspired properties: background color, text color, font size, alignment, font family, line height, and overflow behavior.
 
-**Why this priority**: Text rendering is the most common UI element. Rich text properties enable everything from headings with specific fonts to underlined links and truncated labels.
+**Why this priority**: Text is the root of Button (Button inherits Text). Rich text/styling properties on Text benefit both labels and buttons, covering the majority of UI customization needs.
 
-**Independent Test**: A developer creates two Text widgets with different FontFamily and FontWeight, renders them, and verifies the pixel output differs in glyph shapes and stroke width.
+**Independent Test**: A developer creates a Text widget with `Background(kWhite)`, `TextColor(kBlue)`, `TextAlign(kCenter)`, `FontSize(24)`, renders it, and verifies the pixel output matches each property.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Text widget with `FontFamily("Helvetica")` and `FontWeight(700)`, **When** drawn, **Then** the text renders in bold Helvetica
-2. **Given** a Text widget with `TextAlign(kCenter)`, **When** drawn in a wide container, **Then** the text is horizontally centered
-3. **Given** a Text widget with `LineHeight(1.5)` and multi-line content, **When** drawn, **Then** line spacing is 1.5x the font size
-4. **Given** a Text widget with `MaxLines(1)` and long content, **When** drawn, **Then** the text is truncated with an ellipsis
+1. **Given** a Text widget with `Background(kWhite)` and `TextColor(kBlue)`, **When** drawn, **Then** the background is a white rect and the text is blue
+2. **Given** a Text widget with `TextAlign(kCenter)`, **When** drawn in a wide container, **Then** the text is horizontally centered within the widget bounds
+3. **Given** a Text widget with `FontSize(24)` and `FontFamily("Helvetica")`, **When** drawn, **Then** the text renders at 24px in Helvetica
+4. **Given** a Text widget with `LineHeight(1.5)` and `MaxLines(2)` with overflow content, **When** drawn, **Then** line spacing is 1.5x and the second line is truncated with an ellipsis
 
 ---
 
-### User Story 3 - Developer Adds Interactive Button States (Priority: P2)
+### User Story 3 - Developer Creates Styled Buttons Inheriting Text Properties (Priority: P2)
 
-A developer configures Button colors for normal, pressed, hovered, and disabled states. The Button automatically switches colors based on interaction state.
+A developer creates a Button that inherits all Text properties (font size, text color, background, alignment) plus adds interactive state colors for normal, pressed, and disabled states. Since Button extends Text, the same Style object works for both.
 
-**Why this priority**: Interactive feedback is essential for a polished UI. Buttons without state colors feel flat and provide no visual feedback to user actions.
+**Why this priority**: Button inheriting Text eliminates property duplication. Text properties like FontSize, TextColor, and Background are automatically available on Button, and a single Style can drive both labels and buttons.
 
-**Independent Test**: A developer creates a Button with different NormalColor and PressedColor, triggers a press via event dispatch, and verifies the rendered pixels match the pressed color.
+**Independent Test**: A developer creates a Style with FontSize(16) and TextColor(kWhite), applies it to a Button with Background(kBlue), triggers a press, and verifies the button renders in blue with white 16px text, then darkens when pressed.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Button with `NormalColor(kBlue)` and `PressedColor(kDarkGray)`, **When** a MouseEvent is pushed at the button position, **Then** the button renders in dark gray while pressed
+1. **Given** a Button with `Background(kBlue)`, `TextColor(kWhite)`, and `PressedColor(kDarkBlue)`, **When** a MouseEvent is pushed at the button position, **Then** the button renders in dark blue while pressed (inheriting Text properties for the label rendering)
 2. **Given** a Button with `Disabled(true)`, **When** drawn, **Then** the button renders with reduced opacity and does NOT respond to click events
 3. **Given** a Button with `HoverColor(kLightGray)`, **When** the cursor enters the button area, **Then** the button renders in light gray
 
@@ -81,55 +91,73 @@ A developer configures how an Image widget scales its content within the widget 
 - What happens when Opacity is set to 0 (invisible but still occupies layout space)?
 - What happens when both Opacity and Visible(false) are set?
 - What happens when CornerRadius is larger than half the widget size?
-- What happens when BorderWidth exceeds the widget dimensions?
 - What happens when FontFamily specifies a font that is not installed?
 - What happens when MaxLines is 0 or negative?
 - What happens when an image FitMode is applied to a zero-sized widget?
 - What happens when a Button is both Disabled and pressed?
+- What happens when a Style and an explicit tag specify the same property (e.g., FontSize in both)?
+- What happens when `widget->ApplyStyle(style)` is called after construction — does it override or merge?
+- What happens when a Button inheriting Text has both `Content` (from Text) and `Label` (from Button) set?
+- What happens when Width(0) or Height(0) is set?
+- What happens when Width and Height are set via Style and then overridden by parent FlexLayout?
+- What happens when Enabled(false) widget receives a mouse event?
+- What happens when Width/Height is set but layout_size_ is also set via Container::Layout(Size)?
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: Widget base MUST support `Opacity(float)` — a multiplier (0.0–1.0) applied to all drawn content's alpha channel
-- **FR-002**: Widget base MUST support `Visible(bool)` — when false, Draw is a no-op; the widget still occupies layout space
-- **FR-003**: Widget base MUST support `Background(Color)` — fills widget bounds with the specified color before child content draws
-- **FR-004**: Widget base MUST support `CornerRadius(float)` — rounds corners of the background rect (and border if present)
-- **FR-005**: Widget base MUST support `BorderWidth(float)` and `BorderColor(Color)` — draws a stroked rect around widget bounds
-- **FR-006**: Text widget MUST support `FontFamily(string)`, `FontWeight(int)`, `FontStyle(FontStyle)`, `TextAlign(TextAlign)`, `LineHeight(float)`, `MaxLines(int)` for advanced text layout
-- **FR-007**: Text widget MUST support `TextDecoration(TextDecoration)` — underline, line-through, none
-- **FR-008**: Button widget MUST support `NormalColor(Color)`, `PressedColor(Color)`, `HoverColor(Color)`, `Disabled(bool)` for interactive state styling
-- **FR-009**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover
-- **FR-010**: Image widget MUST support `CornerRadius(float)` and `BorderWidth/Color` for rounded image display
-- **FR-011**: All properties MUST be configurable via tagged parameters in the constructor
-- **FR-012**: Properties MUST NOT break existing widget API — all existing constructors remain valid
+- **FR-001**: A `Style` class MUST support chainable property setting: `Style().setFontSize(16).setTextColor(kRed).setWidth(200).setHeight(48)` — all properties are optional
+- **FR-002**: `Style` MUST cover at minimum: Width, Height, Background, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines
+- **FR-003**: `Style` MUST be applicable via tagged constructor parameter (`Text(Content("Hi"), myStyle)`) and via runtime method (`widget->ApplyStyle(myStyle)`)
+- **FR-004**: Explicit widget tags override Style properties when both specify the same property — Style is a fallback/default layer
+- **FR-005**: Widget base MUST support `Width(float)` and `Height(float)` — CSS 语义的首选尺寸，作为 Yoga 布局约束，可能被父容器拉伸
+- **FR-006**: Widget base MUST support `Enabled(bool)` — when false, widget does not respond to events and renders with visual dimming; true by default
+- **FR-007**: Widget base MUST support `Background(Color)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
+- **FR-008**: Text widget MUST own the following tagged properties: `Content(string)`, `FontSize(float)`, `TextColor(Color)`, `TextAlign(TextAlign)`, `FontFamily(string)`, `FontWeight(int)`, `LineHeight(float)`, `MaxLines(int)`, `TextDecoration(TextDecoration)`
+- **FR-009**: Text widget MUST support `TextAlign(TextAlign)` — kLeft, kCenter, kRight (horizontal), and `kTop`, kCenter, kBottom (vertical)
+- **FR-010**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
+- **FR-011**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
+- **FR-012**: Image widget MUST support `FitMode(FitMode)` — kFill, kContain, kCover, kStretch
+- **FR-013**: Image widget MUST support `CornerRadius(float)` for rounded corners
+- **FR-014**: All properties MUST be configurable via tagged parameters in the constructor AND via Style
+- **FR-015**: Properties MUST NOT break existing widget API — all existing constructors remain valid
 
 ### Key Entities
 
-- **Common Visual Properties**: Opacity, Visible, Background, CornerRadius, BorderWidth, BorderColor — stored in Widget base class, affecting all widget types
-- **Advanced Text Properties**: FontFamily, FontWeight, FontStyle, TextAlignment, LineHeight, MaxLines, TextDecoration — affect Canvas::DrawText behavior
-- **Button State Colors**: NormalColor, PressedColor, HoverColor, Disabled — determine Button rendering based on interaction state
-- **Image Fit Modes**: FitMode enum (kFill, kContain, kCover) — control how images scale within widget bounds
+- **Style**: A reusable bundle of visual and typographic properties (FontSize, TextColor, Background, TextAlign, etc.). Supports chainable setters. Applied via constructor tag or `ApplyStyle()`. Explicit widget tags override Style values.
+- **Text**: Inherits Widget base properties (Width, Height, Background, etc.) plus owns typographic properties (FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration).
+- **Button**: Inherits from Text — gets all Text + Widget properties automatically. Adds interactive properties: OnClick, NormalColor, PressedColor. Inherits Enabled from Widget base (Disabled behavior unified across all widgets). Button's Draw uses state color for background and Text properties for label rendering.
+- **Image Widget**: Displays images with FitMode control. Supports CornerRadius for rounded corners.
+- **Widget Base Properties**: Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor — ALL widget types share these common visual/behavioral properties. Width/Height are CSS-semantic preferred sizes used as Yoga constraints.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: A developer can set Opacity(0.5) on any widget and verify the output pixels have 50% reduced alpha — testable via pixel readback
-- **SC-002**: A developer can set Background + CornerRadius on any Container and verify rounded rect rendering — testable via pixel readback
-- **SC-003**: Text with FontWeight(700) renders visibly thicker glyphs than FontWeight(400) — testable via pixel comparison
-- **SC-004**: Button with Disabled(true) does not invoke OnClick when a MouseEvent is pushed — testable via callback flag
-- **SC-005**: Image with FitMode(kCover) fills the entire widget bounds — testable via edge pixel verification
-- **SC-006**: All new properties are settable via tagged parameters and do not break existing construction patterns — verified by existing test suite
-- **SC-007**: A Text widget with MaxLines(1) and overflow truncates content with an ellipsis — testable via pixel readback
+- **SC-001**: A developer can set `Width(200)` and `Height(48)` on a Container and verify the layout respects the preferred size — testable via Measure output
+- **SC-002**: A developer can set `Enabled(false)` on a Button and verify that a mouse event is NOT delivered — testable via callback flag
+- **SC-003**: A developer can set Opacity(0.5) on any widget and verify the output pixels have 50% reduced alpha — testable via pixel readback
+- **SC-004**: A developer can set Background + CornerRadius on any Container and verify rounded rect rendering — testable via pixel readback
+- **SC-005**: Text with FontWeight(700) renders visibly thicker glyphs than FontWeight(400) — testable via pixel comparison
+- **SC-006**: Image with FitMode(kCover) fills the entire widget bounds — testable via edge pixel verification
+- **SC-007**: All new properties are settable via tagged parameters and do not break existing construction patterns — verified by existing test suite
+- **SC-008**: A Text widget with MaxLines(1) and overflow truncates content with an ellipsis — testable via pixel readback
 
 ## Assumptions
 
-- Opacity is implemented as a canvas alpha multiplier applied via `Canvas::SaveLayer` or paint alpha, not by modifying individual pixel values
+- Style is a plain data class (no widgets, no Canvas) — it only stores property values
+- ApplyStyle(style) merges Style into the widget's own properties — explicit widget tags always win
+- Button inherits from Text: `class Button : public Text` — Button's Draw first draws Text (label + styling), then applies state color overlay
+- Text alignment uses Skia's `SkFont` horizontal alignment; vertical alignment adjusts text Y position within bounds
+- Background color on ANY widget draws a filled rect before content — Canvas draws the background rect, then clips, then calls the widget's Draw
+- Width/Height are preferred sizes (CSS semantics) — set via `YGNodeStyleSetWidth/Height` as constraints, parent layout can override via FlexGrow
+- Enabled(false) disables event delivery AND applies visual dimming (0.5 opacity overlay) — unified across all widgets
+- Button's `Disabled` concept is unified into Widget base `Enabled` — `Enabled(false)` replaces `Disabled(true)` on Button
+- Opacity is implemented as a canvas alpha multiplier via `Canvas::SaveLayer` or paint alpha
 - CornerRadius uses Skia's `SkRRect` for drawing rounded rects
-- Font properties are passed to Skia's `SkFont` and `SkParagraph` (TextLayout system from post-MVP P9) — if SkParagraph is not yet available, a best-effort subset is implemented with `SkFont`
-- Button state colors default to reasonable values (light gray for normal, darker gray for pressed) if not specified
+- Font properties use Skia's `SkFont` — TextLayout (SkParagraph) is still deferred post-MVP
+- Button state defaults: NormalColor=light gray, PressedColor=darker gray, Disabled=gray with 0.5 opacity
 - FitMode is implemented via `Canvas::DrawImage` with source/dest rect transformations
-- Visible(false) skips Draw but does NOT remove the widget from layout — the widget still occupies space
-- Border is drawn INSIDE the widget bounds (inset), not outside
-- The base Widget class gains a `PaintProperties` struct to avoid adding dozens of individual member fields
+- Visible(false) skips Draw but does NOT remove the widget from layout
+- Label("OK") on Button is synonymous with Content("OK") for convenience

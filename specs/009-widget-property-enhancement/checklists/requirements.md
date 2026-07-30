@@ -31,7 +31,7 @@
 
 ## Notes
 
-- All 16 items passed validation on first check
-- No [NEEDS CLARIFICATION] markers
-- Spec covers common visual props (Widget base), text props, button states, image fit modes
-- Ready for `/speckit.plan` or `/speckit.tasks`
+- All 16 items passed validation (post-clarification re-check)
+- Clarification session 2026-07-30 resolved: Style mechanism, Button inherits Text, Android-like Text properties
+- All 12 FR updated to reflect new architecture
+- Spec ready for `/speckit.plan` or `/speckit.tasks`
