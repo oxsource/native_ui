@@ -1,0 +1,15 @@
+cc_library(
+    name = "utils",
+    hdrs = ["png_writer.h"],
+    srcs = ["png_writer.cc"],
+    includes = ["."],
+    visibility = [
+        "//examples:__subpackages__",
+        "//src/framework:__subpackages__",
+        "//src/spike:__subpackages__",
+    ],
+    deps = [
+        "@skia//:skia",
+        "@stblib//:stb_image_write",
+    ],
+)

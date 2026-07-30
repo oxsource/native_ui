@@ -1,28 +1,16 @@
 package(default_visibility = ["//src/spike:__subpackages__"])
 
-cc_library(
-    name = "png_writer",
-    srcs = ["png_writer.cc"],
-    hdrs = ["png_writer.h"],
-    includes = ["."],
-    visibility = ["//examples:__subpackages__", "//src/spike:__subpackages__"],
-    deps = [
-        "@skia//:skia",
-        "@stblib//:stb_image_write",
-    ],
-)
-
 cc_binary(
     name = "skia_spike",
     srcs = ["skia_spike.cc"],
-    deps = [":png_writer"],
+    deps = ["//src/framework/utils"],
 )
 
 cc_binary(
     name = "yoga_spike",
     srcs = ["yoga_spike.cc"],
     deps = [
-        ":png_writer",
+        "//src/framework/utils",
         "@yoga//:yoga",
     ],
 )

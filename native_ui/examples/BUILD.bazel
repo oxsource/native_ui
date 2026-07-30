@@ -4,7 +4,7 @@ cc_binary(
     deps = [
         "//src/framework/public:native_ui",
         "//src/framework/surface",
-        "//src/spike:png_writer",
+        "//src/framework/utils",
         "@skia//:skia",
     ],
 )
