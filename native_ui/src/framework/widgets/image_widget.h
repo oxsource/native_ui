@@ -15,7 +15,9 @@ struct ImagePath {
 class ImageWidget : public Widget {
 public:
   template <typename... Args>
-  explicit ImageWidget(Args&&... args);
+  explicit ImageWidget(Args&&... args) {
+    (ProcessArg(std::forward<Args>(args)), ...);
+  }
 
   ~ImageWidget() override;
 

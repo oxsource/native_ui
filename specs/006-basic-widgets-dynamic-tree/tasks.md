@@ -130,12 +130,12 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Unit tests covering all widgets, edge cases, and build verification
 
-- [ ] T018 [P] Write Text widget tests in `native_ui/tests/widgets_test.cc` — rendering, data binding, edge cases (empty content, zero font size)
-- [ ] T019 [P] Write Button widget tests in `native_ui/tests/widgets_test.cc` — hit detection (inside/outside), callback invocation, data binding, empty label
-- [ ] T020 [P] Write Image widget tests in `native_ui/tests/widgets_test.cc` — file loading, DrawImage output, missing/corrupted file handling
-- [ ] T021 [P] Write ExternalImage widget tests in `native_ui/tests/widgets_test.cc` — buffer rendering, SetBuffer redraw, invalid buffer handling, data binding
-- [ ] T022 [P] Write Stack widget tests in `native_ui/tests/widgets_test.cc` — z-order rendering, AddChild/RemoveChild triggers RequestLayout, empty stack
-- [ ] T023 Verify build and tests pass: `bazel build //src/framework/widgets` and `bazel test //tests:widgets_test`
+- [x] T018 [P] Write Text widget tests in `native_ui/tests/widgets_test.cc` — rendering, data binding, edge cases (empty content, zero font size)
+- [x] T019 [P] Write Button widget tests in `native_ui/tests/widgets_test.cc` — hit detection (inside/outside), callback invocation, data binding, empty label
+- [x] T020 [P] Write Image widget tests in `native_ui/tests/widgets_test.cc` — file loading, DrawImage output, missing/corrupted file handling
+- [x] T021 [P] Write ExternalImage widget tests in `native_ui/tests/widgets_test.cc` — buffer rendering, SetBuffer redraw, invalid buffer handling, data binding
+- [x] T022 [P] Write Stack widget tests in `native_ui/tests/widgets_test.cc` — z-order rendering, AddChild/RemoveChild triggers RequestLayout, empty stack
+- [x] T023 Verify build and tests pass: `bazel build //src/framework/widgets` and `bazel test //tests:widgets_test`
 
 ---
 

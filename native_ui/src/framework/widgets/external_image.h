@@ -11,7 +11,9 @@ namespace native::ui {
 class ExternalImage : public Widget {
 public:
   template <typename... Args>
-  explicit ExternalImage(Args&&... args);
+  explicit ExternalImage(Args&&... args) {
+    (ProcessArg(std::forward<Args>(args)), ...);
+  }
 
   ~ExternalImage() override;
 

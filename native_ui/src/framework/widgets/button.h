@@ -19,7 +19,9 @@ struct OnClick {
 class Button : public Widget {
 public:
   template <typename... Args>
-  explicit Button(Args&&... args);
+  explicit Button(Args&&... args) {
+    (ProcessArg(std::forward<Args>(args)), ...);
+  }
 
   bool HitTest(Point p) const;
   void Watch(Property<std::string>& prop);

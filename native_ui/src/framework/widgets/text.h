@@ -18,7 +18,9 @@ struct FontSize {
 class Text : public Widget {
 public:
   template <typename... Args>
-  explicit Text(Args&&... args);
+  explicit Text(Args&&... args) {
+    (ProcessArg(std::forward<Args>(args)), ...);
+  }
 
   void Watch(Property<std::string>& prop);
   void Draw(Canvas& canvas) override;

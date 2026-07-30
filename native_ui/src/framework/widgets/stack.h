@@ -10,7 +10,9 @@ namespace native::ui {
 class Stack : public Widget {
 public:
   template <typename... Args>
-  explicit Stack(Args&&... args);
+  explicit Stack(Args&&... args) {
+    (ProcessArg(std::forward<Args>(args)), ...);
+  }
 
   struct Children {
     std::vector<std::unique_ptr<Widget>> value;
