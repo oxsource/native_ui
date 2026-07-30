@@ -30,8 +30,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Create shared data types and utility headers used by all phases
 
-- [ ] T001 Create `Gradient` type in `native_ui/src/framework/core/gradient.h` with `Linear(from, to, stops)` and `Radial(center, radius, stops)` factories, `ColorStop` struct; update `native_ui/src/framework/core/BUILD.bazel` glob picks it up automatically
-- [ ] T002 [P] Create `LRUCache` template in `native_ui/src/framework/widgets/lru_cache.h` — `list` + `unordered_map` backed, max_bytes capacity, `Get(key)`, `Put(key, value)`, `Clear()`
+- [x] T001 Create `Gradient` type in `native_ui/src/framework/core/gradient.h` with `Linear(from, to, stops)` and `Radial(center, radius, stops)` factories, `ColorStop` struct; update `native_ui/src/framework/core/BUILD.bazel` glob picks it up automatically
+- [x] T002 [P] Create `LRUCache` template in `native_ui/src/framework/widgets/lru_cache.h` — `list` + `unordered_map` backed, max_bytes capacity, `Get(key)`, `Put(key, value)`, `Clear()`
 
 ---
 
@@ -39,8 +39,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Style with StylePriority, per-property is_set flags, Merge algorithm, SetDefault global singleton. BLOCKS all property work since ApplyStyle depends on it.
 
-- [ ] T003 Create `Style` header in `native_ui/src/framework/widgets/style.h` with `StylePriority` enum (kGlobal=100→kExplicit=500), chainable setters for all 22+ properties, per-property `is_set` storage, `priority()`, `setPriority()`
-- [ ] T004 Implement `Style` in `native_ui/src/framework/widgets/style.cc` — `SetDefault()` static (main-thread-only `Glide*` global), `Default()` accessor, `Merge(base, overlay)` free function (per-property: if overlay.is_set && overlay.priority >= base.priority → overlay wins)
+- [x] T003 Create `Style` header in `native_ui/src/framework/widgets/style.h` with `StylePriority` enum (kGlobal=100→kExplicit=500), chainable setters for all 22+ properties, per-property `is_set` storage, `priority()`, `setPriority()`
+- [x] T004 Implement `Style` in `native_ui/src/framework/widgets/style.cc` — `SetDefault()` static, `Default()` accessor, `Merge(base, overlay)` free function (per-property: if overlay.is_set && overlay.priority >= base.priority → overlay wins)
 
 **Checkpoint**: Style class compiles, Merge works, SetDefault/Default pair works.
 
