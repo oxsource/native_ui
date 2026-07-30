@@ -1,17 +1,22 @@
 #include "canvas.h"
 
+#include "gradient.h"
 #include "image.h"
 #include "paint.h"
 #include "path.h"
 #include "surface.h"
 
+#include "SkBlurTypes.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkFontMgr.h"
+#include "SkGradientShader.h"
 #include "SkImage.h"
-#include "SkTypeface.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkRect.h"
+#include "SkShader.h"
+#include "SkTypeface.h"
 
 #if __APPLE__
 #include "ports/SkFontMgr_mac_ct.h"
@@ -67,6 +72,50 @@ void Canvas::DrawRect(Rect rect, const Paint& paint) {
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
   impl_->sk_canvas->drawRect(ToSkRect(rect), sk_paint);
+}
+
+void Canvas::DrawGradientRect(Rect rect, const Gradient& gradient) {
+  SkRect r = ToSkRect(rect);
+  std::vector<SkColor> colors;
+  std::vector<SkScalar> positions;
+  for (const auto& stop : gradient.stops()) {
+    colors.push_back(ToSkColor(stop.color));
+    positions.push_back(stop.position);
+  }
+  if (colors.empty()) return;
+
+  sk_sp<SkShader> shader;
+  int n = static_cast<int>(colors.size());
+  if (gradient.type() == Gradient::Type::kLinear) {
+    SkPoint pts[2] = {
+        {gradient.from().x, gradient.from().y},
+        {gradient.to().x, gradient.to().y}};
+    shader = SkGradientShader::MakeLinear(
+        pts, colors.data(), positions.data(), n,
+        SkTileMode::kClamp);
+  } else {
+    shader = SkGradientShader::MakeRadial(
+        {gradient.center().x, gradient.center().y},
+        gradient.radius(),
+        colors.data(), positions.data(), n,
+        SkTileMode::kClamp);
+  }
+  if (!shader) return;
+
+  SkPaint sk_paint;
+  sk_paint.setShader(shader);
+  impl_->sk_canvas->drawRect(r, sk_paint);
+}
+
+void Canvas::DrawShadow(Rect rect, float radius, Point offset, Color color) {
+  if (radius <= 0) return;
+  SkPaint shadow_paint;
+  shadow_paint.setColor(ToSkColor(color));
+  auto filter = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, radius);
+  if (filter) shadow_paint.setMaskFilter(filter);
+  SkRect r = ToSkRect(rect);
+  r.offset(offset.x, offset.y);
+  impl_->sk_canvas->drawRoundRect(r, radius, radius, shadow_paint);
 }
 
 void Canvas::DrawText(const std::string& text, Point pos,

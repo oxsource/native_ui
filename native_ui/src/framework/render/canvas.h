@@ -21,6 +21,8 @@ public:
   ~Canvas();
 
   void DrawRect(Rect rect, const Paint& paint);
+  void DrawGradientRect(Rect rect, const class Gradient& gradient);
+  void DrawShadow(Rect rect, float radius, Point offset, Color color);
   void DrawText(const std::string& text, Point pos, const Paint& paint,
                 float font_size = 16.0f);
   void DrawPath(const Path& path, const Paint& paint);
