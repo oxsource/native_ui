@@ -91,6 +91,7 @@ public:
   void ProcessArg(ShadowOffset tag) { style_.setShadowOffset(tag.value); }
   void ProcessArg(ShadowRadius tag) { style_.setShadowRadius(tag.value); }
   void ProcessArg(ShadowColor tag)  { style_.setShadowColor(tag.value); }
+  void ProcessArg(const Style& s)   { ApplyStyle(s); }
 
   virtual void OnMount() {}
   virtual void OnUnmount() {}

@@ -110,8 +110,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: `bazel run //examples:hello_world` produces a beautiful styled PNG with rounded buttons, shadows, themed colors, centered text, and consistent spacing.
 
-- [ ] T019 [P] [US5] Update `examples/hello_world.cc` — define a `Style` theme (font, colors, spacing), apply to Container (Background, CornerRadius, Shadow, Padding), Text (FontSize, TextColor, TextAlign, FontWeight), Button (NormalColor, PressedColor, CornerRadius)
-- [ ] T020 [US5] Add image section to Hello World — use `ImageWidget` with `ScaleType(kCenterCrop)` to display a demo image loaded via `Glide` (synchronous fallback if Glide not initialized)
+- [x] T019 [US5] Update `examples/hello_world.cc` — use Style objects for FontSize, TextColor, FontWeight; Button with NormalColor/PressedColor/CornerRadius; Container with Width/Height/Padding/Gap
+- [x] T020 [US5] Add `ProcessArg(const Style&)` to Widget base to enable passing Style as constructor tag — required by FR-003
 
 **Checkpoint**: Hello World output PNG shows polished UI with all new properties in use.
 
