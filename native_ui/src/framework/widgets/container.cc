@@ -104,7 +104,13 @@ void Container::PrepareLayout() {
     float cw = children_[i]->style().width();
     float ch = children_[i]->style().height();
     if (cw > 0) YGNodeStyleSetWidth(child_nodes_[i], cw);
-    if (ch > 0) YGNodeStyleSetHeight(child_nodes_[i], ch);
+    if (ch > 0) {
+      // Propagate height for nested Containers (yoga subtree).
+      // Leaf widgets keep flex-only height to preserve dc6db58 layout.
+      if (dynamic_cast<Container*>(children_[i].get())) {
+        YGNodeStyleSetHeight(child_nodes_[i], ch);
+      }
+    }
     if (auto* c = dynamic_cast<Container*>(children_[i].get())) {
       c->PrepareLayout();
     }

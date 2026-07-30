@@ -56,8 +56,8 @@ int main() {
       ui::Id{"btn"});
 
   std::vector<std::unique_ptr<ui::Widget>> v;
-  v.push_back(std::move(label));
   v.push_back(std::move(btn));
+  v.push_back(std::move(label));
 
   auto tree = std::make_unique<ui::Container>(
       ui::Direction{ui::Direction::kColumn},
