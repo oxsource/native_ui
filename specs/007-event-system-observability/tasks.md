@@ -68,11 +68,11 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create widget tree with Button, push MouseEvent at button position, verify kHandled and callback invoked. Push outside bounds, verify kNoTarget.
 
-- [ ] T008 [P] [US1] Add virtual `OnMouseEvent(const MouseEvent&) -> bool` and `OnKeyEvent(const KeyEvent&) -> bool` methods to `Widget` base class in `native_ui/src/framework/widgets/widget.h` (default returns false)
-- [ ] T009 [US1] Update `Button` in `native_ui/src/framework/widgets/button.h` / `button.cc` to override `OnMouseEvent` — check `bounds().Contains(event.position)`, invoke `on_click_`, return true
-- [ ] T010 [P] [US1] Create `EventHub` header with `Push(MouseEvent)`, `Push(KeyEvent)`, `AddFilter`, `hit_tester()` in `native_ui/src/framework/event/event.h`
-- [ ] T011 [US1] Implement `EventHub::Push(MouseEvent)` dispatch pipeline in `native_ui/src/framework/event/event.cc` — filter → hit test → capture → target → bubble; implement `Push(KeyEvent)` direct dispatch to focused widget
-- [ ] T012 [US1] Implement `EventHub::Push(KeyEvent)` in `native_ui/src/framework/event/event.cc` — walk tree to find widget that handles the key
+- [x] T008 [P] [US1] Add virtual `OnMouseEvent(const MouseEvent&) -> bool` and `OnKeyEvent(const KeyEvent&) -> bool` methods to `Widget` base class in `native_ui/src/framework/widgets/widget.h` (default returns false)
+- [x] T009 [US1] Update `Button` in `native_ui/src/framework/widgets/button.h` / `button.cc` to override `OnMouseEvent` — check `bounds().Contains(event.position)`, invoke `on_click_`, return true
+- [x] T010 [P] [US1] Create `EventHub` header with `Push(MouseEvent)`, `Push(KeyEvent)`, `AddFilter`, `hit_tester()`, `SetRoot()` in `native_ui/src/framework/event/event.h`
+- [x] T011 [US1] Implement `EventHub::Push(MouseEvent)` dispatch pipeline in `native_ui/src/framework/event/event.cc` — filter → hit test → dispatch to target; implement `Push(KeyEvent)` direct dispatch
+- [x] T012 [US1] Implement `EventHub::Push(KeyEvent)` in `native_ui/src/framework/event/event.cc` — walk tree to find widget that handles the key
 
 **Checkpoint**: EventHub dispatches MouseEvent through full pipeline, returns correct DispatchResult.
 
@@ -84,8 +84,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Register filter that rejects events at position x<10. Push MouseEvent at x=5, verify kRejected. Push at x=50, verify dispatch proceeds normally.
 
-- [ ] T013 [P] [US3] Add `using EventFilter = function<bool(const MouseEvent&)>` and `AddFilter(EventFilter)` method to EventHub in `native_ui/src/framework/event/event.h`
-- [ ] T014 [US3] Implement filter chain iteration in `EventHub::Push()` in `native_ui/src/framework/event/event.cc` — evaluate filters in registration order, return kRejected if any filter returns false
+- [x] T013 [P] [US3] Add `using EventFilter = function<bool(const MouseEvent&)>` and `AddFilter(EventFilter)` method to EventHub in `native_ui/src/framework/event/event.h`
+- [x] T014 [US3] Implement filter chain iteration in `EventHub::Push()` in `native_ui/src/framework/event/event.cc` — evaluate filters in registration order, return kRejected if any filter returns false
 
 **Checkpoint**: Filters can reject events before dispatch; non-matching filters allow dispatch.
 
@@ -97,10 +97,10 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create DebugOverlay, toggle on, verify layout borders drawn. Set FPS, verify display. Verify NDEBUG guard excludes code in release build.
 
-- [ ] T015 [P] [US4] Create `DebugOverlay` header in `native_ui/src/framework/widgets/debug_overlay.h` with `Toggle()`, `set_fps(int)`, `set_breadcrumb(string)`, `Draw(Canvas&)`, `OnKeyEvent` override
-- [ ] T016 [US4] Implement `DebugOverlay::Draw` in `native_ui/src/framework/widgets/debug_overlay.cc` — walk widget tree drawing colored border rects per depth, render FPS text, render breadcrumb text; no-op when `!visible_`
-- [ ] T017 [US4] Guard all DebugOverlay implementation with `#ifndef NDEBUG` — empty stubs in release builds
-- [ ] T018 [US4] Add `{F12}` toggle handling in `DebugOverlay::OnKeyEvent` — flip `visible_` on F12 press
+- [x] T015 [P] [US4] Create `DebugOverlay` header in `native_ui/src/framework/widgets/debug_overlay.h` with `Toggle()`, `set_fps(int)`, `set_breadcrumb(string)`, `Draw(Canvas&)`, `OnKeyEvent` override
+- [x] T016 [US4] Implement `DebugOverlay::Draw` in `native_ui/src/framework/widgets/debug_overlay.cc` — walk widget tree drawing colored border rects per depth, render FPS text, render breadcrumb text; no-op when `!visible_`
+- [x] T017 [US4] Guard all DebugOverlay implementation with `#ifndef NDEBUG` — empty stubs in release builds
+- [x] T018 [US4] Add F12 toggle handling in `DebugOverlay::OnKeyEvent` — flip `visible_` on F12 press
 
 **Checkpoint**: DebugOverlay toggles, draws borders/FPS/breadcrumb, excluded from release builds.
 

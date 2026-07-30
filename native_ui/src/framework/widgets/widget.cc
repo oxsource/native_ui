@@ -1,4 +1,5 @@
 #include "widget.h"
+#include "event_types.h"
 
 namespace native::ui {
 
@@ -26,5 +27,8 @@ void Widget::UnwatchAll() {
     watched_state_ = nullptr;
   }
 }
+
+bool Widget::OnMouseEvent(const MouseEvent&) { return false; }
+bool Widget::OnKeyEvent(const KeyEvent&) { return false; }
 
 }  // namespace native::ui

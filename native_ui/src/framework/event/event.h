@@ -13,6 +13,9 @@ using EventFilter = std::function<bool(const MouseEvent&)>;
 
 class EventHub {
 public:
+  void SetRoot(Widget* root) { root_ = root; }
+  Widget* root() const { return root_; }
+
   DispatchResult Push(const MouseEvent& event);
   DispatchResult Push(const KeyEvent& event);
 
@@ -20,6 +23,9 @@ public:
   HitTester& hit_tester() { return hit_tester_; }
 
 private:
+  DispatchResult DispatchToTarget(const MouseEvent& event, HitTestResult hit);
+
+  Widget* root_ = nullptr;
   std::vector<EventFilter> filters_;
   HitTester hit_tester_;
 };

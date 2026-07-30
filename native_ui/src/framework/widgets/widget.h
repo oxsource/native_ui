@@ -12,6 +12,9 @@ struct Id {
   std::string value;
 };
 
+struct MouseEvent;
+struct KeyEvent;
+
 class Widget {
 public:
   virtual ~Widget() = default;
@@ -39,6 +42,9 @@ public:
   virtual void OnMount() {}
   virtual void OnUnmount() {}
   virtual void Draw(class Canvas&) = 0;
+
+  virtual bool OnMouseEvent(const struct MouseEvent& event);
+  virtual bool OnKeyEvent(const struct KeyEvent& event);
 
   bool needs_layout() const { return needs_layout_; }
   bool needs_draw() const { return needs_draw_; }
