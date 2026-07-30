@@ -52,10 +52,10 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create a Text widget with Width(200), Height(48), Background(kBlue), CornerRadius(8), verify layout respects constraints and background renders correctly.
 
-- [ ] T005 [P] [US1] Add common visual property tags (`Width`, `Height`, `MinWidth`, `MaxWidth`, `Padding`, `Background`, `BackgroundGradient`, `Enabled`, `Visible`, `Opacity`, `CornerRadius`, `BorderWidth`, `BorderColor`, `ShadowOffset`, `ShadowRadius`, `ShadowColor`) to `native_ui/src/framework/widgets/widget.h` and `widget.cc`
-- [ ] T006 [US1] Add `ApplyStyle(const Style&)` method to Widget base in `native_ui/src/framework/widgets/widget.h/cc` — merges incoming Style's set properties into widget's stored fields (overwrites if is_set and priority allows)
-- [ ] T007 [US1] Update `Container` in `native_ui/src/framework/widgets/container.h/cc` — remove `Size{}` tag and `layout_size_` field (replaced by inherited Widget base Width/Height properties); update `Layout()` to use `Width()`/`Height()` tags instead
-- [ ] T008 [US1] Implement Widget base Draw-time property rendering in `native_ui/src/framework/widgets/widget.cc` — draw background rect, apply CornerRadius, apply Opacity via canvas alpha, draw border, draw shadow (Skia shadow API)
+- [ ] T005 [P] [US1] Add `Style style_` member to Widget base in `native_ui/src/framework/widgets/widget.h` — replaces 15+ individual visual property fields; add `Style& style()` accessor; add `ApplyStyle(const Style& s)` that calls `Merge()` then `RequestRedraw()`
+- [ ] T006 [US1] Add ProcessArg overloads for all common visual tags (`Width`, `Height`, `MinWidth`, `MaxWidth`, `Padding`, `Background`, `BackgroundGradient`, `Enabled`, `Visible`, `Opacity`, `CornerRadius`, `BorderWidth`, `BorderColor`, `ShadowOffset`, `ShadowRadius`, `ShadowColor`) in `native_ui/src/framework/widgets/widget.cc` — each delegates to `style_.setXxx(value)`
+- [ ] T007 [US1] Update `Container` in `native_ui/src/framework/widgets/container.h/cc` — remove `Size{}` tag and `layout_size_` (replaced by `style_.width()`/`style_.height()`); update `Layout()` to read from `style()`
+- [ ] T008 [US1] Implement Widget base Draw-time property rendering in `native_ui/src/framework/widgets/widget.cc` — read from `style()`: draw background rect, apply CornerRadius, apply Opacity via canvas alpha, draw border, draw shadow (Skia shadow API)
 
 **Checkpoint**: Widget base properties render correctly — background, border, corner radius, opacity all visible in output.
 
@@ -67,8 +67,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create Text with FontSize(24), TextColor(kRed), FontWeight(700), TextAlign(kCenter), render and verify pixel output matches expected glyph size, color, weight, and horizontal centering.
 
-- [ ] T009 [P] [US2] Add typography tags (`FontSize`, `TextColor`, `TextAlign`, `FontFamily`, `FontWeight`, `LineHeight`, `MaxLines`, `TextDecoration`) to `Text` in `native_ui/src/framework/widgets/text.h` and `text.cc`
-- [ ] T010 [US2] Update `Text::Draw` in `native_ui/src/framework/widgets/text.cc` — use stored FontSize/TextColor/FontFamily for SkFont construction, apply TextAlign for horizontal positioning, apply LineHeight/MaxLines for multi-line layout, apply TextDecoration
+- [ ] T009 [P] [US2] Add typography ProcessArg overloads (`FontSize`, `TextColor`, `TextAlign`, `FontFamily`, `FontWeight`, `LineHeight`, `MaxLines`, `TextDecoration`) to `Text` in `native_ui/src/framework/widgets/text.cc` — each delegates to `style_.setXxx(value)`
+- [ ] T010 [US2] Update `Text::Draw` in `native_ui/src/framework/widgets/text.cc` — read FontSize/TextColor/FontFamily from `style()` for SkFont construction, apply TextAlign, LineHeight/MaxLines, TextDecoration
 - [ ] T011 [US2] Update `native_ui/src/framework/render/canvas.cc` — add shadow rendering support (Skia `SkDrawShadowRec` or `SkCanvas::drawShadow`), add gradient shader support via `SkGradientShader` for BackgroundGradient rendering
 
 **Checkpoint**: Text renders with correct font size, color, weight, alignment, and decoration.
@@ -81,8 +81,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create Button with FontSize(18), TextColor(kWhite), NormalColor(kBlue), PressedColor(kDarkBlue). Push MouseEvent and verify color transitions.
 
-- [ ] T012 [P] [US3] Rebase `Button` from `Widget` to `Text` in `native_ui/src/framework/widgets/button.h` — change `class Button : public Widget` to `class Button : public Text`; remove duplicate Content/Watch code (inherited from Text); add `NormalColor`, `PressedColor` tags
-- [ ] T013 [US3] Implement `Button::Draw` in `native_ui/src/framework/widgets/button.cc` — call `Text::Draw` for label rendering, then draw state color overlay (NormalColor normally, PressedColor when pressed); if `Enabled(false)`, apply dimming overlay
+- [ ] T012 [P] [US3] Rebase `Button` from `Widget` to `Text` in `native_ui/src/framework/widgets/button.h` — change `class Button : public Widget` to `class Button : public Text`; remove duplicate Content/Watch code (inherited from Text); add NormalColor/PressedColor ProcessArg → `style_.setXxx()`
+- [ ] T013 [US3] Implement `Button::Draw` in `native_ui/src/framework/widgets/button.cc` — call `Text::Draw` for label, then draw state color overlay from `style()` (NormalColor/PressedColor); if `!style().enabled()`, apply dimming
 - [ ] T014 [US3] Update `Button::OnMouseEvent` in `native_ui/src/framework/widgets/button.cc` — check `Enabled()` before dispatching click; set internal pressed state for visual feedback; clear on release
 
 **Checkpoint**: Button renders with correct state colors, inherits Text properties, disabled blocks clicks.
@@ -210,10 +210,13 @@ Task: "Rebase Button from Widget to Text"
 
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
-- Style lives in widgets module (accessed via includes from widget.h)
+- Style is the single source of truth — each Widget has `Style style_`, no duplicate member fields
+- ProcessArg delegates: `ProcessArg(Background tag)` → `style_.setBackground(tag.value)`
+- ApplyStyle auto-calls `RequestRedraw()` — no manual redraw needed
+- Draw reads from `style()`: `auto bg = style().background()`
 - Gradient type lives in core module (auto-picked by glob)
-- Button::Draw calls Text::Draw first, then overlays state color
+- Button::Draw calls Text::Draw first, then overlays state color from style()
 - Glide::Default() is a raw pointer global (main-thread-only set)
 - LRUCache template is header-only (no .cc file)
-- Container's existing `Size{}` tag must be removed to avoid ambiguity with Widget base Width/Height tags
+- Container's existing `Size{}` tag removed, replaced by `style().width()/height()`
 - hello_world.cc needs Glide::SetDefault() call or fallback for synchronous load

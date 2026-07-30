@@ -88,18 +88,36 @@ enum class Gravity {
 }  // namespace native::ui
 ```
 
-## ApplyStyle Interface
+## Widget Style Integration
 
 ```cpp
 namespace native::ui {
 
 class Widget {
-  // Apply a Style (merges at kInstance priority)
-  void ApplyStyle(const Style& style);
+  Style style_;  // single storage for all visual/behavioral properties
+public:
+  const Style& style() const { return style_; }
+
+  // Apply a Style — merges at kInstance priority, auto-calls RequestRedraw()
+  void ApplyStyle(const Style& s);
 };
 
-}  // namespace native::ui
+// ProcessArg delegation pattern (all visual tags follow this):
+// ProcessArg(Background tag)  →  style_.setBackground(tag.value)
+// ProcessArg(FontSize tag)    →  style_.setFontSize(tag.value)
+// ProcessArg(Width tag)       →  style_.setWidth(tag.value)
+// ... 所有视觉标签都委托给 Style::setXxx()
+
+// Draw implementation reads from style():
+// void Text::Draw(Canvas& canvas) {
+//   auto size = style().font_size();
+//   auto color = style().text_color();
+//   auto bg = style().background();
+//   ...
+// }
 ```
+
+
 
 ## Constructor Usage Examples
 

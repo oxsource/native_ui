@@ -86,25 +86,49 @@ Style Merge(const Style& base, const Style& overlay);
 }  // namespace native::ui
 ```
 
+## Widget Style Member
+
+Each Widget stores all visual/behavioral properties in a single `Style style_` member — no duplicate fields.
+
+```cpp
+class Widget {
+public:
+  // Apply a Style — merges into style_ AND auto-calls RequestRedraw()
+  void ApplyStyle(const Style& s);
+
+  // Draw reads from style()
+  const Style& style() const { return style_; }
+
+protected:
+  // ProcessArg delegates to style_.setXxx(...)
+  void ProcessArg(Background tag) { style_.setBackground(tag.value); }
+
+  Style style_;
+};
+```
+
+- Tagged constructor params → `ProcessArg(Background tag)` → `style_.setBackground(value)`
+- `ApplyStyle(style)` → `style_ = Merge(style_, style)` → `RequestRedraw()` (auto)
+- `Widget::Draw()` reads visual props from `style()` — `style().background()`, `style().corner_radius()` etc.
+
 ## Usage
 
 ```cpp
-// Global theme
+// Global theme — all subsequent widgets inherit these defaults
 Style theme;
 theme.setFontSize(16).setTextColor(kBlack).setBackground(kWhite);
 Style::SetDefault(theme);  // kGlobal priority
 
-// Widget-specific
+// Widget-specific Style
 Style cardStyle;
 cardStyle.setPriority(StylePriority::kInstance);
-cardStyle.setCornerRadius(8).setBackground(kLightGray).setShadow(...);
+cardStyle.setCornerRadius(8).setBackground(kLightGray);
 
-// ApplyStyle merges cardStyle into widget's existing style
+// ApplyStyle merges + auto-RequestRedraw
 widget->ApplyStyle(cardStyle);
 
-// Explicit tags (kExplicit) always win over Style
-Text(Content("Title"), cardStyle, FontSize(24), TextColor(kDarkBlue));
-// FontSize(24) and TextColor(kDarkBlue) override cardStyle values
+// Tags still work — they delegate to Style::setXxx at construction
+Text(Content("Title"), FontSize(24), TextColor(kDarkBlue));
 ```
 
 ## Merge Rules

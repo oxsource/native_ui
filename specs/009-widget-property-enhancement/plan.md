@@ -61,15 +61,19 @@ native_ui/src/framework/core/
 └── gradient.h                  # NEW — Gradient type (Linear, Radial, ColorStop)
 
 native_ui/src/framework/widgets/
-├── widget.h / widget.cc        # MODIFY — add base properties (Width, Height, Background, etc.),
-│                               #          ApplyStyle(), remove Size tag conflict with Container
+├── widget.h / widget.cc        # MODIFY — add `Style style_` member (single storage for all
+│                               #          visual/behavioral props), ProcessArg delegates to
+│                               #          Style::setXxx, ApplyStyle auto-RequestRedraw,
+│                               #          Draw reads from style(), remove Size tag from Container
 ├── style.h / style.cc          # NEW — Style class, StylePriority, Merge
-├── text.h / text.cc            # MODIFY — Button base: add FontSize, TextColor, TextAlign,
-│                               #          FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration
+├── text.h / text.cc            # MODIFY — ProcessArg(Content/FontSize/TextColor/etc.) delegates
+│                               #          to style_.setXxx; Draw reads from style()
 ├── button.h / button.cc        # MODIFY — change base from Widget to Text,
 │                               #          add NormalColor, PressedColor
-├── image.h / image.cc          # MODIFY — add ScaleType, ScaleGravity, Glide integration,
-│                               #          Placeholder, ErrorImage
+├── image.h / image.cc          # MODIFY — add ProcessArg delegating ScaleType/ScaleGravity/
+│                               #          Placeholder/ErrorImage to style_.setXxx();
+│                               #          Glide integration with Load/Cancel lifecycle;
+│                               #          Draw reads ScaleType from style()
 ├── container.h / container.cc  # MODIFY — remove duplicate Size tag and layout_size_,
 │                               #          use inherited Width/Height from Widget base
 ├── glide.h / glide.cc          # NEW — Glide singleton, DefaultGlide implementation
@@ -88,7 +92,7 @@ examples/
 └── hello_world.cc              # MODIFY — apply new properties for beautified UI
 ```
 
-**Structure Decision**: Style and Glide live in widgets module (tightly coupled to Widget base). Gradient type lives in core alongside other data types (Color, Rect, Point, Size, EdgeInsets). Container's `Size{}` tag and `layout_size_` are replaced by Widget base Width/Height properties — no duplicates. Property tags are added directly to existing widget headers. Hello World example is updated in-place at `examples/hello_world.cc`.
+**Structure Decision**: Style is the single source of truth for all visual/behavioral properties — each Widget holds a `Style style_` member. Property tags in ProcessArg delegate to Style::setXxx. ApplyStyle merges and auto-calls RequestRedraw(). Draw reads from style(). This eliminates 15+ duplicate member fields per widget. Container's `Size{}` tag and `layout_size_` are removed, replaced by Width/Height stored in style_. Hello World updated at `examples/hello_world.cc`.
 
 ## Implementation Flow
 

@@ -56,17 +56,18 @@
 
 ## Entity: ImageWidget (updated)
 
-| New Field | Type | Description |
-|-----------|------|-------------|
-| `scale_type_` | ScaleMode | Image scale mode (default kCenterCrop) |
-| `scale_gravity_` | Gravity | Crop anchor position (default kCenter) |
+| Field | Type | Description |
+|-------|------|-------------|
+| `style_` | Style (inherited) | ScaleType, ScaleGravity, Placeholder path, ErrorImage path — all stored in style_, delegated via ProcessArg |
 | `uri_` | string | Image URI for Glide loading |
 | `loaded_image_` | shared_ptr<Image> | Glide-decoded image |
 | `state_` | LoadState | kLoading/kLoaded/kError |
-| `placeholder_image_` | shared_ptr<Image> | Loading placeholder |
-| `error_image_` | shared_ptr<Image> | Error fallback |
 | `request_id_` | uint64_t | Active Glide request ID |
 | `load_key_` | string | URI copy for stale callback check |
+
+**ProcessArg delegation**: `ProcessArg(ScaleType tag)` → `style_.setScaleType(tag.value)`. `ProcessArg(Placeholder tag)` → `style_.setPlaceholder(tag.value)`. No separate member fields for visual properties.
+
+**Draw reads from style()**: `auto mode = style().scale_type()` to determine transform. Placeholder/ErrorImage paths from `style().placeholder()`/`style().error_image()`.
 
 **State Machine**: Construct → `Load()` → kLoading → show Placeholder → decode → kLoaded → show image; or → kError → show ErrorImage. `Cancel()` on destruction/URI change.
 

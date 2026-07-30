@@ -150,18 +150,18 @@ A developer applies the new widget properties — Background, CornerRadius, Shad
 - **FR-004**: A free function `Style Merge(const Style& base, const Style& overlay)` MUST merge two Styles per-property: for each property where `overlay.is_set`, if `overlay.priority >= base.priority`, overlay wins; unset properties are ignored
 - **FR-005**: Style MUST support `Style::SetDefault(const Style&)` — sets a global default (kGlobal priority) applied to all subsequently created widgets (main-thread-only)
 - **FR-006**: Style MUST track per-property `is_set` flags — an unset property does NOT participate in Merge, allowing lower-priority values to survive
-- **FR-007**: Widget base MUST support `Width(float)` and `Height(float)` — CSS 语义的首选尺寸，作为 Yoga 布局约束，可能被父容器拉伸
-- **FR-008**: Widget base MUST support `Enabled(bool)` — when false, widget does not respond to events and renders with visual dimming; true by default
-- **FR-009**: Widget base MUST support `Padding(EdgeInsets)` — CSS 语义内边距，通过 Yoga padding 约束实现，影响子控件布局位置
-- **FR-010**: Widget base MUST support `MinWidth(float)` and `MaxWidth(float)` — CSS clamp 语义，通过 Yoga 约束实现，限制控件最小/最大宽度
-- **FR-011**: Widget base MUST support `Background(Color)`, `BackgroundGradient(Gradient)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
-- **FR-010**: Text widget MUST own the following tagged properties: `Content(string)`, `FontSize(float)`, `TextColor(Color)`, `TextAlign(TextAlign)`, `FontFamily(string)`, `FontWeight(int)`, `LineHeight(float)`, `MaxLines(int)`, `TextDecoration(TextDecoration)`
+- **FR-007**: Widget base MUST own a `Style style_` member as the single source of truth for all visual and behavioral properties — no duplicate member fields for individual properties
+- **FR-008**: Widget base MUST route all tagged property parameters to `Style::setXxx` in `ProcessArg` — `ProcessArg(Background tag)` calls `style_.setBackground(tag.value)`; Style's `is_set` is automatically managed
+- **FR-009**: `ApplyStyle(const Style& s)` MUST merge `s` into `style_` via `Merge()` and then call `RequestRedraw()` — automatic, no manual redraw needed
+- **FR-010**: Widget::Draw MUST read visual properties from `style()` — e.g., `style().background()`, `style().font_size()` — not from individual member fields
+- **FR-011**: Widget base MUST support the following tagged property tags, all delegated to Style: Width, Height, MinWidth, MaxWidth, Padding, Background, BackgroundGradient, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor, ShadowOffset, ShadowRadius, ShadowColor
+- **FR-010**: Text widget MUST delegate the following tags to `Style::setXxx()` in ProcessArg: `Content(string)`, `FontSize(float)`, `TextColor(Color)`, `TextAlign(TextAlign)`, `FontFamily(string)`, `FontWeight(int)`, `LineHeight(float)`, `MaxLines(int)`, `TextDecoration(TextDecoration)`; Draw reads these values from `style()`
 - **FR-011**: Text widget MUST support `TextAlign(TextAlign)` — kLeft, kCenter, kRight (horizontal), and `kTop`, kCenter, kBottom (vertical)
 - **FR-012**: Widget base MUST support `ShadowOffset(Point)`, `ShadowRadius(float)`, `ShadowColor(Color)` — 控件阴影，通过 Skia 阴影 API 绘制在背景层下方
 - **FR-013**: Button MUST inherit from `Text` — all Text properties (Content, FontSize, TextColor, etc.) are automatically available on Button
-- **FR-014**: Button MUST support additional tagged properties: `Label(string)` (wraps Content), `OnClick(function)`, `NormalColor(Color)`, `PressedColor(Color)`; Button also inherits `Enabled(bool)` from Widget base
-- **FR-015**: Image widget MUST support `ScaleType(ScaleMode)` — kCenter (不缩放居中), kCenterCrop (等比填充裁剪), kCenterInside (等比缩放到完全可见), kFitStart (等比缩放＋左上对齐), kFitEnd (等比缩放＋右下对齐), kFillXY (拉伸填满)
-- **FR-016**: Image widget MUST support `ScaleGravity(Gravity)` — 控制缩放后图像在 widget bounds 内的对齐/裁剪位置：kTop, kBottom, kLeft, kRight, kCenter; 与 ScaleType 组合使用（如 kCenterCrop + kTop 表示从顶部开始裁剪）
+- **FR-014**: Button MUST delegate `NormalColor(Color)` and `PressedColor(Color)` to `Style::setXxx()`; `Label(string)` wraps `Content`; Button inherits `Enabled` from Widget base style
+- **FR-015**: Image widget MUST delegate `ScaleType(ScaleMode)` and `ScaleGravity(Gravity)` to `style_.setXxx()` — ProcessArg reads tag values and writes to style_; Draw reads from `style().scale_type()` / `style().scale_gravity()`
+- **FR-016**: ScaleMode enum covers: kCenter, kCenterCrop, kCenterInside, kFitStart, kFitEnd, kFillXY; Gravity covers: kTop, kBottom, kLeft, kRight, kCenter — consistent across ProcessArg, Style, and Draw
 - **FR-017**: `Glide` class MUST provide global singleton with `Load(path, callback, options)` and `Cancel(request_id)` — 异步加载本地图片文件，不阻塞主线程
 - **FR-018**: `Glide::Default()` MUST return the current instance; `Glide::SetDefault()` sets it (main-thread-only)
 - **FR-019**: ImageWidget MUST support `ImageURI(string)` tag — 触发 Glide 异步加载，从 `Glide::Default()` 发起请求
@@ -174,7 +174,7 @@ A developer applies the new widget properties — Background, CornerRadius, Shad
 
 ### Key Entities
 
-- **Style**: A reusable bundle of visual and typographic properties. Carries a `StylePriority` enum value (kGlobal/kTheme/kClass/kInstance/kExplicit). Each property has an `is_set` flag. Two Styles merge via `Merge(base, overlay)`: for each set property in overlay, if `overlay.priority >= base.priority`, overlay's value wins. Supports chainable setters and `Style::SetDefault()`.
+- **Style**: A reusable bundle of visual and typographic properties. ALSO serves as the single in-widget storage for all visual/behavioral state — each Widget has one `Style style_` member. Carries `StylePriority`, `is_set` flags. Two Styles merge via `Merge(base, overlay)`. Supports chainable setters and `Style::SetDefault()`.
 - **Text**: Inherits Widget base properties (Width, Height, Background, etc.) plus owns typographic properties (FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration).
 - **Button**: Inherits from Text — gets all Text + Widget properties automatically. Adds interactive properties: OnClick, NormalColor, PressedColor. Inherits Enabled from Widget base (Disabled behavior unified across all widgets). Button's Draw uses state color for background and Text properties for label rendering.
 - **Image Widget**: Displays images with Android ImageView-inspired scale/crop control. `ScaleType` selects scale algorithm. `ScaleGravity` selects crop/anchor position. `ImageURI` triggers async loading via `Glide`. `Placeholder` and `ErrorImage` show loading/error states. Supports CornerRadius for rounded corners.
@@ -209,7 +209,9 @@ A developer applies the new widget properties — Background, CornerRadius, Shad
 - Style is a plain data class with per-property `is_set` flags, a `StylePriority` value, and value semantics
 - Style::SetDefault() sets kGlobal priority, main-thread-only, affects only widgets created AFTER the call
 - Widget constructor creates Style at kClass priority and merges with global default: `ApplyStyle(Merge(Style::Default(), classStyle))`
-- ApplyStyle(style) calls `Merge(widgetStyle, style)` with the incoming style's priority
+- ApplyStyle(style) merges styles AND calls `RequestRedraw()` — automatic, no manual redraw required
+- Tagged parameters (`ProcessArg(Background tag)`) delegate to `Style::setBackground(tag.value)` — no direct member storage
+- Draw-time reads come from `style()`: `style().background()`, `style().font_size()` — only source of truth
 - Explicit constructor tags set properties at kExplicit priority — the highest level, always wins
 - Merge function compares integer priority values: higher wins; equal priority = overlay wins (last wins)
 - Button inherits from Text: `class Button : public Text` — Button's Draw first draws Text (label + styling), then applies state color overlay

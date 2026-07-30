@@ -68,27 +68,29 @@ private:
 ```cpp
 class ImageWidget : public Widget {
 public:
-  // New tags
+  // Tags
   struct ImageURI { std::string value; };
-  struct Placeholder { std::string value; };
-  struct ErrorImage { std::string value; };
+  struct Placeholder { std::string value; };   // file path → sets style().placeholder()
+  struct ErrorImage { std::string value; };    // file path → sets style().error_image()
 
   ~ImageWidget() override;
 
-  // Lifecycle
   void OnUnmount() override;
   void Draw(Canvas& canvas) override;
 
 private:
+  // ProcessArg delegates to style_.setXxx(...
+  void ProcessArg(ImageURI tag);      // store uri_, call LoadImage()
+  void ProcessArg(Placeholder tag);   // style_.setPlaceholder(tag.value)
+  void ProcessArg(ErrorImage tag);    // style_.setErrorImage(tag.value)
+  void ProcessArg(ScaleType tag);     // style_.setScaleType(tag.value)
+  void ProcessArg(ScaleGravity tag);  // style_.setScaleGravity(tag.value)
+
   void LoadImage();
   void CancelLoad();
 
-  ScaleMode scale_type_ = ScaleMode::kCenterCrop;
-  Gravity scale_gravity_ = Gravity::kCenter;
   std::string uri_;
   std::shared_ptr<Image> loaded_image_;
-  std::shared_ptr<Image> placeholder_image_;
-  std::shared_ptr<Image> error_image_;
   LoadState state_ = LoadState::kLoading;
   uint64_t request_id_ = 0;
   std::string load_key_;
