@@ -21,10 +21,14 @@ void Text::Watch(Property<std::string>& prop) {
 
 void Text::Draw(Canvas& canvas) {
   std::string text = watched_prop_ ? watched_prop_->value() : content_;
+  Rect bb = bounds();
+  Paint bg;
+  bg.SetColor(Color{uint8_t{220}, uint8_t{230}, uint8_t{250}, uint8_t{255}});
+  canvas.DrawRect(Rect{0, 0, bb.width, bb.height}, bg);
   if (text.empty()) return;
   Paint paint;
   paint.SetColor(color_);
-  canvas.DrawText(text, Point{0, 0}, paint);
+  canvas.DrawText(text, Point{8, bb.height / 2.0f}, paint);
 }
 
 }  // namespace native::ui
