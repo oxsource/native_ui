@@ -9,7 +9,9 @@
 #include <cstdio>
 #include <vector>
 
-bool WriteSkSurfaceToPNG(SkSurface* surface, const char* path) {
+namespace native::ui {
+
+bool PngWriter::Write(SkSurface* surface, const char* path) {
   SkPixmap pixmap;
   if (!surface->peekPixels(&pixmap)) {
     std::fprintf(stderr, "FAIL: peekPixels failed\n");
@@ -30,3 +32,5 @@ bool WriteSkSurfaceToPNG(SkSurface* surface, const char* path) {
   }
   return true;
 }
+
+}  // namespace native::ui

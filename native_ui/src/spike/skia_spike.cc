@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     paint.setColor(SK_ColorRED);
     canvas->drawRect(SkRect::MakeXYWH(50, 50, 100, 100), paint);
 
-    if (!WriteSkSurfaceToPNG(surface.get(), path)) {
+    if (!native::ui::PngWriter::Write(surface.get(), path)) {
         return 1;
     }
 

@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
   };
   LayoutAndRender(canvas, 15, 180, YGFlexDirectionColumn, col_boxes, 3, 10);
 
-  if (!WriteSkSurfaceToPNG(surface.get(), path)) {
+  if (!native::ui::PngWriter::Write(surface.get(), path)) {
     return 1;
   }
 

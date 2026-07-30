@@ -20,21 +20,20 @@ public:
 };
 
 static void RenderAndSave(ui::Container* root, const char* path) {
-  root->Measure({800, 600});
-  root->Arrange({800, 600});
-  auto surface = ui::Surface::Create(800, 600);
+  root->Layout();
+  auto surface = ui::Surface::Create(
+      root->layout_size().width, root->layout_size().height);
   if (!surface) return;
   {
     ui::Canvas canvas(*surface);
     root->Draw(canvas);
   }
   surface->Flush();
-  WriteSkSurfaceToPNG(surface->sk_surface(), path);
+  native::ui::PngWriter::Write(surface->sk_surface(), path);
 }
 
 int main() {
   auto state = std::make_shared<CounterState>();
-  state->count = "Count: 0";
 
   auto label = std::make_unique<ui::Text>(ui::Content{"Count: 0"}, ui::Id{"label"});
   auto* label_raw = label.get();
@@ -47,23 +46,18 @@ int main() {
       ui::Direction{ui::Direction::kRow},
       ui::Padding{16},
       ui::Gap{8},
+      ui::Size{800, 600},
       ui::Container::Children{std::move(children)});
 
   label_raw->Watch(state->count);
 
-  // Frame 000: count = 0
-  RenderAndSave(tree.get(), "/tmp/frame_000.png");
-
-  // Frame 001: count = 1
-  state->count = "Count: 1";
-  state->Flush();
-  RenderAndSave(tree.get(), "/tmp/frame_001.png");
-
-  // Frame 002: count = 2
-  state->count = "Count: 2";
-  state->Flush();
-  RenderAndSave(tree.get(), "/tmp/frame_002.png");
-
-  printf("Generated: /tmp/frame_000.png, /tmp/frame_001.png, /tmp/frame_002.png\n");
+  for (int i = 0; i <= 2; i++) {
+    state->count = "Count: " + std::to_string(i);
+    state->Flush();
+    char path[64];
+    std::snprintf(path, sizeof(path), "/tmp/frame_%03d.png", i);
+    RenderAndSave(tree.get(), path);
+    printf("Generated: %s\n", path);
+  }
   return 0;
 }

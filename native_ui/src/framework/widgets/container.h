@@ -31,8 +31,12 @@ public:
   int ChildCount() const override;
   int IndexOf(Widget* child) const override;
 
-  void Measure(Size available);
-  void Arrange(Size container_size);
+  const Size& layout_size() const { return layout_size_; }
+
+  void Layout();
+  void Layout(Size size) { layout_size_ = size; Layout(); }
+  void Measure();
+  void Arrange();
   void Draw(class Canvas& canvas) override;
 
 private:
@@ -42,7 +46,9 @@ private:
   void ProcessArg(Margin tag);
   void ProcessArg(Children tag);
   void ProcessArg(Id tag);
+  void ProcessArg(Size tag);
 
+  Size layout_size_{0, 0};
   std::vector<std::unique_ptr<Widget>> children_;
   std::vector<YGNodeRef> child_nodes_;
   YGNodeRef root_ = nullptr;

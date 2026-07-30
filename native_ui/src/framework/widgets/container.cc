@@ -32,6 +32,10 @@ void Container::ProcessArg(Id tag) {
   SetId(std::move(tag.value));
 }
 
+void Container::ProcessArg(Size tag) {
+  layout_size_ = tag;
+}
+
 void Container::AddChild(std::unique_ptr<Widget> child) {
   YGNodeRef child_node = YGNodeNew();
   YGNodeStyleSetFlexGrow(child_node, 1);
@@ -85,12 +89,21 @@ int Container::IndexOf(Widget* child) const {
   return -1;
 }
 
-void Container::Measure(Size available) {
-  YGNodeStyleSetWidth(root_, available.width);
-  YGNodeStyleSetHeight(root_, available.height);
+void Container::Layout() {
+  Measure();
+  Arrange();
+}
 
-  // Children already inserted via AddChild — no need to re-insert
+void Container::Measure() {
+  float w = layout_size_.width > 0 ? layout_size_.width : YGUndefined;
+  float h = layout_size_.height > 0 ? layout_size_.height : YGUndefined;
+  YGNodeStyleSetWidth(root_, w);
+  YGNodeStyleSetHeight(root_, h);
+
   YGNodeCalculateLayout(root_, YGUndefined, YGUndefined, YGDirectionLTR);
+
+  if (layout_size_.width <= 0) layout_size_.width = YGNodeLayoutGetWidth(root_);
+  if (layout_size_.height <= 0) layout_size_.height = YGNodeLayoutGetHeight(root_);
 
   layout_result_.resize(child_nodes_.size());
   for (size_t i = 0; i < child_nodes_.size(); i++) {
@@ -101,8 +114,7 @@ void Container::Measure(Size available) {
   }
 }
 
-void Container::Arrange(Size container_size) {
-  (void)container_size;
+void Container::Arrange() {
   for (size_t i = 0; i < child_nodes_.size(); i++) {
     layout_result_[i].position = Point{
         YGNodeLayoutGetLeft(child_nodes_[i]),

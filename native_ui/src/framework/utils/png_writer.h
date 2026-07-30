@@ -2,4 +2,11 @@
 
 #include "SkSurface.h"
 
-bool WriteSkSurfaceToPNG(SkSurface* surface, const char* path);
+namespace native::ui {
+
+class PngWriter {
+public:
+  static bool Write(SkSurface* surface, const char* path);
+};
+
+}  // namespace native::ui
