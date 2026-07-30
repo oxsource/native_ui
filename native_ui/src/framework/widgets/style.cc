@@ -11,6 +11,8 @@ Style::Style() {
   std::call_once(g_default_init, []{});
   data_ = g_default_style.data_;
   priority_ = g_default_style.priority_;
+  data_.enabled_ = true;    // sensible default: widgets are enabled
+  data_.enabled_set_ = true;
 }
 
 void Style::SetDefault(const Style& s) {
