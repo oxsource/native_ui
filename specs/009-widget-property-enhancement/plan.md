@@ -55,19 +55,29 @@ specs/009-widget-property-enhancement/
 ### Source Code
 
 ```text
+native_ui/src/framework/core/
+├── core.h                      # MODIFY — re-export gradient.h
+├── edge_insets.h               # EXISTING — EdgeInsets type used by Padding tag
+└── gradient.h                  # NEW — Gradient type (Linear, Radial, ColorStop)
+
 native_ui/src/framework/widgets/
-├── widget.h / widget.cc        # MODIFY — add base properties, ApplyStyle
+├── widget.h / widget.cc        # MODIFY — add base properties (Width, Height, Background, etc.),
+│                               #          ApplyStyle(), remove Size tag conflict with Container
 ├── style.h / style.cc          # NEW — Style class, StylePriority, Merge
-├── text.h / text.cc            # MODIFY — add text-specific properties (FontSize, TextColor, etc.)
-├── button.h / button.cc        # MODIFY — Button inherits Text, add NormalColor/PressedColor
-├── image.h / image.cc          # MODIFY — add ScaleType, ScaleGravity, Glide integration
-├── container.h / container.cc  # MODIFY — inherit Padding/Width/Height from Widget base
+├── text.h / text.cc            # MODIFY — Button base: add FontSize, TextColor, TextAlign,
+│                               #          FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration
+├── button.h / button.cc        # MODIFY — change base from Widget to Text,
+│                               #          add NormalColor, PressedColor
+├── image.h / image.cc          # MODIFY — add ScaleType, ScaleGravity, Glide integration,
+│                               #          Placeholder, ErrorImage
+├── container.h / container.cc  # MODIFY — remove duplicate Size tag and layout_size_,
+│                               #          use inherited Width/Height from Widget base
 ├── glide.h / glide.cc          # NEW — Glide singleton, DefaultGlide implementation
-├── lru_cache.h                 # NEW — LRU cache used by DefaultGlide
-└── gradient.h                  # NEW — Gradient type (Linear, Radial)
+└── lru_cache.h                 # NEW — LRU cache used by DefaultGlide
 
 native_ui/src/framework/render/
-└── canvas.cc                   # MODIFY — support shadow rendering, gradient shader
+└── canvas.cc                   # MODIFY — support shadow rendering via Skia dropShadow,
+│                              #          gradient shader via SkGradientShader
 
 native_ui/tests/
 ├── widgets_test.cc             # MODIFY — add property rendering tests
@@ -78,7 +88,7 @@ examples/
 └── hello_world.cc              # MODIFY — apply new properties for beautified UI
 ```
 
-**Structure Decision**: Style and Glide live in widgets module (tightly coupled to Widget base). Gradient type lives in core since it's a data type. Property tags are added directly to existing widget headers.
+**Structure Decision**: Style and Glide live in widgets module (tightly coupled to Widget base). Gradient type lives in core alongside other data types (Color, Rect, Point, Size, EdgeInsets). Container's `Size{}` tag and `layout_size_` are replaced by Widget base Width/Height properties — no duplicates. Property tags are added directly to existing widget headers. Hello World example is updated in-place at `examples/hello_world.cc`.
 
 ## Implementation Flow
 
@@ -86,7 +96,7 @@ examples/
 flowchart LR
     subgraph "Foundation"
         STYLE["style.h/cc<br/>Style + StylePriority + Merge"]
-        GRAD["gradient.h<br/>Gradient type"]
+        GRAD["core/gradient.h<br/>Gradient type"]
         LRU["lru_cache.h<br/>LRU cache"]
     end
 
@@ -117,8 +127,10 @@ flowchart LR
     GRAD --> CANVAS
     LRU --> GLIDE
     GLIDE --> IMG
+    STYLE --> EXAMPLE
     WIDGET --> EXAMPLE
     TEXT --> EXAMPLE
     BTN --> EXAMPLE
+    IMG --> EXAMPLE
     CANVAS --> EXAMPLE
 ```
