@@ -31,8 +31,6 @@ void ImageWidget::Load() {
   state_ = LoadState::kLoading;
 
   LoadOptions opts;
-  opts.target_width = static_cast<int>(style().width());
-  opts.target_height = static_cast<int>(style().height());
 
   request_id_ = glide->Load(uri_, [this](const std::string&, std::shared_ptr<Image> img, LoadState s) {
     // Stale callback guard
