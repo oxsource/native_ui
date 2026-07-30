@@ -17,6 +17,8 @@ public:
   template <typename... Args>
   explicit ImageWidget(Args&&... args);
 
+  ~ImageWidget() override;
+
   void Draw(Canvas& canvas) override;
 
 private:

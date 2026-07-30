@@ -104,8 +104,8 @@ All paths are relative to `native_ui/` under the repository root.
 
 ### Implementation for User Story 3
 
-- [ ] T014 [P] [US3] Create `ImageWidget` header with tagged-parameter construction (ImagePath, Id tags) in `native_ui/src/framework/widgets/image.h`
-- [ ] T015 [US3] Implement `ImageWidget::Draw(Canvas&)` using `Canvas::DrawImage(Image::FromFile(...))` and error handling for missing/corrupted files in `native_ui/src/framework/widgets/image.cc`
+- [x] T014 [P] [US3] Create `ImageWidget` header with tagged-parameter construction (ImagePath, Id tags) in `native_ui/src/framework/widgets/image_widget.h`
+- [x] T015 [US3] Implement `ImageWidget::Draw(Canvas&)` using `Canvas::DrawImage(Image::FromFile(...))` and error handling for missing/corrupted files in `native_ui/src/framework/widgets/image_widget.cc`
 
 **Checkpoint**: Image widget loads and renders PNG/JPEG files, handles missing files without crash.
 
