@@ -134,11 +134,9 @@ void Container::Arrange() {
 void Container::Draw(class Canvas& canvas) {
   for (size_t i = 0; i < children_.size(); ++i) {
     canvas.Save();
-    canvas.Translate(layout_result_[i].position);
-    canvas.ClipRect(Rect{
-        0, 0,
-        layout_result_[i].size.width,
-        layout_result_[i].size.height});
+    Rect b = children_[i]->bounds();
+    canvas.Translate(Point{b.x, b.y});
+    canvas.ClipRect(Rect{0, 0, b.width, b.height});
     children_[i]->Draw(canvas);
     canvas.Restore();
   }

@@ -8,3 +8,17 @@ cc_binary(
         "@skia//:skia",
     ],
 )
+
+cc_binary(
+    name = "image_gallery",
+    srcs = ["image_gallery.cc"],
+    data = [
+        "//assets/photo:photos",
+    ],
+    deps = [
+        "//src/framework/public:native_ui",
+        "//src/framework/surface",
+        "//src/framework/utils",
+        "@skia//:skia",
+    ],
+)

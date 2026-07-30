@@ -7,10 +7,23 @@
 #include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
+#define NANOSVG_IMPLEMENTATION
+#define NANOSVGRAST_IMPLEMENTATION
 #include "nanosvg.h"
 #include "nanosvgrast.h"
 
 namespace native::ui {
+
+namespace {
+
+constexpr char kSvgExt[] = "svg";
+constexpr char kSvgExtUpper[] = "SVG";
+constexpr char kNanosvgUnits[] = "px";
+// CSS standard default: 1px = 1/96 inch at 96dpi.
+constexpr float kNanosvgDpi = 96.0f;
+constexpr int kRgbaChannels = 4;
+
+}  // namespace
 
 class ImageImpl {
 public:
@@ -32,22 +45,22 @@ std::unique_ptr<Image> Image::FromEncoded(const void* data, size_t size) {
 }
 
 static std::unique_ptr<Image> LoadSVG(const char* path) {
-  NSVGimage* svg = nsvgParseFromFile(path, "px", 96.0f);
+  NSVGimage* svg = nsvgParseFromFile(path, kNanosvgUnits, kNanosvgDpi);
   if (!svg) return nullptr;
 
   int w = static_cast<int>(svg->width);
   int h = static_cast<int>(svg->height);
   if (w <= 0 || h <= 0) { nsvgDelete(svg); return nullptr; }
 
-  unsigned char* rgba = new unsigned char[w * h * 4];
+  unsigned char* rgba = new unsigned char[w * h * kRgbaChannels];
   NSVGrasterizer* rast = nsvgCreateRasterizer();
-  nsvgRasterize(rast, svg, 0, 0, 1.0f, rgba, w, h, w * 4);
+  nsvgRasterize(rast, svg, 0, 0, 1.0f, rgba, w, h, w * kRgbaChannels);
   nsvgDeleteRasterizer(rast);
   nsvgDelete(svg);
 
   auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
   auto bm = SkBitmap();
-  bm.installPixels(info, rgba, w * 4,
+  bm.installPixels(info, rgba, w * kRgbaChannels,
       [](void* p, void*) { delete[] static_cast<unsigned char*>(p); }, nullptr);
   auto sk_image = bm.asImage();
   if (!sk_image) return nullptr;
@@ -62,7 +75,7 @@ std::unique_ptr<Image> Image::FromFile(const char* path) {
   const char* dot = std::strrchr(path, '.');
   if (dot) {
     auto ext = dot + 1;
-    if (std::strcmp(ext, "svg") == 0 || std::strcmp(ext, "SVG") == 0) {
+    if (std::strcmp(ext, kSvgExt) == 0 || std::strcmp(ext, kSvgExtUpper) == 0) {
       return LoadSVG(path);
     }
   }

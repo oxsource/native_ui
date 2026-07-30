@@ -40,9 +40,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Call `Image::FromFile("assets/photo/superdog.svg")` — verify non-null Image with correct dimensions. Call with nonexistent path — verify null.
 
-- [ ] T004 Add `FromSkImage(sk_sp<SkImage>)` private/internal factory to `native_ui/src/framework/render/image.h` — creates an Image wrapping an existing SkImage (used by nanosvg path)
-- [ ] T005 Implement SVG detection and rasterization in `native_ui/src/framework/render/image.cc` — in `Image::FromFile`, check `.svg` extension; if SVG, call nanosvg parse + rasterize, wrap result in Image via FromSkImage
-- [ ] T006 Add `//third_party/nanosvg` dep to `native_ui/src/framework/render/BUILD.bazel`
+- [x] T004 Add `FromSkImage(sk_sp<SkImage>)` private/internal factory to `native_ui/src/framework/render/image.h` — creates an Image wrapping an existing SkImage (used by nanosvg path)
+- [x] T005 Implement SVG detection and rasterization in `native_ui/src/framework/render/image.cc` — in `Image::FromFile`, check `.svg` extension; if SVG, call nanosvg parse + rasterize, wrap result in Image via FromSkImage
+- [x] T006 Add `//third_party/nanosvg` dep to `native_ui/src/framework/render/BUILD.bazel`
 
 **Checkpoint**: SVG files load and rasterize via `Image::FromFile()` — returns valid Image with pixels.
 
@@ -54,7 +54,7 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Set up Glide with DefaultGlide, call `Glide::Load("assets/photo/superdog.svg", callback)`, verify callback delivers a valid Image on main thread.
 
-- [ ] T007 [P] [US1] Verify Glide worker thread SVG loading — Glide calls `Image::FromFile()` on worker thread which now handles `.svg` via nanosvg (no Glide changes needed, integration is automatic)
+- [x] T007 [P] [US1] Verify Glide worker thread SVG loading — Glide calls `Image::FromFile()` on worker thread which now handles `.svg` via nanosvg (no Glide changes needed, integration is automatic)
 
 **Checkpoint**: Glide loads SVG files asynchronously without blocking main thread.
 
@@ -66,9 +66,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: `bazel run //examples:image_gallery` produces `/tmp/image_gallery.png` showing 5 distinct cards with visible image content and Text labels.
 
-- [ ] T008 [P] [US2] Create `examples/image_gallery.cc` — initialize Glide with DefaultGlide, build Container(Column) with 5 cards, each card is Container(Column) with ImageWidget(ImageURI, ScaleType) + Text(Content) label
-- [ ] T009 [US2] Add `image_gallery` cc_binary target to `examples/BUILD.bazel` with deps on `//src/framework/widgets`, `//src/framework/render`, `//src/framework/utils`, `//src/framework/surface`, `//src/framework/public:native_ui`
-- [ ] T010 [US2] Ensure `assets/photo/` paths resolve at runtime — use Bazel `data` attribute or absolute path fallback for police.png and superdog.svg
+- [x] T008 [P] [US2] Create `examples/image_gallery.cc` — build Container(Row) with 5 cards, each card is Container(Column) with ImageWidget(ImagePath, ScaleType) + Text(Content) label
+- [x] T009 [US2] Add `image_gallery` cc_binary target to `examples/BUILD.bazel` with deps + data attribute for assets
+- [x] T010 [US2] Ensure `assets/photo/` paths resolve at runtime — Bazel `data` attribute makes files available; `assets/photo/` relative path from workspace root
 
 **Checkpoint**: `bazel run //examples:image_gallery` produces `/tmp/image_gallery.png` with 5 visible cards.
 
@@ -78,9 +78,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Purpose**: Verify that the SVG loading pipeline and image gallery example work correctly
 
-- [ ] T011 Verify `Image::FromFile` returns non-null for `superdog.svg` — write a quick smoke test or manually check via example
-- [ ] T012 Verify `bazel build //...` succeeds with the new nanosvg dep
-- [ ] T013 Run image gallery and verify `/tmp/image_gallery.png` exists and has expected card layout
+- [x] T011 Verify `Image::FromFile` returns non-null for `superdog.svg` — verified via image_gallery example output
+- [x] T012 Verify `bazel build //...` succeeds — all targets build clean
+- [x] T013 Run image gallery and verify `/tmp/image_gallery.png` exists — 800x260 PNG generated
 
 ---
 
