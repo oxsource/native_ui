@@ -9,9 +9,7 @@ namespace native::ui {
 ImageWidget::~ImageWidget() { Cancel(); }
 
 void ImageWidget::OnMount() {
-  if (!uri_.empty() && state_ == LoadState::kLoading) {
-    Load();
-  }
+  Load();
 }
 
 void ImageWidget::OnUnmount() {
@@ -21,6 +19,8 @@ void ImageWidget::OnUnmount() {
 
 void ImageWidget::Load() {
   Cancel();  // cancel previous request
+
+  if (uri_.empty()) { state_ = LoadState::kError; return; }
 
   auto* glide = Glide::Default();
   if (!glide) {
