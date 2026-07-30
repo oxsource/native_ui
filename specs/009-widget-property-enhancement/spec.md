@@ -17,7 +17,7 @@
 - Q: Button 与 Text 的继承关系 → A: Button 继承自 Text，获得 Text 全部属性（Content、FontSize、TextColor、TextAlign 等），在此基础上增加 OnClick、NormalColor、PressedColor、Disabled 等交互属性
 - Q: 需要 Style 复用机制 → A: 设计 Style 对象，支持链式设置（`Style().setFontSize(16).setTextColor(kRed)`），可通过构造函数标签 `Text(Content("Hi"), myStyle)` 或运行时 `widget->ApplyStyle(myStyle)` 应用
 - Q: Widget 基础属性范围 + Width/Height 语义 → A: Widget 基类应有 Width, Height, Background, Enabled, Visible, Opacity, CornerRadius, BorderWidth, BorderColor 等基础属性；Width/Height 为 CSS 语义的首选尺寸，作为 Yoga 布局约束而非强制固定
-- Q: Style 优先级 + 默认值机制 → A: 四级优先级：① 全局默认样式 (Style::SetDefault) ② 控件类硬编码默认值 ③ 实例 Style (构造参数/ApplyStyle) ④ 显式标签参数（最高）；高优先级覆盖低优先级，未设置的属性透传至更低级；Style 使用值拷贝，每个属性有独立 is_set 标志；Style::SetDefault 仅影响后续创建的控件，线程安全限制为 main-thread-only
+- Q: Style 优先级 + 默认值机制 → A: Style 对象内部携带 `StylePriority` 枚举值（kGlobal=100 → kTheme=200 → kClass=300 → kInstance=400 → kExplicit=500），合并两个 Style 时按优先级裁决：同属性取优先级高者，同优先级取后者。每个属性有独立 is_set 标志，未设置的属性不参与合并。`Style::SetDefault` 设 kGlobal 级别，Widget 构造时设 kClass 级别，ApplyStyle 设 kInstance 级别，显式标签设 kExplicit 级别
 
 ## User Scenarios & Testing
 
@@ -110,10 +110,10 @@ A developer configures how an Image widget scales its content within the widget 
 
 - **FR-001**: A `Style` class MUST support chainable property setting: `Style().setFontSize(16).setTextColor(kRed).setWidth(200).setHeight(48)` — all properties are optional
 - **FR-002**: `Style` MUST cover at minimum: Width, Height, Background, Enabled, Opacity, CornerRadius, BorderWidth, BorderColor, FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines
-- **FR-003**: Style MUST support `Style::SetDefault(const Style&)` — sets a global default theme applied to all subsequently created widgets (main-thread-only)
-- **FR-004**: Style MUST track per-property `is_set` flags — an unset property falls through to the next priority level without overriding
-- **FR-005**: Style priority hierarchy MUST be (low→high): Global default → Widget class default → Instance Style (via ApplyStyle or constructor) → Explicit constructor tags
-- **FR-006**: Style MUST be copyable via value copy (no shared pointers) — each widget holds its own Style copy after ApplyStyle
+- **FR-003**: Style MUST carry a `StylePriority` enum value (kGlobal=100, kTheme=200, kClass=300, kInstance=400, kExplicit=500) — each property inherits the Style's priority
+- **FR-004**: A free function `Style Merge(const Style& base, const Style& overlay)` MUST merge two Styles per-property: for each property where `overlay.is_set`, if `overlay.priority >= base.priority`, overlay wins; unset properties are ignored
+- **FR-005**: Style MUST support `Style::SetDefault(const Style&)` — sets a global default (kGlobal priority) applied to all subsequently created widgets (main-thread-only)
+- **FR-006**: Style MUST track per-property `is_set` flags — an unset property does NOT participate in Merge, allowing lower-priority values to survive
 - **FR-007**: Widget base MUST support `Width(float)` and `Height(float)` — CSS 语义的首选尺寸，作为 Yoga 布局约束，可能被父容器拉伸
 - **FR-008**: Widget base MUST support `Enabled(bool)` — when false, widget does not respond to events and renders with visual dimming; true by default
 - **FR-009**: Widget base MUST support `Background(Color)`, `Opacity(float)`, `CornerRadius(float)`, `BorderWidth(float)`, `BorderColor(Color)`, `Visible(bool)` — common visual properties shared by all widget types
@@ -128,7 +128,7 @@ A developer configures how an Image widget scales its content within the widget 
 
 ### Key Entities
 
-- **Style**: A reusable bundle of visual and typographic properties. Supports chainable setters. Per-property `is_set` flag enables priority layering. Four priority levels (low→high): Global default → Class default → Instance Style → Explicit tags. `Style::SetDefault()` sets global theme (main-thread-only, affects future widgets only). `ApplyStyle()` merges instance Style into widget.
+- **Style**: A reusable bundle of visual and typographic properties. Carries a `StylePriority` enum value (kGlobal/kTheme/kClass/kInstance/kExplicit). Each property has an `is_set` flag. Two Styles merge via `Merge(base, overlay)`: for each set property in overlay, if `overlay.priority >= base.priority`, overlay's value wins. Supports chainable setters and `Style::SetDefault()`.
 - **Text**: Inherits Widget base properties (Width, Height, Background, etc.) plus owns typographic properties (FontSize, TextColor, TextAlign, FontFamily, FontWeight, LineHeight, MaxLines, TextDecoration).
 - **Button**: Inherits from Text — gets all Text + Widget properties automatically. Adds interactive properties: OnClick, NormalColor, PressedColor. Inherits Enabled from Widget base (Disabled behavior unified across all widgets). Button's Draw uses state color for background and Text properties for label rendering.
 - **Image Widget**: Displays images with FitMode control. Supports CornerRadius for rounded corners.
@@ -149,10 +149,12 @@ A developer configures how an Image widget scales its content within the widget 
 
 ## Assumptions
 
-- Style is a plain data class with per-property `is_set` flags and value semantics (copyable)
-- Style::SetDefault() is main-thread-only and only affects widgets created AFTER the call
-- ApplyStyle merges only properties where `is_set == true` — unset properties are ignored (fall through)
-- Priority: explicit tags > instance Style > class default > global default
+- Style is a plain data class with per-property `is_set` flags, a `StylePriority` value, and value semantics
+- Style::SetDefault() sets kGlobal priority, main-thread-only, affects only widgets created AFTER the call
+- Widget constructor creates Style at kClass priority and merges with global default: `ApplyStyle(Merge(Style::Default(), classStyle))`
+- ApplyStyle(style) calls `Merge(widgetStyle, style)` with the incoming style's priority
+- Explicit constructor tags set properties at kExplicit priority — the highest level, always wins
+- Merge function compares integer priority values: higher wins; equal priority = overlay wins (last wins)
 - Button inherits from Text: `class Button : public Text` — Button's Draw first draws Text (label + styling), then applies state color overlay
 - Text alignment uses Skia's `SkFont` horizontal alignment; vertical alignment adjusts text Y position within bounds
 - Background color on ANY widget draws a filled rect before content — Canvas draws the background rect, then clips, then calls the widget's Draw
