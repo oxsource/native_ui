@@ -1,8 +1,8 @@
-# Widget Property Tag Contracts
+# Widget Style Tag Contracts
 
-**Purpose**: Define all tagged parameter types for widget base properties, text properties, and image properties.
+**Purpose**: Define all constructor tag types that delegate to `Style::setXxx()`. Tags are the user-facing API; Style is the unified storage.
 
-## Widget Base Tags (all widget types)
+## Widget Base Style Tags (all widget types)
 
 ```cpp
 namespace native::ui {
@@ -27,7 +27,7 @@ struct ShadowColor { Color value; };
 }  // namespace native::ui
 ```
 
-## Text Tags (Text, inherited by Button)
+## Text Style Tags (Text, inherited by Button)
 
 ```cpp
 namespace native::ui {
@@ -50,7 +50,7 @@ enum class TextDecoration { kNone, kUnderline, kLineThrough };
 }  // namespace native::ui
 ```
 
-## Button Tags (Button only)
+## Button Style Tags (Button only)
 
 ```cpp
 namespace native::ui {
@@ -63,7 +63,7 @@ struct PressedColor { Color value; };
 }  // namespace native::ui
 ```
 
-## Image Tags (ImageWidget)
+## Image Style Tags (ImageWidget)
 
 ```cpp
 namespace native::ui {
@@ -119,31 +119,59 @@ public:
 
 
 
-## Constructor Usage Examples
+## Constructor Usage
+
+### Tags that delegate to `Style::setXxx()` (Style Tags)
+
+These go through `ProcessArg` → `Style::setXxx` → stored in `Widget::style_`:
 
 ```cpp
-// Widget base properties on any widget
-Text(Content("Hi"), Width(200), Height(48), Background(kWhite),
-     CornerRadius(8), Opacity(0.9), Padding({8, 4, 8, 4}));
+// Widget base style tags — available on ALL widget types
+Width(200), Height(48), MinWidth(100), MaxWidth(400),
+Padding({8,4,8,4}), Background(kWhite), BackgroundGradient(linearGrad),
+Enabled(true), Visible(true), Opacity(0.9),
+CornerRadius(8), BorderWidth(2), BorderColor(kGray),
+ShadowOffset({0,2}), ShadowRadius(4), ShadowColor(kBlack),
 
-// Text-specific properties
-Text(Content("Hello"), FontSize(24), TextColor(kBlue),
-     FontFamily("Helvetica"), FontWeight(700), TextAlign(TextAlign::kCenter),
-     LineHeight(1.5), MaxLines(2));
+// Text style tags — available on Text and Button (inherits Text)
+FontSize(24), TextColor(kBlue), TextAlign(TextAlign::kCenter),
+FontFamily("Helvetica"), FontWeight(700), LineHeight(1.5),
+MaxLines(2), TextDecoration(TextDecoration::kUnderline),
 
-// Button inherits Text + adds interactive
-Button(Label("Submit"), Width(160), Height(48),
-       Background(kBlue), TextColor(kWhite), CornerRadius(24),
-       NormalColor(kBlue), PressedColor(kDarkBlue));
+// Button-style tags — Button only
+NormalColor(kBlue), PressedColor(kDarkBlue),
 
-// Image with scale + async loading
+// Image style tags — ImageWidget only
+ScaleType(ScaleMode::kCenterCrop), ScaleGravity(Gravity::kTop),
+Placeholder("loading.png"), ErrorImage("broken.png"),
+```
+
+### Tags that are NOT Style (widget-specific fields)
+
+These are stored directly on the widget, not in `style_`:
+
+```cpp
+Content("Hi"), Label("Submit"),         // Text content
+OnClick([]{}),                          // Button callback
+ImageURI("photo.png"),                  // ImageWidget file path
+Id("my_widget"),                         // Widget identifier
+Direction(kRow), Gap(8), Margin(12),   // Container layout tags
+```
+
+### Combined Examples
+
+```cpp
+Text(Content("Hi"), FontSize(24), TextColor(kBlue), Background(kWhite));
+
+Button(Label("Submit"), OnClick([&]{ ++count; }),
+       Width(160), Height(48), Background(kBlue), TextColor(kWhite),
+       NormalColor(kBlue), PressedColor(kDarkBlue), CornerRadius(24));
+
 ImageWidget(ImageURI("photo.png"), Width(200), Height(200),
-            ScaleType(ScaleMode::kCenterCrop),
-            ScaleGravity(Gravity::kTop),
-            Placeholder("loading.png"), ErrorImage("broken.png"));
+            ScaleType(ScaleMode::kCenterCrop));
 
-// Style-based
+// Style object — same as tags above, just via Style API
 Style card;
-card.setCornerRadius(12).setBackground(kWhite).setShadow(kShadowGray);
+card.setCornerRadius(12).setBackground(kWhite);
 Container(Padding({16}), card, Children{...});
 ```
