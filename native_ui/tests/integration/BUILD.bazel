@@ -6,3 +6,14 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "full_pipeline_test",
+    srcs = ["full_pipeline_test.cc"],
+    deps = [
+        "//src/framework/widgets",
+        "//src/framework/render",
+        "//src/framework/surface",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
