@@ -7,6 +7,7 @@
 #include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
+#include "stb_image.h"
 #define NANOSVG_IMPLEMENTATION
 #define NANOSVGRAST_IMPLEMENTATION
 #include "nanosvg.h"
@@ -80,10 +81,15 @@ std::unique_ptr<Image> Image::FromFile(const char* path) {
     }
   }
 
-  // Raster formats (PNG, JPEG, WebP)
-  auto sk_data = SkData::MakeFromFileName(path);
-  if (!sk_data) return nullptr;
-  auto sk_image = SkImages::DeferredFromEncodedData(sk_data);
+  int w = 0, h = 0, channels = 0;
+  unsigned char* rgba = stbi_load(path, &w, &h, &channels, kRgbaChannels);
+  if (!rgba) return nullptr;
+
+  auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+  auto bm = SkBitmap();
+  bm.installPixels(info, rgba, w * kRgbaChannels,
+      [](void* p, void*) { stbi_image_free(p); }, nullptr);
+  auto sk_image = bm.asImage();
   if (!sk_image) return nullptr;
 
   auto img = std::unique_ptr<Image>(new Image());

@@ -1,12 +1,14 @@
+#include <chrono>
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "canvas.h"
 #include "container.h"
 #include "edge_insets.h"
-#include "image.h"
+#include "glide.h"
 #include "image_widget.h"
 #include "paint.h"
 #include "png_writer.h"
@@ -36,7 +38,7 @@ static std::unique_ptr<ui::Container> MakeCard(
     const std::string& img_path,
     ui::ScaleMode scale_type) {
   auto img = std::make_unique<ui::ImageWidget>(
-      ui::ImagePath{img_path},
+      ui::ImageURI{img_path},
       ui::Width{120}, ui::Height{120},
       scale_type,
       ui::Background{ui::Color{240, 240, 245}},
@@ -45,6 +47,8 @@ static std::unique_ptr<ui::Container> MakeCard(
       ui::Content{title},
       ui::FontSize{12},
       ui::TextAlign{ui::TextAlign::kCenter},
+      ui::Background{ui::Color{40, 40, 50}},
+      ui::TextColor{ui::kWhite},
       ui::Width{140},
       ui::Height{24});
   std::vector<std::unique_ptr<ui::Widget>> v;
@@ -60,13 +64,17 @@ static std::unique_ptr<ui::Container> MakeCard(
 }
 
 int main() {
-  std::string svg = "assets/photo/superdog.svg";
+  ui::Glide::SetDefault(new ui::DefaultGlide());
+
+  std::string base = "assets/photo/";
+  std::string svg = base + "superdog.svg";
+  std::string png = base + "police.png";
   std::vector<std::unique_ptr<ui::Widget>> cards;
   cards.push_back(MakeCard("SVG kCenter",      svg, ui::ScaleMode::kCenter));
   cards.push_back(MakeCard("SVG kCenterInside", svg, ui::ScaleMode::kCenterInside));
-  cards.push_back(MakeCard("SVG kCenterCrop",   svg, ui::ScaleMode::kCenterCrop));
-  cards.push_back(MakeCard("SVG kCenterInside", svg, ui::ScaleMode::kCenterInside));
-  cards.push_back(MakeCard("SVG kFillXY",       svg, ui::ScaleMode::kFillXY));
+  cards.push_back(MakeCard("PNG kCenterCrop",   png, ui::ScaleMode::kCenterCrop));
+  cards.push_back(MakeCard("PNG kCenterInside", png, ui::ScaleMode::kCenterInside));
+  cards.push_back(MakeCard("PNG kFillXY",       png, ui::ScaleMode::kFillXY));
 
   auto tree = std::make_unique<ui::Container>(
       ui::Direction{ui::Direction::kRow},
@@ -75,6 +83,9 @@ int main() {
       ui::Background{ui::Color{235, 235, 245}},
       ui::Padding{ui::EdgeInsets::All(20)},
       ui::Container::Children{std::move(cards)});
+
+  // Wait for async Glide loads to complete
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   RenderAndSave(tree.get(), "/tmp/image_gallery.png");
   std::printf("Generated: /tmp/image_gallery.png\n");
