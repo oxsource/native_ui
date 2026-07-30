@@ -21,6 +21,7 @@
 - Q: 补充缺失属性（Padding/Shadow/MinMax/Gradient）→ A: 新增 Padding(EdgeInsets)、MinWidth(float)/MaxWidth(float)、Shadow(offset,radius,color)、BackgroundGradient(Gradient) 属性——Padding 为 Widget 基类属性（CSS 语义内边距），MinWidth/MaxWidth 通过 Yoga 约束实现，Shadow 使用 Skia 阴影绘制，Gradient 支持线性/径向渐变
 - Q: Image 缩放/裁剪模式 → A: 参考 Android ImageView ScaleType，Image 控件新增 `ScaleType(ScaleMode)` 和 `CropGravity(Gravity)` 属性。ScaleMode 枚举：kCenter（不缩放）、kCenterCrop（等比填充+裁剪）、kCenterInside（等比缩放到完全可见）、kFitEnd/FitStart（对齐边界的等比缩放）、kFillXY（拉伸填满）；CropGravity 控制裁剪对齐位置（kTop/kCenter/kBottom/kLeft/kRight）
 - Q: Image 异步加载方案 → A: 参考 Glide 设计轻量加载器 `Glide` 全局单例，`Glide::Load()` 异步解码本地文件，`Glide::Cancel()` 取消请求；ImageWidget 通过 `ImageURI(path)` 标签触发 `Load()`，自动管理生命周期；内置 `DefaultGlide` 实现含 LRU 内存缓存 + 线程池
+- Q: 最后阶段对 example 进行美化 → A: 使用本 Phase 新增的全部属性（Background、CornerRadius、Shadow、Padding、FontSize、TextColor、TextAlign、Button 状态色、Style 复用等）重新设计 `examples/hello_world.cc`，展示现代化控件外观，作为功能完整性和落地验证
 
 ## User Scenarios & Testing
 
@@ -89,6 +90,23 @@ A developer configures how an Image widget scales and crops its content within t
 3. **Given** an Image widget with `ScaleType(kCenter)`, **When** drawn, **Then** the image is rendered at its natural size, centered in widget bounds, no scaling
 4. **Given** an Image widget with `ScaleType(kCenterCrop)` and `ScaleGravity(kTop)`, **When** drawn, **Then** the visible crop region is anchored to the top of the image
 5. **Given** an Image widget with `ScaleType(kFillXY)`, **When** drawn with different aspect ratio, **Then** the image stretches to fill bounds exactly (aspect ratio not preserved)
+
+---
+
+### User Story 5 - Developer Beautifies Hello World with New Properties (Priority: P3)
+
+A developer applies the new widget properties — Background, CornerRadius, Shadow, Padding, FontSize, TextColor, TextAlign, Border, Button state colors, and Style — to redesign the Hello World example with a modern, polished appearance.
+
+**Why this priority**: The Hello World example serves as both documentation and functional validation. A beautified example demonstrates the property system's capabilities and provides a visual reference for users.
+
+**Independent Test**: `bazel run //examples:hello_world` produces a visually styled PNG with rounded buttons, colored backgrounds, shadows, centered text, and consistent spacing — all using the new property tags.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Hello World source, **When** inspected, **Then** it uses `Style` to define a consistent theme (font, color, spacing) shared between Text and Button
+2. **Given** the Hello World source, **When** inspected, **Then** it uses `Background`, `CornerRadius`, `Shadow`, `Padding`, `TextColor`, `FontSize`, and `TextAlign` to style the layout
+3. **Given** the Hello World Button, **When** inspected, **Then** it uses `NormalColor`, `PressedColor`, and inherits text properties from the shared Style
+4. **Given** the Hello World output PNG, **When** viewed, **Then** the rendered widgets show rounded corners, colored backgrounds, centered text with appropriate font size, and consistent spacing
 
 ---
 
@@ -177,6 +195,8 @@ A developer configures how an Image widget scales and crops its content within t
 - **SC-007**: Image with ScaleType(kCenterCrop) + ScaleGravity(kTop) crops from the top edge — different edge pixels compared to kCenter gravity
 - **SC-008**: An ImageWidget with ImageURI triggers Glide::Load() — verify request_id is non-zero
 - **SC-009**: An ImageWidget destroyed before Glide callback fires does NOT invoke the callback — verified by loaded flag never set
+- **SC-010**: The Hello World example uses at least: Style, Background, CornerRadius, Padding, FontSize, TextColor, and Button NormalColor — verified by source inspection
+- **SC-011**: The Hello World output PNG shows visually distinct styled widgets — rounded corners, colored backgrounds, proper spacing — verified by pixel inspection
 - **SC-010**: All new properties are settable via tagged parameters and do not break existing construction patterns — verified by existing test suite
 - **SC-011**: A Text widget with MaxLines(1) and overflow truncates content with an ellipsis — testable via pixel readback
 - **SC-010**: A developer can set Padding(8) on a Container and verify children are inset by 8px — testable via layout result positions
