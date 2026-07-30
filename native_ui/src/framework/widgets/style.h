@@ -67,6 +67,10 @@ public:
   Style& setPlaceholder(const std::string& v);
   Style& setErrorImage(const std::string& v);
 
+  // -- Button properties --
+  Style& setNormalColor(Color v);
+  Style& setPressedColor(Color v);
+
   // -- Global default --
   static void SetDefault(const Style& s);
   static const Style& Default();
@@ -100,6 +104,8 @@ public:
   Gravity scale_gravity() const { return data_.scale_gravity_; }
   const std::string& placeholder() const { return data_.placeholder_; }
   const std::string& error_image() const { return data_.error_image_; }
+  Color normal_color() const { return data_.normal_color_; }
+  Color pressed_color() const { return data_.pressed_color_; }
 
 private:
   friend Style Merge(const Style& base, const Style& overlay);
@@ -135,6 +141,8 @@ private:
     PROP(Gravity, scale_gravity)
     PROP(std::string, placeholder)
     PROP(std::string, error_image)
+    PROP(Color, normal_color)
+    PROP(Color, pressed_color)
   };
 
 #undef PROP

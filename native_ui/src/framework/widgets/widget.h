@@ -42,6 +42,7 @@ struct ShadowColor { Color value; };
 
 class Widget {
 public:
+  Widget() { style_.setEnabled(true); }
   virtual ~Widget() = default;
 
   void SetId(std::string id) { id_ = std::move(id); }
@@ -68,8 +69,10 @@ public:
   const Style& style() const { return style_; }
   void ApplyStyle(const Style& s) {
     style_ = Merge(style_, s);
-    needs_draw_ = true;  // auto RequestRedraw
+    needs_draw_ = true;
   }
+
+
 
   // ── ProcessArg: style tags → Style::setXxx ──
   void ProcessArg(Width tag)     { style_.setWidth(tag.value); }

@@ -81,9 +81,9 @@ All paths are relative to `native_ui/` under the repository root.
 
 **Independent Test**: Create Button with FontSize(18), TextColor(kWhite), NormalColor(kBlue), PressedColor(kDarkBlue). Push MouseEvent and verify color transitions.
 
-- [ ] T012 [P] [US3] Rebase `Button` from `Widget` to `Text` in `native_ui/src/framework/widgets/button.h` — change `class Button : public Widget` to `class Button : public Text`; remove duplicate Content/Watch code (inherited from Text); add NormalColor/PressedColor ProcessArg → `style_.setXxx()`
-- [ ] T013 [US3] Implement `Button::Draw` in `native_ui/src/framework/widgets/button.cc` — call `Text::Draw` for label, then draw state color overlay from `style()` (NormalColor/PressedColor); if `!style().enabled()`, apply dimming
-- [ ] T014 [US3] Update `Button::OnMouseEvent` in `native_ui/src/framework/widgets/button.cc` — check `Enabled()` before dispatching click; set internal pressed state for visual feedback; clear on release
+- [x] T012 [P] [US3] Rebase `Button` from `Widget` to `Text` in `native_ui/src/framework/widgets/button.h` — change `class Button : public Widget` to `class Button : public Text`; remove duplicate Watch code; add NormalColor/PressedColor ProcessArg → `style_.setXxx()`
+- [x] T013 [US3] Implement `Button::Draw` in `native_ui/src/framework/widgets/button.cc` — draw NormalColor/PressedColor background, text label from content_/watched_prop_, dim overlay when disabled
+- [x] T014 [US3] Update `Button::OnMouseEvent` in `native_ui/src/framework/widgets/button.cc` — check `style().enabled()` first, set pressed_ state; clear on release
 
 **Checkpoint**: Button renders with correct state colors, inherits Text properties, disabled blocks clicks.
 

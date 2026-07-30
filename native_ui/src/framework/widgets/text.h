@@ -26,12 +26,12 @@ public:
     (ProcessArg(std::forward<Args>(args)), ...);
   }
 
-  using Widget::ProcessArg;  // bring in base style tags
-
   void Watch(Property<std::string>& prop);
   void Draw(Canvas& canvas) override;
 
-private:
+protected:
+  using Widget::ProcessArg;  // bring in base style tags (accessible by Button)
+
   // Non-style tags
   void ProcessArg(Content tag);
 
@@ -46,6 +46,7 @@ private:
   void ProcessArg(TextDecoration v) { style_.setTextDecoration(v); }
   void ProcessArg(Id tag)           { SetId(std::move(tag.value)); }
 
+protected:
   std::string content_;  // non-style: text content
   Property<std::string>* watched_prop_ = nullptr;
 };

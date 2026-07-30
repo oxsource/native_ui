@@ -51,6 +51,8 @@ Style& Style::setScaleType(ScaleMode v) { data_.scale_type_ = v; data_.scale_typ
 Style& Style::setScaleGravity(Gravity v) { data_.scale_gravity_ = v; data_.scale_gravity_set_ = true; return *this; }
 Style& Style::setPlaceholder(const std::string& v) { data_.placeholder_ = v; data_.placeholder_set_ = true; return *this; }
 Style& Style::setErrorImage(const std::string& v) { data_.error_image_ = v; data_.error_image_set_ = true; return *this; }
+Style& Style::setNormalColor(Color v) { data_.normal_color_ = v; data_.normal_color_set_ = true; return *this; }
+Style& Style::setPressedColor(Color v) { data_.pressed_color_ = v; data_.pressed_color_set_ = true; return *this; }
 
 // ── Merge ──
 
@@ -81,6 +83,7 @@ Style Merge(const Style& base, const Style& overlay) {
   MERGE(max_lines)   MERGE(text_decoration)
   MERGE(scale_type)  MERGE(scale_gravity)
   MERGE(placeholder) MERGE(error_image)
+  MERGE(normal_color) MERGE(pressed_color)
 
   return result;
 }
