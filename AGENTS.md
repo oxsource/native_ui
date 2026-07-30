@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/006-basic-widgets-dynamic-tree/plan.md
+at specs/007-event-system-observability/plan.md
 For architecture decisions, contracts, and design details, see:
 - specs/002-architecture-engineering-design/research.md
 - specs/002-architecture-engineering-design/data-model.md
