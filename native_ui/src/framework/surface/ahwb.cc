@@ -143,7 +143,7 @@ sk_sp<SkImage> AHwb::ToCpuImage(AHardwareBuffer* buffer, bool copy) {
     pixels = SkData::MakeWithoutCopy(data, dst_row_bytes * h);  // borrow; buffer must stay valid
   }
   auto info = SkImageInfo::Make(static_cast<int>(w), static_cast<int>(h), kRGBA_8888_SkColorType,
-                                kPremul_SkAlphaType);
+                                kUnpremul_SkAlphaType);  // buffer holds straight RGBA
   sk_sp<SkImage> image = SkImages::RasterFromData(info, std::move(pixels), dst_row_bytes);
   Unlock(buffer);
   return image;
@@ -169,7 +169,7 @@ sk_sp<SkImage> AHwb::ToGpuImage(AHardwareBuffer* buffer, GrDirectContext* gr) {
 
   // Borrow: Skia calls delete_proc(image_ctx) when the image is released (render thread).
   return SkImages::BorrowTextureFrom(gr, tex, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                                     kPremul_SkAlphaType, /*colorSpace=*/nullptr, delete_proc,
+                                     kUnpremul_SkAlphaType, /*colorSpace=*/nullptr, delete_proc,
                                      image_ctx);
 }
 

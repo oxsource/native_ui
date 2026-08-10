@@ -155,10 +155,11 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  // The hardware AVC encoder requires 16-aligned frame dimensions (e.g. 200 -> 208).
-  // Render on an aligned canvas; the image keeps its native size at top-left.
-  const int frame_w = (w + 15) & ~15;
-  const int frame_h = (h + 15) & ~15;
+  // The hardware AVC encoder requires 16-aligned frame dimensions (e.g. 200 -> 208)
+  // AND re-stretches narrower inputs to its native width stride (208 -> 256). Render
+  // at the native width so the encoded frame is 1:1 with the canvas.
+  const int frame_w = (w + 255) & ~255;  // align width to 256 (encoder native stride)
+  const int frame_h = (h + 15) & ~15;    // align height to 16
 
   // 2. Allocate AHardwareBuffer(s) and write RGBA. Static mode: one source buffer.
   //    Live mode: kLiveBuffers distinct buffers cycled at 30 Hz.
@@ -214,7 +215,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   sk_sp<SkSurface> enc_surface = SkSurfaces::WrapBackendRenderTarget(
-      ctx->gr, rt, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, /*colorSpace=*/nullptr,
+      ctx->gr, rt, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, /*colorSpace=*/nullptr,
       /*surfaceProps=*/nullptr);
   if (!enc_surface) {
     std::fprintf(stderr, "FAIL: SkSurfaces::WrapBackendRenderTarget\n");

@@ -34,7 +34,13 @@ HardwareBuffer::HardwareBuffer(Kind kind, void* handle, void* pixels, size_t row
       height_(height),
       format_(format) {
   geometry_described_ = (kind != Kind::kAHardwareBuffer);  // Memory stores geometry directly
-  valid_ = (kind != Kind::kInvalid) && width > 0 && height > 0 && handle != nullptr;
+  // AHardwareBuffer dims are lazily described (0 at wrap time), so validity for that
+  // kind only requires a non-null handle; Memory requires explicit positive dims.
+  if (kind == Kind::kAHardwareBuffer) {
+    valid_ = handle != nullptr;
+  } else {
+    valid_ = kind != Kind::kInvalid && width > 0 && height > 0 && handle != nullptr;
+  }
 }
 
 #if __APPLE__
