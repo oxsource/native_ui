@@ -1,7 +1,11 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/010-svg-image-support/plan.md
+at specs/011-ahwb-external-image/plan.md
+For Android AHardwareBuffer utility and CPU/GPU render backend contracts, see:
+- specs/011-ahwb-external-image/contracts/ahwb.md
+- specs/011-ahwb-external-image/contracts/render-backend.md
+- specs/011-ahwb-external-image/contracts/media-codec.md
 For style/theme system, glide async loader, and property tag contracts, see:
 - specs/009-widget-property-enhancement/contracts/style.md
 - specs/009-widget-property-enhancement/contracts/glide.md
