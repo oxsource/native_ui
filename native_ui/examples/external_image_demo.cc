@@ -53,7 +53,21 @@ namespace {
 #if defined(__ANDROID__)
 constexpr int kFrameCount = 3;  // static mode: a few frames so the encoder emits a keyframe
 constexpr int kLiveFps = 30;
-constexpr int kLiveBuffers = 3;  // distinct buffers cycled by the live mode
+constexpr int kLiveBuffers = 3;   // distinct buffers cycled by the live mode
+constexpr size_t kRowPad = 16;    // +16B/row source padding to exercise stride handling (FR-002)
+
+// Build a row-padded RGBA buffer (kRowPad extra bytes per row) so WriteRGBA's source
+// stride is genuine — reads stay in bounds while the padding is dropped on copy (FR-002).
+std::vector<uint8_t> MakePaddedRGBA(const std::vector<uint8_t>& rgba, int w, int h,
+                                    size_t pad) {
+  const size_t src_row = static_cast<size_t>(w) * 4;
+  const size_t dst_row = src_row + pad;
+  std::vector<uint8_t> out(dst_row * static_cast<size_t>(h));
+  for (int y = 0; y < h; ++y) {
+    std::memcpy(out.data() + y * dst_row, rgba.data() + y * src_row, src_row);
+  }
+  return out;  // padding bytes stay zero
+}
 
 bool RenderOneFrame(const std::unique_ptr<ExternalImage>& ext,
                     const std::unique_ptr<Surface>& enc_surface, RenderContext* ctx,
@@ -106,13 +120,13 @@ int main(int argc, char** argv) {
   const char* png_path = "/data/local/tmp/police.png";
   const char* mp4_path = "/data/local/tmp/external_image.mp4";
   bool live = false;
-  int live_seconds = 60;
+  int live_seconds = 10;
   int pos = 0;
   for (int i = 1; i < argc; ++i) {
     if (std::strncmp(argv[i], "--live", 6) == 0) {
       live = true;
       if (argv[i][6] == '=') live_seconds = std::atoi(argv[i] + 7);
-      if (live_seconds <= 0) live_seconds = 60;
+      if (live_seconds <= 0) live_seconds = 10;
     } else if (pos == 0) {
       png_path = argv[i];
       ++pos;
@@ -140,7 +154,11 @@ int main(int argc, char** argv) {
     std::fprintf(stderr, "FAIL: readPixels\n");
     return 1;
   }
-  const size_t padded_row_bytes = static_cast<size_t>(w) * 4 + 16;  // FR-002 stride padding
+
+  // The hardware AVC encoder requires 16-aligned frame dimensions (e.g. 200 -> 208).
+  // Render on an aligned canvas; the image keeps its native size at top-left.
+  const int frame_w = (w + 15) & ~15;
+  const int frame_h = (h + 15) & ~15;
 
   // 2. Allocate AHardwareBuffer(s) and write RGBA. Static mode: one source buffer.
   //    Live mode: kLiveBuffers distinct buffers cycled at 30 Hz.
@@ -148,15 +166,16 @@ int main(int argc, char** argv) {
   std::vector<AHardwareBuffer*> ahwb_list(buffer_count, nullptr);
   std::vector<HardwareBuffer> hb_list(buffer_count);
   for (int i = 0; i < buffer_count; ++i) {
-    std::vector<uint8_t> pixels = live ? MakeTinted(rgba, i) : rgba;
-    ahwb_list[i] = AHwb::AllocateRgba(static_cast<uint32_t>(w), static_cast<uint32_t>(h));
+    std::vector<uint8_t> base = live ? MakeTinted(rgba, i) : rgba;
+    std::vector<uint8_t> pixels = MakePaddedRGBA(base, w, h, kRowPad);
+    ahwb_list[i] = AHwb::AllocateRGBA(static_cast<uint32_t>(w), static_cast<uint32_t>(h));
     if (!ahwb_list[i]) {
-      std::fprintf(stderr, "FAIL: AllocateRgba[%d]\n", i);
+      std::fprintf(stderr, "FAIL: AllocateRGBA[%d]\n", i);
       for (int j = 0; j < i; ++j) AHwb::Release(ahwb_list[j]);
       return 1;
     }
-    if (AHwb::WriteRgba(ahwb_list[i], pixels.data(), padded_row_bytes) != 0) {
-      std::fprintf(stderr, "FAIL: WriteRgba[%d]\n", i);
+    if (AHwb::WriteRGBA(ahwb_list[i], pixels.data(), static_cast<size_t>(w) * 4 + kRowPad) != 0) {
+      std::fprintf(stderr, "FAIL: WriteRGBA[%d]\n", i);
       for (int j = 0; j <= i; ++j) AHwb::Release(ahwb_list[j]);
       return 1;
     }
@@ -168,13 +187,14 @@ int main(int argc, char** argv) {
   ext->SetBounds({0, 0, static_cast<float>(w), static_cast<float>(h)});
 
   // 4. Encoder + RenderContext hosted on the encoder input surface.
-  auto encoder = AndroidMediaEncoder::Create(mp4_path, w, h);
+  auto encoder = AndroidMediaEncoder::Create(mp4_path, frame_w, frame_h);
   if (!encoder) {
     std::fprintf(stderr, "FAIL: AndroidMediaEncoder::Create\n");
     for (auto* b : ahwb_list) AHwb::Release(b);
     return 1;
   }
-  auto ctx = RenderContext::CreateFromMediaCodecInputSurface(encoder->input_window(), w, h);
+  auto ctx = RenderContext::CreateFromMediaCodecInputSurface(encoder->input_window(), frame_w,
+                                                             frame_h);
   if (!ctx) {
     std::fprintf(stderr, "FAIL: RenderContext::CreateFromMediaCodecInputSurface\n");
     for (auto* b : ahwb_list) AHwb::Release(b);
@@ -186,8 +206,8 @@ int main(int argc, char** argv) {
   GrGLFramebufferInfo fb_info{};
   fb_info.fFBOID = 0;
   fb_info.fFormat = GL_RGBA8;
-  GrBackendRenderTarget rt = GrBackendRenderTargets::MakeGL(w, h, /*sampleCnt=*/0, /*stencil=*/8,
-                                                            fb_info);
+  GrBackendRenderTarget rt = GrBackendRenderTargets::MakeGL(frame_w, frame_h, /*sampleCnt=*/0,
+                                                            /*stencil=*/8, fb_info);
   if (!rt.isValid()) {
     std::fprintf(stderr, "FAIL: GrBackendRenderTargets::MakeGL\n");
     for (auto* b : ahwb_list) AHwb::Release(b);
@@ -257,7 +277,7 @@ int main(int argc, char** argv) {
   // 6b. Diagnostic export (FR-010, SC-006): CPU snapshot of the displayed frame and a
   //     PNG dump of the source buffer for pixel verification.
   {
-    auto cpu_surface = Surface::Create(w, h);
+    auto cpu_surface = Surface::Create(frame_w, frame_h);
     if (cpu_surface) {
       Canvas canvas(*cpu_surface);
       cpu_surface->sk_canvas()->clear(SK_ColorDKGRAY);
@@ -289,7 +309,8 @@ int main(int argc, char** argv) {
   std::fseek(f, 0, SEEK_END);
   long size = std::ftell(f);
   std::fclose(f);
-  std::printf("OK: %s written (%ld bytes), %dx%d\n", mp4_path, size, w, h);
+  std::printf("OK: %s written (%ld bytes), image %dx%d frame %dx%d\n", mp4_path, size, w, h,
+              frame_w, frame_h);
   return size > 0 ? 0 : 1;
 #else
   (void)argc;

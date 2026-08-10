@@ -328,8 +328,8 @@ struct RenderContext {
 
 ### AHwb (Android AHardwareBuffer utility layer)
 
-`surface/ahwb.h/.cc` — `Describe`, `Lock`/`Unlock`, `Pixels` (RAII), `AllocateRgba`,
-`WriteRgba` (stride-aware), `Release`, `ToCpuImage` (owned copy), `ToGpuImage`
+`surface/ahwb.h/.cc` — `Describe`, `Lock`/`Unlock`, `Pixels` (RAII), `AllocateRGBA`,
+`WriteRGBA` (stride-aware), `Release`, `ToCpuImage` (owned copy), `ToGpuImage`
 (zero-copy), `DumpPng` (diagnostic). All `#if defined(__ANDROID__)`; host stubs return `-5`.
 
 ### ExternalImage widget

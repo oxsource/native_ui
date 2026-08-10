@@ -32,8 +32,8 @@ bool AHwb::Describe(AHardwareBuffer*, uint32_t&, uint32_t&, uint32_t&, int&) {
 int AHwb::Lock(AHardwareBuffer*, uint64_t, void**) { return -5; }
 int AHwb::Unlock(AHardwareBuffer*) { return -5; }
 int AHwb::Pixels(AHardwareBuffer*, uint64_t, const std::function<void(void*)>&) { return -5; }
-AHardwareBuffer* AHwb::AllocateRgba(uint32_t, uint32_t) { return nullptr; }
-int AHwb::WriteRgba(AHardwareBuffer*, const uint8_t*, size_t) { return -5; }
+AHardwareBuffer* AHwb::AllocateRGBA(uint32_t, uint32_t) { return nullptr; }
+int AHwb::WriteRGBA(AHardwareBuffer*, const uint8_t*, size_t) { return -5; }
 void AHwb::Release(AHardwareBuffer*) {}
 sk_sp<SkImage> AHwb::ToCpuImage(AHardwareBuffer*, bool) { return nullptr; }
 sk_sp<SkImage> AHwb::ToGpuImage(AHardwareBuffer*, GrDirectContext*) { return nullptr; }
@@ -43,7 +43,7 @@ int AHwb::DumpPng(AHardwareBuffer*, const char*) { return -5; }
 
 namespace {
 
-constexpr uint64_t kRgbaUsage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN |
+constexpr uint64_t kRGBAUsage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN |
                                AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN |
                                AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
                                AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT;
@@ -88,20 +88,20 @@ int AHwb::Pixels(AHardwareBuffer* buffer, uint64_t usage,
   return Unlock(buffer);  // guaranteed even if fn returned early (no exceptions)
 }
 
-AHardwareBuffer* AHwb::AllocateRgba(uint32_t w, uint32_t h) {
+AHardwareBuffer* AHwb::AllocateRGBA(uint32_t w, uint32_t h) {
   if (w == 0 || h == 0) return nullptr;
   AHardwareBuffer_Desc desc{};
   desc.width = w;
   desc.height = h;
   desc.layers = 1;
   desc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-  desc.usage = kRgbaUsage;
+  desc.usage = kRGBAUsage;
   AHardwareBuffer* buffer = nullptr;
   if (AHardwareBuffer_allocate(&desc, &buffer) != 0) return nullptr;
   return buffer;
 }
 
-int AHwb::WriteRgba(AHardwareBuffer* buffer, const uint8_t* src, size_t src_row_bytes) {
+int AHwb::WriteRGBA(AHardwareBuffer* buffer, const uint8_t* src, size_t src_row_bytes) {
   if (!buffer || !src) return -1;
   uint32_t w = 0, h = 0, stride = 0;
   int format = 0;

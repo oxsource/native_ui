@@ -124,8 +124,8 @@ A static-class `AHwb` modeled on `falcon::utils::AHwbPool` (`ahwb.cc`) with the 
 | `Describe(ahwb, w, h, stride, format)` | `AHardwareBuffer_describe` | fills geometry |
 | `Lock(ahwb, usage, &data)` / `Unlock(ahwb)` | `AHardwareBuffer_lock/unlock` | same fence=-1, rect=nullptr |
 | `Pixels(ahwb, usage, fn)` | `AHwbPool::Pixels` | RAII lock→call→unlock; guarantees unlock on early return |
-| `AllocateRgba(w, h)` | `U8C4` allocation half | `AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM`; usage `CPU_READ_OFTEN\|CPU_WRITE_OFTEN\|GPU_SAMPLED_IMAGE\|GPU_COLOR_OUTPUT` (flags support both backends and the encoder surface) |
-| `WriteRgba(ahwb, src, src_row_bytes)` | `U8C4` write half | copy per-row honoring **dst stride** (FR-002) |
+| `AllocateRGBA(w, h)` | `U8C4` allocation half | `AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM`; usage `CPU_READ_OFTEN\|CPU_WRITE_OFTEN\|GPU_SAMPLED_IMAGE\|GPU_COLOR_OUTPUT` (flags support both backends and the encoder surface) |
+| `WriteRGBA(ahwb, src, src_row_bytes)` | `U8C4` write half | copy per-row honoring **dst stride** (FR-002) |
 | `Release(ahwb)` | `AHwbPool::Release` | wrapper around `AHardwareBuffer_release` |
 | `ToCpuImage(ahwb, copy=true)` | — (new) | describe→`Lock(CPU_READ_OFTEN)`→`SkBitmap::installPixels` over owned copy→`Unlock` |
 | `ToGpuImage(ahwb, GrDirectContext*)` | — (new) | `GrAHardwareBufferUtils::GetBackendTexture` → `SkImages::AdoptTextureFrom` (zero-copy) |
@@ -210,8 +210,8 @@ MediaCodec is consumed through the **native NDK C API** (`<media/NdkMediaCodec.h
 
 ```
 1. Image::FromFile("assets/photo/police.png") → decode RGBA (w,h)            [load PNG]
-2. AHwb::AllocateRgba(w, h)                                                  [allocate ahwb; usage incl. GPU flags]
-3. AHwb::WriteRgba(ahwb, rgba, row_bytes)                                    [write; inject +16B/row padding → FR-002]
+2. AHwb::AllocateRGBA(w, h)                                                  [allocate ahwb; usage incl. GPU flags]
+3. AHwb::WriteRGBA(ahwb, rgba, row_bytes)                                    [write; inject +16B/row padding → FR-002]
 4. HardwareBuffer::FromAHardwareBuffer(ahwb)                                 [wrap]
 5. ExternalImage(hb, Width{w}, Height{h}) → root                             [feed widget]
 6. AMediaCodec_createEncoderByType("video/avc") → configure →                [encoder]

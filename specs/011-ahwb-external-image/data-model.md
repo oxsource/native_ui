@@ -25,8 +25,8 @@
 | `Describe` | `AHardwareBuffer*` → `{w,h,stride,format}` | read-only |
 | `Lock` / `Unlock` | `AHardwareBuffer*`, usage, `&data` | RAII pair |
 | `Pixels` | buffer, usage, `fn(void*)` | lock → fn → unlock (guaranteed) |
-| `AllocateRgba` | `(w,h)` → `AHardwareBuffer*` | allocate R8G8B8A8_UNORM |
-| `WriteRgba` | buffer, `src`, `src_row_bytes` | lock(WRITE) → per-row copy honoring dst stride → unlock |
+| `AllocateRGBA` | `(w,h)` → `AHardwareBuffer*` | allocate R8G8B8A8_UNORM |
+| `WriteRGBA` | buffer, `src`, `src_row_bytes` | lock(WRITE) → per-row copy honoring dst stride → unlock |
 | `Release` | `AHardwareBuffer*` | free |
 | `ToCpuImage` | buffer → `sk_sp<SkImage>` | describe → lock(READ) → owned copy → unlock |
 | `ToGpuImage` | buffer, `GrDirectContext*` → `sk_sp<SkImage>` | backend-texture wrap (zero-copy) |
@@ -107,7 +107,7 @@ GPU encode loop (closed loop):
 
 | Rule | Entity | Description |
 |------|--------|-------------|
-| Stride padding ignored (FR-002) | WriteRgba / ToCpuImage / WrapPixels | visible width only, `row_bytes` honored |
+| Stride padding ignored (FR-002) | WriteRGBA / ToCpuImage / WrapPixels | visible width only, `row_bytes` honored |
 | Invalid/empty buffer → no render, no crash (FR-005) | ExternalImage | `Draw` no-ops when `image_` is null |
 | Unsupported format → defined error, no corrupt output (FR-006) | FromBuffer | returns `nullptr` |
 | Producer release safe (FR-011) | Image (CPU) | owned copy, not a borrowed pointer |

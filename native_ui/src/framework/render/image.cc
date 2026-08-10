@@ -29,7 +29,7 @@ constexpr char kSvgExtUpper[] = "SVG";
 constexpr char kNanosvgUnits[] = "px";
 // CSS standard default: 1px = 1/96 inch at 96dpi.
 constexpr float kNanosvgDpi = 96.0f;
-constexpr int kRgbaChannels = 4;
+constexpr int kRGBAChannels = 4;
 
 }  // namespace
 
@@ -60,15 +60,15 @@ static std::unique_ptr<Image> LoadSVG(const char* path) {
   int h = static_cast<int>(svg->height);
   if (w <= 0 || h <= 0) { nsvgDelete(svg); return nullptr; }
 
-  unsigned char* rgba = new unsigned char[w * h * kRgbaChannels];
+  unsigned char* rgba = new unsigned char[w * h * kRGBAChannels];
   NSVGrasterizer* rast = nsvgCreateRasterizer();
-  nsvgRasterize(rast, svg, 0, 0, 1.0f, rgba, w, h, w * kRgbaChannels);
+  nsvgRasterize(rast, svg, 0, 0, 1.0f, rgba, w, h, w * kRGBAChannels);
   nsvgDeleteRasterizer(rast);
   nsvgDelete(svg);
 
   auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
   auto bm = SkBitmap();
-  bm.installPixels(info, rgba, w * kRgbaChannels,
+  bm.installPixels(info, rgba, w * kRGBAChannels,
       [](void* p, void*) { delete[] static_cast<unsigned char*>(p); }, nullptr);
   auto sk_image = bm.asImage();
   if (!sk_image) return nullptr;
@@ -89,12 +89,12 @@ std::unique_ptr<Image> Image::FromFile(const char* path) {
   }
 
   int w = 0, h = 0, channels = 0;
-  unsigned char* rgba = stbi_load(path, &w, &h, &channels, kRgbaChannels);
+  unsigned char* rgba = stbi_load(path, &w, &h, &channels, kRGBAChannels);
   if (!rgba) return nullptr;
 
   auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
   auto bm = SkBitmap();
-  bm.installPixels(info, rgba, w * kRgbaChannels,
+  bm.installPixels(info, rgba, w * kRGBAChannels,
       [](void* p, void*) { stbi_image_free(p); }, nullptr);
   auto sk_image = bm.asImage();
   if (!sk_image) return nullptr;

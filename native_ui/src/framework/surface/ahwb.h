@@ -33,10 +33,10 @@ public:
 
   // AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM; usage CPU_READ_OFTEN|CPU_WRITE_OFTEN|
   // GPU_SAMPLED_IMAGE|GPU_COLOR_OUTPUT; layers = 1. Returns null on failure.
-  static AHardwareBuffer* AllocateRgba(uint32_t w, uint32_t h);
+  static AHardwareBuffer* AllocateRGBA(uint32_t w, uint32_t h);
 
   // Lock CPU_WRITE_OFTEN; copy height rows of min(width*4, src_row_bytes, dst_row_bytes); unlock.
-  static int WriteRgba(AHardwareBuffer* buffer, const uint8_t* src, size_t src_row_bytes);
+  static int WriteRGBA(AHardwareBuffer* buffer, const uint8_t* src, size_t src_row_bytes);
 
   // AHardwareBuffer_release; null-safe.
   static void Release(AHardwareBuffer* buffer);

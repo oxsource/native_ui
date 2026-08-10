@@ -1,6 +1,9 @@
 #include "android_media.h"
 
+#include <cerrno>
 #include <cstdio>
+#include <chrono>
+#include <cstring>
 
 #if defined(__ANDROID__)
 #include <fcntl.h>
@@ -49,10 +52,16 @@ bool DrainOutput(AMediaCodec* codec, AMediaMuxer* muxer, int& track_index, bool&
 
 std::unique_ptr<AndroidMediaEncoder> AndroidMediaEncoder::Create(const char* path, int width,
                                                                 int height) {
-  if (!path || width <= 0 || height <= 0) return nullptr;
+  if (!path || width <= 0 || height <= 0) {
+    std::fprintf(stderr, "encoder: invalid args\n");
+    return nullptr;
+  }
 
   AMediaCodec* codec = AMediaCodec_createEncoderByType("video/avc");
-  if (!codec) return nullptr;
+  if (!codec) {
+    std::fprintf(stderr, "encoder: AMediaCodec_createEncoderByType(video/avc) failed\n");
+    return nullptr;
+  }
 
   AMediaFormat* format = AMediaFormat_new();
   AMediaFormat_setString(format, AMEDIAFORMAT_KEY_MIME, "video/avc");
@@ -61,11 +70,15 @@ std::unique_ptr<AndroidMediaEncoder> AndroidMediaEncoder::Create(const char* pat
   AMediaFormat_setInt32(format, AMEDIAFORMAT_KEY_BIT_RATE, 8 * 1024 * 1024);
   AMediaFormat_setInt32(format, AMEDIAFORMAT_KEY_FRAME_RATE, 30);
   AMediaFormat_setInt32(format, AMEDIAFORMAT_KEY_I_FRAME_INTERVAL, 1);
+  // Input-surface mode: the codec consumes frames from the surface; COLOR_FormatSurface
+  // (0x7f000789) is required by hardware encoders such as OMX.amlogic.video.encoder.avc.
+  AMediaFormat_setInt32(format, AMEDIAFORMAT_KEY_COLOR_FORMAT, 0x7F000789);
 
   media_status_t status = AMediaCodec_configure(codec, format, nullptr, nullptr,
                                                 AMEDIACODEC_CONFIGURE_FLAG_ENCODE);
   AMediaFormat_delete(format);
   if (status != AMEDIA_OK) {
+    std::fprintf(stderr, "encoder: AMediaCodec_configure failed: %d\n", status);
     AMediaCodec_delete(codec);
     return nullptr;
   }
@@ -73,18 +86,21 @@ std::unique_ptr<AndroidMediaEncoder> AndroidMediaEncoder::Create(const char* pat
   ANativeWindow* window = nullptr;
   status = AMediaCodec_createInputSurface(codec, &window);
   if (status != AMEDIA_OK || !window) {
+    std::fprintf(stderr, "encoder: AMediaCodec_createInputSurface failed: %d\n", status);
     AMediaCodec_delete(codec);
     return nullptr;
   }
 
   status = AMediaCodec_start(codec);
   if (status != AMEDIA_OK) {
+    std::fprintf(stderr, "encoder: AMediaCodec_start failed: %d\n", status);
     AMediaCodec_delete(codec);
     return nullptr;
   }
 
   int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
   if (fd < 0) {
+    std::fprintf(stderr, "encoder: open(%s) failed: %s\n", path, std::strerror(errno));
     AMediaCodec_stop(codec);
     AMediaCodec_delete(codec);
     return nullptr;
@@ -93,6 +109,7 @@ std::unique_ptr<AndroidMediaEncoder> AndroidMediaEncoder::Create(const char* pat
   // AMediaMuxer_new takes ownership of the file descriptor.
   AMediaMuxer* muxer = AMediaMuxer_new(fd, AMEDIAMUXER_OUTPUT_FORMAT_MPEG_4);
   if (!muxer) {
+    std::fprintf(stderr, "encoder: AMediaMuxer_new failed\n");
     close(fd);
     AMediaCodec_stop(codec);
     AMediaCodec_delete(codec);
@@ -123,10 +140,20 @@ void AndroidMediaEncoder::Finish() {
   AMediaMuxer* muxer = static_cast<AMediaMuxer*>(muxer_);
   AMediaCodec_signalEndOfInputStream(codec);
 
+  // Drain until EOS, bounded by a deadline so a stuck encoder cannot hang the demo.
+  // (Some hardware encoders, e.g. this Amlogic AVC encoder, never emit the EOS output
+  // buffer after signalEndOfInputStream; all produced frames are already muxed.)
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
   AMediaCodecBufferInfo info;
   for (;;) {
     ssize_t status = AMediaCodec_dequeueOutputBuffer(codec, &info, 10000);
-    if (status == AMEDIACODEC_INFO_TRY_AGAIN_LATER) continue;
+    if (status == AMEDIACODEC_INFO_TRY_AGAIN_LATER) {
+      if (std::chrono::steady_clock::now() > deadline) {
+        std::fprintf(stderr, "encoder: EOS not signaled within 5 s; finalizing muxer\n");
+        break;
+      }
+      continue;
+    }
     if (status == AMEDIA_ERROR_END_OF_STREAM) break;
     DrainOutput(codec, muxer, track_index_, muxer_started_, status, info);
   }

@@ -20,8 +20,8 @@ All functions are guarded by `#if defined(__ANDROID__)`; on host builds they com
 | `int Lock(AHardwareBuffer*, uint64_t usage, void** data)` | `AHardwareBuffer_lock` with fence `-1`, rect `nullptr`. |
 | `int Unlock(AHardwareBuffer*)` | `AHardwareBuffer_unlock` with fence `nullptr`. |
 | `int Pixels(AHardwareBuffer*, uint64_t usage, fn<void(void*)>)` | Lock → invoke → unlock. **Unlock is guaranteed** even if `fn` throws (no exceptions) or returns early. |
-| `AHardwareBuffer* AllocateRgba(uint32_t w, uint32_t h)` | `AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM`; usage `CPU_READ_OFTEN \| CPU_WRITE_OFTEN \| GPU_SAMPLED_IMAGE \| GPU_COLOR_OUTPUT`; layers=1. Returns null on failure. |
-| `int WriteRgba(AHardwareBuffer*, const uint8_t* src, size_t src_row_bytes)` | Lock `CPU_WRITE_OFTEN`; copy `height` rows of `min(width*4, src_row_bytes, dst_row_bytes)`; unlock. |
+| `AHardwareBuffer* AllocateRGBA(uint32_t w, uint32_t h)` | `AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM`; usage `CPU_READ_OFTEN \| CPU_WRITE_OFTEN \| GPU_SAMPLED_IMAGE \| GPU_COLOR_OUTPUT`; layers=1. Returns null on failure. |
+| `int WriteRGBA(AHardwareBuffer*, const uint8_t* src, size_t src_row_bytes)` | Lock `CPU_WRITE_OFTEN`; copy `height` rows of `min(width*4, src_row_bytes, dst_row_bytes)`; unlock. |
 | `void Release(AHardwareBuffer*)` | `AHardwareBuffer_release`; null-safe. |
 | `sk_sp<SkImage> ToCpuImage(AHardwareBuffer*, bool copy=true)` | Describe → lock `CPU_READ_OFTEN` → build RGBA8888 `SkImage` (owned copy honoring `desc.stride`) → unlock. Null on failure. |
 | `sk_sp<SkImage> ToGpuImage(AHardwareBuffer*, GrDirectContext*)` | Wrap as `GrBackendTexture` (`GrAHardwareBufferUtils::GetBackendTexture`) → `SkImages::AdoptTextureFrom`. Zero-copy. Requires non-null context; else null. |

@@ -23,7 +23,7 @@ adb pull /data/local/tmp/external_image_cpu.png /tmp/external_image_cpu.png  # i
 #          /tmp/external_image_cpu.png (CPU snapshot, optional diagnostic export)
 ```
 
-The loop: load `assets/photo/police.png` → decode RGBA → `AHwb::AllocateRgba` → `AHwb::WriteRgba` (injects row padding to exercise stride handling) → `HardwareBuffer::FromAHardwareBuffer` → `ExternalImage` → draw onto the **encoder-input-surface canvas** (`RenderContext::CreateFromMediaCodecInputSurface`) → `eglSwapBuffers` → `AMediaCodec` encodes → `AMediaMuxer` writes MP4 → decode back & pixel-diff vs source.
+The loop: load `assets/photo/police.png` → decode RGBA → `AHwb::AllocateRGBA` → `AHwb::WriteRGBA` (injects row padding to exercise stride handling) → `HardwareBuffer::FromAHardwareBuffer` → `ExternalImage` → draw onto the **encoder-input-surface canvas** (`RenderContext::CreateFromMediaCodecInputSurface`) → `eglSwapBuffers` → `AMediaCodec` encodes → `AMediaMuxer` writes MP4 → decode back & pixel-diff vs source.
 
 `--live` mode (30 Hz / 60 s) exercises the update path and bounded memory on device. `DumpPng` exports the source buffer for diagnostics.
 
@@ -34,8 +34,8 @@ The loop: load `assets/photo/police.png` → decode RGBA → `AHwb::AllocateRgba
 auto img = Image::FromFile("assets/photo/police.png");   // or stbi_load for raw pixels
 
 // 2. Create a real AHardwareBuffer and write pixels (Android)
-auto* ahwb = AHwb::AllocateRgba(w, h);
-AHwb::WriteRgba(ahwb, rgba.data(), w * 4);
+auto* ahwb = AHwb::AllocateRGBA(w, h);
+AHwb::WriteRGBA(ahwb, rgba.data(), w * 4);
 
 // 3. Wrap it for the framework (non-owning)
 auto hb = HardwareBuffer::FromAHardwareBuffer(ahwb);     // Android
