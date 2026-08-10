@@ -2,6 +2,10 @@ build --cxxopt=-std=c++17
 build --host_cxxopt=-std=c++17
 build --features=visibility=hidden
 
+# Third-party headers (stb_image_write.h, vendored Skia/... ) contain unannotated
+# switch fall-through. Suppress centrally instead of per consumer.
+build --copt=-Wno-implicit-fallthrough
+
 # Platform aliases.
 # NOTE: mac and android resolve to the same Bazel output tree here. Explicit --cpu
 # cannot isolate them — it forces the legacy @local_config_cc suite lookup, which
