@@ -3,3 +3,15 @@ workspace(name = "native_ui")
 load("//:native_ui_deps.bzl", "native_ui_setup")
 
 native_ui_setup()
+
+# Android NDK toolchain (via rules_android_ndk, supports NDK r25b+ with Bazel 6.5+).
+# Requires $ANDROID_NDK_HOME to point at an installed NDK for android_arm64 builds;
+# for non-Android builds this registration is harmless (empty toolchain repository).
+load("@rules_android_ndk//:rules.bzl", "android_ndk_repository")
+
+android_ndk_repository(
+    name = "androidndk",
+    api_level = 29,
+)
+
+bind(name = "android/crosstool", actual = "@androidndk//:toolchain")

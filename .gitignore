@@ -17,6 +17,8 @@ __pycache__/
 *.lib
 *.a
 *.class
+*.exe
+*.pdb
 
 # macOS
 .DS_Store

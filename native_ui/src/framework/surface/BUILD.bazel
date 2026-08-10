@@ -7,5 +7,16 @@ cc_library(
     deps = [
         "@native_ui//src/framework/core",
         "@skia//:skia",
-    ],
+        "@stblib//:stb_image_write",
+    ] + select({
+        "@native_ui//platforms:android_arm64": ["@skia//:skia_gpu"],
+        "//conditions:default": [],
+    }),
+    linkopts = select({
+        "@native_ui//platforms:android_arm64": [
+            "-landroid",
+            "-llog",
+        ],
+        "//conditions:default": [],
+    }),
 )

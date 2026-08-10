@@ -62,6 +62,18 @@ def _nanosvg():
         build_file = "//third_party/nanosvg:BUILD.bazel",
     )
 
+def _rules_android_ndk():
+    # External NDK rules that support NDK r25b+ with Bazel 6.5+. Verified working
+    # in the atlas project (tools/platform_setup.sh + WORKSPACE). android_ndk_repository
+    # below is tolerant of a missing/invalid $ANDROID_NDK_HOME: host builds are unaffected,
+    # and only android_arm64 builds fail (with a clear error) when the NDK is unavailable.
+    http_archive(
+        name = "rules_android_ndk",
+        sha256 = "d230a980e0d3a42b85d5fce2cb17ec3ac52b88d2cff5aaf86bae0f05b48adc55",
+        strip_prefix = "rules_android_ndk-d5c9d46a471e8fcd80e7ec5521b78bb2df48f4e0",
+        urls = ["https://github.com/bazelbuild/rules_android_ndk/archive/d5c9d46a471e8fcd80e7ec5521b78bb2df48f4e0.zip"],
+    )
+
 def native_ui_setup():
     if not native.existing_rule("bazel_skylib"):
         _bazel_skylib()
@@ -75,3 +87,5 @@ def native_ui_setup():
         _googletest()
     if not native.existing_rule("nanosvg"):
         _nanosvg()
+    if not native.existing_rule("rules_android_ndk"):
+        _rules_android_ndk()

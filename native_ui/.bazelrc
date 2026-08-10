@@ -6,6 +6,20 @@ build --features=visibility=hidden
 build:macos_arm64 --platforms=//platforms:macos_arm64_platform
 build:linux_x86_64 --platforms=//platforms:linux_x86_64_platform
 
+# Android cross-compilation
+# Prerequisites: ANDROID_NDK_HOME must point to an NDK root (>= r25b).
+# Uses rules_android_ndk (toolchain selection driven by --platforms).
+build:android                --incompatible_enable_cc_toolchain_resolution
+build:android --linkopt=-landroid
+build:android --linkopt=-ldl
+build:android --linkopt=-llog
+build:android --linkopt=-lm
+build:android --linkopt=-Wl,--gc-sections
+
+build:android_arm64          --config=android
+build:android_arm64          --platforms=//platforms:android_arm64_platform
+build:android_arm64          --extra_toolchains=@androidndk//:toolchain_aarch64-linux-android
+
 # Default to macOS ARM64 for development
 build --platforms=//platforms:macos_arm64_platform
 

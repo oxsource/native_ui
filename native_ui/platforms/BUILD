@@ -15,3 +15,11 @@ config_setting_and_platform(
         "@platforms//cpu:x86_64",
     ],
 )
+
+config_setting_and_platform(
+    name = "android_arm64",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:aarch64",
+    ],
+)

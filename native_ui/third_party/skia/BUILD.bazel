@@ -10,6 +10,10 @@ cc_library(
             "src/android/**/*.cpp",
             "src/codec/**/*.cpp",
             "src/pdf/**/*.cpp",
+            # Skia's own SVG backend + XML parser (needs expat, unavailable in the
+            # Android NDK sysroot). This repo uses nanosvg instead, so both are omitted.
+            "src/svg/**/*.cpp",
+            "src/xml/**/*.cpp",
             "src/ports/SkDebug_android.cpp",
             "src/ports/SkDebug_win.cpp",
             "src/ports/SkFontConfigInterface*.cpp",
@@ -80,4 +84,71 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
+)
+
+# Ganesh GPU backend (GLES/EGL, Android only). Compiled with SK_GANESH + SK_GL +
+# SK_BUILD_FOR_ANDROID; the raster-only `skia` target above provides the core/sksl
+# symbols this links against. Only built for the android_arm64 platform (see
+# //src/framework/surface:surface which selects it), so host/CI builds stay on `skia`.
+cc_library(
+    name = "skia_gpu",
+    hdrs = glob(["include/**/*.h"]),
+    srcs = glob(
+        ["src/gpu/**/*.cpp", "src/android/**/*.cpp"],
+        exclude = [
+            "src/gpu/graphite/**/*.cpp",
+            "src/gpu/vk/**/*.cpp",
+            "src/gpu/mtl/**/*.cpp",
+            "src/gpu/d3d/**/*.cpp",
+            "src/gpu/ganesh/vk/**/*.cpp",
+            "src/gpu/ganesh/mtl/**/*.cpp",
+            "src/gpu/ganesh/d3d/**/*.cpp",
+            "src/gpu/ganesh/gl/iOS/**/*.cpp",
+            "src/gpu/ganesh/gl/mac/**/*.cpp",
+            "src/gpu/ganesh/gl/glfw/**/*.cpp",
+            "src/gpu/ganesh/gl/glx/**/*.cpp",
+            "src/gpu/ganesh/gl/epoxy/**/*.cpp",
+            "src/gpu/ganesh/gl/egl/**/*.cpp",
+            "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp",
+        ],
+    ),
+    includes = [
+        ".",
+        "include",
+        "include/core",
+        "include/config",
+        "include/effects",
+        "include/encode",
+        "include/pathops",
+        "include/utils",
+        "include/gpu",
+        "include/gpu/ganesh",
+        "include/android",
+        "src",
+        "src/base",
+        "src/core",
+        "src/gpu",
+        "src/gpu/ganesh",
+        "src/gpu/ganesh/gl",
+        "src/gpu/ganesh/glsl",
+        "src/sksl",
+        "src/utils",
+        "src/ports",
+    ],
+    defines = [
+        "SK_GANESH",
+        "SK_GL",
+        "SK_BUILD_FOR_ANDROID",
+    ],
+    copts = [
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+    ],
+    deps = [":skia"],
+    linkopts = [
+        "-lEGL",
+        "-lGLESv3",
+        "-landroid",
+        "-llog",
+    ],
 )
