@@ -14,7 +14,9 @@ cc_library(
             # Android NDK sysroot). This repo uses nanosvg instead, so both are omitted.
             "src/svg/**/*.cpp",
             "src/xml/**/*.cpp",
-            "src/ports/SkDebug_android.cpp",
+            # SkDebug_android.cpp is intentionally NOT excluded: Skia's config headers
+            # auto-define SK_BUILD_FOR_ANDROID when __ANDROID__ is set, so the android
+            # build needs the Android SkDebug implementation.
             "src/ports/SkDebug_win.cpp",
             "src/ports/SkFontConfigInterface*.cpp",
             "src/ports/SkFontHost_FreeType*.cpp",
@@ -46,7 +48,23 @@ cc_library(
             "src/encode/SkJpegGainmapEncoder.cpp",
             "src/sksl/lex/**/*.cpp",
         ],
-    ),
+    ) + [
+        # skcms (modules, outside src/): color management used by SkColorSpace/SkRasterPipeline.
+        "modules/skcms/skcms.cc",
+        "modules/skcms/src/skcms_TransformBaseline.cc",
+        "modules/skcms/src/skcms_TransformHsw.cc",
+        "modules/skcms/src/skcms_TransformSkx.cc",
+        # Codec chain required by ganesh's persistent shader cache (SkReadBuffer ->
+        # SkImages::DeferredFromEncodedData). No decoder backends are enabled (SK_HAS_*),
+        # so SkCodec::MakeFromData returns nullptr and no external image libs are linked.
+        "src/codec/SkCodec.cpp",
+        "src/codec/SkCodecImageGenerator.cpp",
+        "src/codec/SkImageGenerator_FromEncoded.cpp",
+        "src/codec/SkEncodedInfo.cpp",
+        "src/codec/SkPixmapUtils.cpp",
+        "src/codec/SkColorPalette.cpp",
+        "src/codec/SkSampler.cpp",
+    ],
     includes = [
         ".",
         "include",
@@ -70,6 +88,9 @@ cc_library(
         "src/pathops",
         "src/sfnt",
         "src/sksl",
+        "src/codec",
+        "modules/skcms",
+        "modules/skcms/src",
     ],
     copts = [
         "-Wno-unused-parameter",

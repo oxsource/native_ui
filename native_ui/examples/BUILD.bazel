@@ -22,3 +22,34 @@ cc_binary(
         "@skia//:skia",
     ],
 )
+
+cc_binary(
+    name = "external_image_demo",
+    srcs = [
+        "external_image_demo.cc",
+        "android_media.cc",
+        "android_media.h",
+    ],
+    data = [
+        "@native_ui//assets/photo:photos",
+    ],
+    deps = [
+        "@native_ui//src/framework/public:native_ui",
+        "@native_ui//src/framework/surface",
+        "@native_ui//src/framework/utils",
+        "@skia//:skia",
+    ] + select({
+        "@native_ui//platforms:android_arm64": ["@skia//:skia_gpu"],
+        "//conditions:default": [],
+    }),
+    linkopts = select({
+        "@native_ui//platforms:android_arm64": [
+            "-lmediandk",
+            "-landroid",
+            "-lEGL",
+            "-lGLESv3",
+            "-llog",
+        ],
+        "//conditions:default": [],
+    }),
+)

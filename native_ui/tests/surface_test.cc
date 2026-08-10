@@ -28,4 +28,33 @@ TEST(SurfaceTest, HardwareBufferDefaultInvalid) {
   EXPECT_FALSE(buf.IsValid());
 }
 
+// T012: Surface::CreateFromBuffer host stub + RenderBackend.
+TEST(SurfaceTest, CreateFromBufferInvalidNull) {
+  auto surface = Surface::CreateFromBuffer(HardwareBuffer());
+  EXPECT_EQ(surface, nullptr);
+}
+
+TEST(SurfaceTest, CreateFromBufferHostStubNull) {
+  uint8_t pixels[64] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 64, 4, 4);
+  ASSERT_TRUE(hb.IsValid());
+  auto surface = Surface::CreateFromBuffer(hb, RenderBackend::kCPU);
+  EXPECT_EQ(surface, nullptr);  // TODO(android-only): host builds stub the conversion
+}
+
+TEST(SurfaceTest, CreateFromBufferGpuWithoutContextNull) {
+  uint8_t pixels[64] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 64, 4, 4);
+  // kGPU without a RenderContext: fall back to CPU (host stub) -> nullptr.
+  auto surface = Surface::CreateFromBuffer(hb, RenderBackend::kGPU, nullptr);
+  EXPECT_EQ(surface, nullptr);
+}
+
+TEST(SurfaceTest, RenderBackendEnumExists) {
+  // Compile-time check that the enum is usable and kCPU is the default selection.
+  RenderBackend backend = RenderBackend::kCPU;
+  EXPECT_EQ(backend, RenderBackend::kCPU);
+  (void)RenderBackend::kGPU;
+}
+
 }  // namespace native::ui

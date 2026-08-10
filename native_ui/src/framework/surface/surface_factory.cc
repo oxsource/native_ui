@@ -5,9 +5,9 @@
 namespace native::ui {
 
 std::unique_ptr<Surface> SurfaceFactory::CreateFromHardwareBuffer(
-    HardwareBuffer buffer) {
+    HardwareBuffer buffer, RenderBackend backend, RenderContext* ctx) {
   if (!buffer.IsValid()) return nullptr;
-  return Surface::CreateFromBuffer(buffer);
+  return Surface::CreateFromBuffer(buffer, backend, ctx);
 }
 
 }  // namespace native::ui

@@ -10,7 +10,8 @@ ExternalImage::~ExternalImage() = default;
 void ExternalImage::ProcessArg(HardwareBuffer tag) {
   buffer_ = tag;
   if (buffer_.IsValid()) {
-    image_ = native::ui::Image::FromBuffer(buffer_);
+    // Deterministic default backend: CPU (raster); GPU is opt-in via Surface/RenderContext.
+    image_ = native::ui::Image::FromBuffer(buffer_, RenderBackend::kCPU);
   }
 }
 
@@ -19,7 +20,7 @@ void ExternalImage::ProcessArg(Id tag) { SetId(std::move(tag.value)); }
 void ExternalImage::SetBuffer(HardwareBuffer buffer) {
   buffer_ = buffer;
   if (buffer_.IsValid()) {
-    image_ = native::ui::Image::FromBuffer(buffer_);
+    image_ = native::ui::Image::FromBuffer(buffer_, RenderBackend::kCPU);
   } else {
     image_.reset();
   }
@@ -33,7 +34,7 @@ void ExternalImage::Watch(Property<HardwareBuffer>& prop) {
 
 void ExternalImage::Draw(Canvas& canvas) {
   if (watched_prop_ && watched_prop_->value().IsValid()) {
-    image_ = native::ui::Image::FromBuffer(watched_prop_->value());
+    image_ = native::ui::Image::FromBuffer(watched_prop_->value(), RenderBackend::kCPU);
   }
   if (!image_) return;
   Rect bb = bounds();

@@ -13,6 +13,11 @@
 #include "nanosvg.h"
 #include "nanosvgrast.h"
 
+#if defined(__ANDROID__)
+#include "ahwb.h"
+#include "render_context.h"
+#endif
+
 namespace native::ui {
 
 namespace {
@@ -97,9 +102,39 @@ std::unique_ptr<Image> Image::FromFile(const char* path) {
   return img;
 }
 
-std::unique_ptr<Image> Image::FromBuffer(HardwareBuffer buffer) {
-  (void)buffer;
+std::unique_ptr<Image> Image::FromBuffer(HardwareBuffer buffer, RenderBackend backend,
+                                         RenderContext* ctx) {
+  if (!buffer.IsValid()) return nullptr;
+
+#if defined(__ANDROID__)
+  if (buffer.kind() != HardwareBuffer::Kind::kAHardwareBuffer) {
+    // Memory kind has no Android render path (reserved; TODO(android-only)).
+    return nullptr;
+  }
+  AHardwareBuffer* ahwb = static_cast<AHardwareBuffer*>(buffer.ahardwarebuffer());
+  if (!ahwb) return nullptr;
+
+  RenderBackend effective = backend;
+  if (effective == RenderBackend::kGPU && (!ctx || !ctx->gr)) {
+    effective = RenderBackend::kCPU;  // fall back to CPU per contracts/render-backend.md
+  }
+
+  // CPU: owned copy (FR-011). GPU: zero-copy texture import (AHwb returns nullptr for
+  // unsupported formats — FR-006).
+  sk_sp<SkImage> sk_image = (effective == RenderBackend::kGPU)
+                                ? AHwb::ToGpuImage(ahwb, ctx->gr)
+                                : AHwb::ToCpuImage(ahwb, /*copy=*/true);
+  if (!sk_image) return nullptr;
+
+  auto img = std::unique_ptr<Image>(new Image());
+  img->impl_->sk_image = std::move(sk_image);
+  return img;
+#else
+  (void)backend;
+  (void)ctx;
+  // TODO(android-only): host builds stub the buffer-to-image conversion.
   return nullptr;
+#endif
 }
 
 std::unique_ptr<Image> Image::FromSkImage(sk_sp<SkImage> sk_image) {

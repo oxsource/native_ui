@@ -95,6 +95,17 @@ cc_test(
 )
 
 cc_test(
+    name = "external_image_test",
+    srcs = ["external_image_test.cc"],
+    deps = [
+        "@native_ui//src/framework/widgets",
+        "@native_ui//src/framework/render",
+        "@native_ui//src/framework/surface",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "widgets_test",
     srcs = ["widgets_test.cc"],
     deps = [

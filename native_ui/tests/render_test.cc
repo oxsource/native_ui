@@ -4,6 +4,7 @@
 #include "path.h"
 #include "image.h"
 #include "surface.h"
+#include "hardware_buffer.h"
 
 namespace native::ui {
 
@@ -105,6 +106,28 @@ TEST(RenderTest, CanvasDrawImage) {
     canvas.DrawRect({0, 0, 10, 10}, paint);
   }
   surface->Flush();
+}
+
+// T011: Image::FromBuffer host stub contract (FR-006 — defined error, no crash).
+TEST(RenderTest, ImageFromBufferInvalidNull) {
+  auto img = Image::FromBuffer(HardwareBuffer());
+  EXPECT_EQ(img, nullptr);
+}
+
+TEST(RenderTest, ImageFromBufferHostStubNull) {
+  uint8_t pixels[64] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 64, 4, 4);
+  ASSERT_TRUE(hb.IsValid());
+  auto img = Image::FromBuffer(hb, RenderBackend::kCPU);
+  EXPECT_EQ(img, nullptr);  // TODO(android-only): host builds stub the conversion
+}
+
+TEST(RenderTest, ImageFromBufferGpuWithoutContextNull) {
+  uint8_t pixels[64] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 64, 4, 4);
+  // Memory buffers have no GPU interop and no context is supplied: falls back / null.
+  auto img = Image::FromBuffer(hb, RenderBackend::kGPU, nullptr);
+  EXPECT_EQ(img, nullptr);
 }
 
 }  // namespace native::ui
