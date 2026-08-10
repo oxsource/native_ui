@@ -127,4 +127,47 @@ TEST(ExternalImageTest, RepeatedSetBufferSameHandleIsNoOp) {
   { Canvas canvas(*surface); ext.Draw(canvas); }
 }
 
+// ============================================================================
+// T028: US3 producer utilities + defined error states (FR-005/FR-006/FR-009).
+// Unsupported-format rejection is validated on device (android path); on host the
+// invalid/zero-area buffers are the observable error states (no crash, no render).
+// ============================================================================
+
+TEST(ExternalImageTest, ProducerCanInspectGeometry) {
+  // A producer creating a buffer from in-memory pixels can read back its geometry (FR-009).
+  uint8_t pixels[32 * 16 * 4] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 32 * 4, 32, 16);
+  ASSERT_TRUE(hb.IsValid());
+  EXPECT_EQ(hb.kind(), HardwareBuffer::Kind::kMemory);
+  EXPECT_EQ(hb.width(), 32);
+  EXPECT_EQ(hb.height(), 16);
+  EXPECT_EQ(hb.row_bytes(), static_cast<size_t>(32 * 4));
+  EXPECT_EQ(hb.pixels(), pixels);
+}
+
+TEST(ExternalImageTest, ZeroAreaFromMemoryInvalid) {
+  uint8_t pixels[16] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 16, 0, 4);   // zero width
+  EXPECT_FALSE(hb.IsValid());
+  EXPECT_EQ(Image::FromBuffer(hb), nullptr);  // FR-005: zero-area -> nullptr
+}
+
+TEST(ExternalImageTest, ZeroAreaFromMemoryNoRender) {
+  uint8_t pixels[16] = {};
+  ExternalImage ext;
+  ext.SetBuffer(HardwareBuffer::FromMemory(pixels, 16, 0, 4));  // invalid -> no image
+  auto surface = Surface::Create(100, 50);
+  ASSERT_NE(surface, nullptr);
+  { Canvas canvas(*surface); ext.Draw(canvas); }  // no-op, no crash (FR-005)
+}
+
+TEST(ExternalImageTest, InvalidBufferFromBufferNull) {
+  EXPECT_EQ(Image::FromBuffer(HardwareBuffer()), nullptr);  // FR-006 defined error state
+  ExternalImage ext;
+  ext.SetBuffer(HardwareBuffer());
+  auto surface = Surface::Create(100, 50);
+  ASSERT_NE(surface, nullptr);
+  { Canvas canvas(*surface); ext.Draw(canvas); }  // draws nothing, no crash
+}
+
 }  // namespace native::ui

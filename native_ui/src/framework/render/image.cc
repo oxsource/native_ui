@@ -14,6 +14,8 @@
 #include "nanosvgrast.h"
 
 #if defined(__ANDROID__)
+#include <android/hardware_buffer.h>
+
 #include "ahwb.h"
 #include "render_context.h"
 #endif
@@ -111,6 +113,13 @@ std::unique_ptr<Image> Image::FromBuffer(HardwareBuffer buffer, RenderBackend ba
     // Memory kind has no Android render path (reserved; TODO(android-only)).
     return nullptr;
   }
+  // FR-005: zero-area buffers render nothing.
+  if (buffer.width() <= 0 || buffer.height() <= 0) return nullptr;
+  // FR-006: defined error state for unsupported formats — never corrupt output.
+  // AHardwareBuffer buffers always carry a real format from AHardwareBuffer_describe;
+  // 0 means "unknown" and is rejected here for this kind.
+  if (buffer.format() != AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM) return nullptr;
+
   AHardwareBuffer* ahwb = static_cast<AHardwareBuffer*>(buffer.ahardwarebuffer());
   if (!ahwb) return nullptr;
 

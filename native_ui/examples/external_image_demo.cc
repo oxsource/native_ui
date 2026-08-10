@@ -23,6 +23,7 @@
 #include "external_image.h"
 #include "hardware_buffer.h"
 #include "image.h"
+#include "png_writer.h"
 #include "render_context.h"
 #include "surface.h"
 
@@ -250,6 +251,28 @@ int main(int argc, char** argv) {
       std::printf("[live] VmRSS %lld -> %lld kB (%+lld kB)\n", static_cast<long long>(rss_before),
                   static_cast<long long>(rss_after),
                   static_cast<long long>(rss_after - rss_before));
+    }
+  }
+
+  // 6b. Diagnostic export (FR-010, SC-006): CPU snapshot of the displayed frame and a
+  //     PNG dump of the source buffer for pixel verification.
+  {
+    auto cpu_surface = Surface::Create(w, h);
+    if (cpu_surface) {
+      Canvas canvas(*cpu_surface);
+      cpu_surface->sk_canvas()->clear(SK_ColorDKGRAY);
+      ext->Draw(canvas);
+      cpu_surface->Flush();
+      const char* cpu_png = "/data/local/tmp/external_image_cpu.png";
+      if (PngWriter::Write(cpu_surface->sk_surface(), cpu_png)) {
+        std::printf("OK: %s written\n", cpu_png);
+      } else {
+        std::fprintf(stderr, "FAIL: PngWriter::Write %s\n", cpu_png);
+      }
+    }
+    const char* source_png = "/data/local/tmp/source_buffer.png";
+    if (AHwb::DumpPng(ahwb_list[0], source_png) > 0) {
+      std::printf("OK: %s written\n", source_png);
     }
   }
 

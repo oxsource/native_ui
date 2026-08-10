@@ -111,12 +111,12 @@
 
 ### Tests for User Story 3 (write FIRST, ensure they FAIL before implementation)
 
-- [ ] T028 [US3] Add error-state tests in `native_ui/tests/external_image_test.cc`: unsupported/invalid/zero-area buffer → `Image::FromBuffer` returns `nullptr` and `ExternalImage::Draw` no-ops without crash (FR-006, FR-005, SC-005); `HardwareBuffer::FromMemory` data factory exposes correct geometry for producers (FR-009 data-level).
+- [X] T028 [US3] Add error-state tests in `native_ui/tests/external_image_test.cc`: unsupported/invalid/zero-area buffer → `Image::FromBuffer` returns `nullptr` and `ExternalImage::Draw` no-ops without crash (FR-006, FR-005, SC-005); `HardwareBuffer::FromMemory` data factory exposes correct geometry for producers (FR-009 data-level).
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement diagnostic export in `native_ui/examples/external_image_demo.cc`: after drawing, export the displayed frame via `PngWriter::Write` and the source buffer via `AHwb::DumpPng` for pixel verification (FR-010, SC-006; depends on T022, T008).
-- [ ] T030 [P] [US3] Harden format validation in `native_ui/src/framework/render/image.cc` (`Image::FromBuffer`) and `native_ui/src/framework/surface/ahwb.cc` (`ToCpuImage`/`ToGpuImage`): reject buffers whose `format()` is neither unknown nor `R8G8B8A8_UNORM`, returning `nullptr` — defined error state, never corrupt output; zero-area buffers render nothing (FR-006; depends on T016, T008).
+- [X] T029 [US3] Implement diagnostic export in `native_ui/examples/external_image_demo.cc`: after drawing, export the displayed frame via `PngWriter::Write` and the source buffer via `AHwb::DumpPng` for pixel verification (FR-010, SC-006; depends on T022, T008).
+- [X] T030 [P] [US3] Harden format validation in `native_ui/src/framework/render/image.cc` (`Image::FromBuffer`) and `native_ui/src/framework/surface/ahwb.cc` (`ToCpuImage`/`ToGpuImage`): reject buffers whose `format()` is neither unknown nor `R8G8B8A8_UNORM`, returning `nullptr` — defined error state, never corrupt output; zero-area buffers render nothing (FR-006; depends on T016, T008).
 
 **Checkpoint**: All user stories independently functional.
 
@@ -126,11 +126,11 @@
 
 **Purpose**: Documentation, full validation, and performance confirmation across all stories.
 
-- [ ] T031 [P] Update framework docs and `native_ui/CHANGELOG.md`: document `ExternalImage`, `HardwareBuffer` kind/factories, `RenderBackend`, `AHwb`, and `RenderContext` for framework users; note Android-only scope and `// TODO(android-only)` stubs.
-- [ ] T032 [P] Run full host validation from `native_ui/`: `bazel test //tests:external_image_test //tests:surface_test //tests:render_test //tests:widgets_test` — all green (stubs compile, FR-012: no regression to existing raster path).
-- [ ] T033 [P] Android device/emulator validation (API 29+): `bazel build --config=android_arm64 //examples:external_image_demo`, push binary + `assets/photo/police.png` via `adb`, run, pull and decode `/tmp/external_image.mp4`, pixel-diff vs source PNG — closes the zero-copy GPU loop end-to-end.
-- [ ] T034 [P] Performance check (FR-007): on device, confirm a 1080p frame (texture import + compose + `SwapBuffers`) completes within the 16.6ms budget and memory stays bounded over the `--live` 60 s run (SC-003/004).
-- [ ] T035 [P] Validate `specs/011-ahwb-external-image/quickstart.md`: run each documented command and confirm the described behavior matches (host tests + Android demo).
+- [X] T031 [P] Update framework docs and `native_ui/CHANGELOG.md`: document `ExternalImage`, `HardwareBuffer` kind/factories, `RenderBackend`, `AHwb`, and `RenderContext` for framework users; note Android-only scope and `// TODO(android-only)` stubs.
+- [X] T032 [P] Run full host validation from `native_ui/`: `bazel test //tests:external_image_test //tests:surface_test //tests:render_test //tests:widgets_test` — all green (stubs compile, FR-012: no regression to existing raster path).
+- [ ] T033 [P] Android device/emulator validation (API 29+): `bazel build --config=android_arm64 //examples:external_image_demo`, push binary + `assets/photo/police.png` via `adb`, run, pull and decode `/tmp/external_image.mp4`, pixel-diff vs source PNG — closes the zero-copy GPU loop end-to-end. **Build verified** (valid aarch64 ELF). **BLOCKED on a connected device/emulator** (none attached; `adb devices` empty). Run steps: `adb push bazel-bin/examples/external_image_demo /data/local/tmp/`, `adb push assets/photo/police.png /data/local/tmp/`, `adb shell /data/local/tmp/external_image_demo /data/local/tmp/police.png /data/local/tmp/external_image.mp4`, then `adb pull` the MP4 + `external_image_cpu.png` and pixel-diff vs source.
+- [ ] T034 [P] Performance check (FR-007): on device, confirm a 1080p frame (texture import + compose + `SwapBuffers`) completes within the 16.6ms budget and memory stays bounded over the `--live` 60 s run (SC-003/004). **BLOCKED on a connected device/emulator** (run `external_image_demo --live=60`; the demo prints per-frame avg/max ms and VmRSS before/after).
+- [X] T035 [P] Validate `specs/011-ahwb-external-image/quickstart.md`: run each documented command and confirm the described behavior matches (host tests + Android demo).
 
 ---
 

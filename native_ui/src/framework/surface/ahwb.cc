@@ -131,6 +131,7 @@ sk_sp<SkImage> AHwb::ToCpuImage(AHardwareBuffer* buffer, bool copy) {
   int format = 0;
   if (!Describe(buffer, w, h, stride, format)) return nullptr;
   if (!IsSupportedFormat(format)) return nullptr;  // FR-006
+  if (w == 0 || h == 0) return nullptr;            // FR-005: zero-area renders nothing
   const size_t dst_row_bytes = static_cast<size_t>(stride) * 4;
   void* data = nullptr;
   if (Lock(buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, &data) != 0) return nullptr;
@@ -154,6 +155,7 @@ sk_sp<SkImage> AHwb::ToGpuImage(AHardwareBuffer* buffer, GrDirectContext* gr) {
   int format = 0;
   if (!Describe(buffer, w, h, stride, format)) return nullptr;
   if (!IsSupportedFormat(format)) return nullptr;  // FR-006
+  if (w == 0 || h == 0) return nullptr;            // FR-005: zero-area renders nothing
 
   GrAHardwareBufferUtils::DeleteImageProc delete_proc = nullptr;
   GrAHardwareBufferUtils::UpdateImageProc update_proc = nullptr;
