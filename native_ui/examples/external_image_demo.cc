@@ -23,7 +23,6 @@
 #include "external_image.h"
 #include "hardware_buffer.h"
 #include "image.h"
-#include "png_writer.h"
 #include "render_context.h"
 #include "surface.h"
 
@@ -32,18 +31,9 @@
 
 #include <chrono>
 
-#include <GLES3/gl3.h>
 #include <android/hardware_buffer.h>
 
-#include "SkCanvas.h"
-#include "SkColorSpace.h"
-#include "SkImageInfo.h"
-#include "SkSurface.h"
-#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
-#include "include/gpu/gl/GrGLTypes.h"
 #endif
 
 using namespace native::ui;
@@ -74,7 +64,7 @@ bool RenderOneFrame(const std::unique_ptr<ExternalImage>& ext,
                     AndroidMediaEncoder* encoder) {
   {
     Canvas canvas(*enc_surface);
-    enc_surface->sk_canvas()->clear(SK_ColorDKGRAY);
+    canvas.Clear({0x44, 0x44, 0x44, 0xFF});  // dark gray background
     ext->Draw(canvas);
   }
   ctx->gr->flush();
@@ -149,9 +139,8 @@ int main(int argc, char** argv) {
     return 1;
   }
   std::vector<uint8_t> rgba(static_cast<size_t>(w) * h * 4);
-  auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-  if (!src->sk_image()->readPixels(info, rgba.data(), static_cast<size_t>(w) * 4, 0, 0)) {
-    std::fprintf(stderr, "FAIL: readPixels\n");
+  if (!src->CopyPixels(w, h, static_cast<size_t>(w) * 4, rgba.data())) {
+    std::fprintf(stderr, "FAIL: CopyPixels\n");
     return 1;
   }
 
@@ -194,36 +183,19 @@ int main(int argc, char** argv) {
     for (auto* b : ahwb_list) AHwb::Release(b);
     return 1;
   }
-  auto ctx = RenderContext::CreateFromMediaCodecInputSurface(encoder->input_window(), frame_w,
+  auto ctx = RenderContext::CreateFromNativeWindow(encoder->input_window(), frame_w,
                                                              frame_h);
   if (!ctx) {
-    std::fprintf(stderr, "FAIL: RenderContext::CreateFromMediaCodecInputSurface\n");
+    std::fprintf(stderr, "FAIL: RenderContext::CreateFromNativeWindow\n");
     for (auto* b : ahwb_list) AHwb::Release(b);
     return 1;
   }
   ctx->MakeCurrent();
 
-  // 5. Wrap the encoder surface (default framebuffer, FBO 0) as the canvas target.
-  GrGLFramebufferInfo fb_info{};
-  fb_info.fFBOID = 0;
-  fb_info.fFormat = GL_RGBA8;
-  GrBackendRenderTarget rt = GrBackendRenderTargets::MakeGL(frame_w, frame_h, /*sampleCnt=*/0,
-                                                            /*stencil=*/8, fb_info);
-  if (!rt.isValid()) {
-    std::fprintf(stderr, "FAIL: GrBackendRenderTargets::MakeGL\n");
-    for (auto* b : ahwb_list) AHwb::Release(b);
-    return 1;
-  }
-  sk_sp<SkSurface> enc_surface = SkSurfaces::WrapBackendRenderTarget(
-      ctx->gr, rt, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, /*colorSpace=*/nullptr,
-      /*surfaceProps=*/nullptr);
-  if (!enc_surface) {
-    std::fprintf(stderr, "FAIL: SkSurfaces::WrapBackendRenderTarget\n");
-    for (auto* b : ahwb_list) AHwb::Release(b);
-    return 1;
-  }
-  auto enc_fw_surface = Surface::CreateFromSkSurface(std::move(enc_surface));
+  // 5. Host the canvas on the encoder input surface (FBO 0, GLES/EGL).
+  auto enc_fw_surface = Surface::Create(ctx.get());
   if (!enc_fw_surface) {
+    std::fprintf(stderr, "FAIL: Surface::Create(ctx)\n");
     for (auto* b : ahwb_list) AHwb::Release(b);
     return 1;
   }
@@ -281,14 +253,14 @@ int main(int argc, char** argv) {
     auto cpu_surface = Surface::Create(frame_w, frame_h);
     if (cpu_surface) {
       Canvas canvas(*cpu_surface);
-      cpu_surface->sk_canvas()->clear(SK_ColorDKGRAY);
+      canvas.Clear({0x44, 0x44, 0x44, 0xFF});  // dark gray background
       ext->Draw(canvas);
       cpu_surface->Flush();
       const char* cpu_png = "/data/local/tmp/external_image_cpu.png";
-      if (PngWriter::Write(cpu_surface->sk_surface(), cpu_png)) {
+      if (cpu_surface->Dump(cpu_png)) {
         std::printf("OK: %s written\n", cpu_png);
       } else {
-        std::fprintf(stderr, "FAIL: PngWriter::Write %s\n", cpu_png);
+        std::fprintf(stderr, "FAIL: Dump %s\n", cpu_png);
       }
     }
     const char* source_png = "/data/local/tmp/source_buffer.png";

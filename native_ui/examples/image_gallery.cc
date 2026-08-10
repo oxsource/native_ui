@@ -11,7 +11,7 @@
 #include "glide.h"
 #include "image_widget.h"
 #include "paint.h"
-#include "png_writer.h"
+
 #include "style.h"
 #include "surface.h"
 #include "text.h"
@@ -30,7 +30,7 @@ static void RenderAndSave(ui::Container* root, const char* path) {
     root->Draw(canvas);
   }
   surface->Flush();
-  native::ui::PngWriter::Write(surface->sk_surface(), path);
+  surface->Dump(path);
 }
 
 static std::unique_ptr<ui::Container> MakeCard(

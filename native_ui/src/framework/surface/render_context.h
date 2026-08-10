@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "color.h"
+
 class GrDirectContext;
 
 namespace native::ui {
@@ -15,11 +17,15 @@ struct RenderContext {
   void* display = nullptr;        // EGLDisplay
   void* context = nullptr;        // EGLContext (GLES 3.x)
   void* surface = nullptr;        // EGLSurface — eglCreateWindowSurface(AMediaCodec_createInputSurface())
+  int width = 0;                  // configured frame size
+  int height = 0;
+  ColorSpace color_space = ColorSpace::kSRGB;  // render-target color space
 
-  // __ANDROID__ only; nullptr on failure/host. `surface` is the ANativeWindow* from
-  // AMediaCodec_createInputSurface (kept opaque here to avoid the EGL typedef dance on host).
-  static std::unique_ptr<RenderContext> CreateFromMediaCodecInputSurface(
-      void* surface, int width, int height);
+  // __ANDROID__ only; nullptr on failure/host. `surface` is the ANativeWindow* (from
+  // AMediaCodec_createInputSurface, kept opaque here to avoid the EGL typedef dance on host).
+  static std::unique_ptr<RenderContext> CreateFromNativeWindow(
+      void* surface, int width, int height,
+      ColorSpace color_space = ColorSpace::kSRGB);
 
   void MakeCurrent();   // eglMakeCurrent + gr context current
   void SwapBuffers();   // eglSwapBuffers -> presents frame to encoder

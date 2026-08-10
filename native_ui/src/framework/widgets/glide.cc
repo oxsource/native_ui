@@ -7,12 +7,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
-#include "SkSurface.h"
 #include "lru_cache.h"
 
 namespace native::ui {
@@ -48,29 +42,7 @@ struct DefaultGlide::Impl {
 
   static std::unique_ptr<Image> ResizeImage(const Image& src,
                                              int tw, int th) {
-    auto* sk_img = src.sk_image();
-    if (!sk_img) return nullptr;
-    if (tw <= 0 || th <= 0) return nullptr;
-    if (src.width() <= tw && src.height() <= th) return nullptr;
-
-    auto surface = SkSurfaces::Raster(
-        SkImageInfo::MakeN32Premul(tw, th));
-    if (!surface) return nullptr;
-
-    SkCanvas* canvas = surface->getCanvas();
-    float scale = std::min(
-        static_cast<float>(tw) / src.width(),
-        static_cast<float>(th) / src.height());
-    float dw = src.width() * scale;
-    float dh = src.height() * scale;
-    float dx = (tw - dw) / 2.0f;
-    float dy = (th - dh) / 2.0f;
-    canvas->clear(SK_ColorTRANSPARENT);
-    canvas->drawImageRect(sk_img,
-        SkRect::MakeXYWH(dx, dy, dw, dh), SkSamplingOptions());
-    auto result = surface->makeImageSnapshot();
-    if (!result) return nullptr;
-    return Image::FromSkImage(result);
+    return src.Scale(tw, th);
   }
 
   void DoDecode(uint64_t id, const std::string& path) {

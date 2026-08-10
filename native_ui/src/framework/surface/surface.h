@@ -2,11 +2,8 @@
 
 #include <memory>
 
-#include "SkRefCnt.h"
+#include "color.h"
 #include "hardware_buffer.h"
-
-class SkCanvas;
-class SkSurface;
 
 namespace native::ui {
 
@@ -18,15 +15,21 @@ class SurfaceImpl;
 // RenderContext (see contracts/render-backend.md).
 enum class RenderBackend { kCPU, kGPU };
 
+// A rendering target / backing store. Skia is fully encapsulated: no Skia types
+// appear in this public interface (Skia isolation rules).
 class Surface {
 public:
-  static std::unique_ptr<Surface> Create(int width, int height);
+  static std::unique_ptr<Surface> Create(int width, int height,
+                                         ColorSpace color_space = ColorSpace::kSRGB);
+
+  // Android: create a Surface whose canvas is hosted on the MediaCodec encoder
+  // input surface (GLES/EGL render target, FBO 0). Dimensions/color space come from
+  // the RenderContext (ctx->width/height/color_space). Returns nullptr on failure/host.
+  static std::unique_ptr<Surface> Create(RenderContext* ctx);
+
   static std::unique_ptr<Surface> CreateFromBuffer(HardwareBuffer buffer,
                                                    RenderBackend backend = RenderBackend::kCPU,
                                                    RenderContext* ctx = nullptr);
-
-  // Internal: wrap an existing SkSurface (encoder-surface demo path).
-  static std::unique_ptr<Surface> CreateFromSkSurface(sk_sp<SkSurface> sk_surface);
 
   ~Surface();
 
@@ -34,13 +37,16 @@ public:
   int width() const;
   int height() const;
 
-  // Internal: accessed by Canvas and examples
-  SkCanvas* sk_canvas() const;
-  SkSurface* sk_surface() const;
+  // Dumps the surface's current pixels to a PNG file (sRGB, opaque).
+  bool Dump(const char* path) const;
 
 private:
   friend class Canvas;
   Surface(SurfaceImpl* impl);
+
+  // Private (friend-only) renderer handle — opaque, not part of the public API.
+  void* Handle() const;
+
   SurfaceImpl* impl_ = nullptr;
 };
 

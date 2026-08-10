@@ -2,15 +2,25 @@ package(default_visibility = ["@native_ui//src/spike:__subpackages__"])
 
 cc_binary(
     name = "skia_spike",
-    srcs = ["skia_spike.cc"],
-    deps = ["@native_ui//src/framework/utils"],
+    srcs = [
+        "skia_spike.cc",
+        "png_helper.h",
+    ],
+    deps = [
+        "@skia//:skia",
+        "@stblib//:stb_image_write",
+    ],
 )
 
 cc_binary(
     name = "yoga_spike",
-    srcs = ["yoga_spike.cc"],
+    srcs = [
+        "yoga_spike.cc",
+        "png_helper.h",
+    ],
     deps = [
-        "@native_ui//src/framework/utils",
+        "@skia//:skia",
+        "@stblib//:stb_image_write",
         "@yoga//:yoga",
     ],
 )

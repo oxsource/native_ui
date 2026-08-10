@@ -48,7 +48,7 @@ int Path::count_points() const {
   return impl_->sk_path.countPoints();
 }
 
-SkPath* Path::sk_path() const {
+void* Path::Handle() const {
   return &impl_->sk_path;
 }
 

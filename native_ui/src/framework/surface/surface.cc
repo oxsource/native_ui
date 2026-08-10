@@ -1,22 +1,39 @@
 #include "surface.h"
 
+#include <cstdio>
+#include <vector>
+
 #include "SkCanvas.h"
+#include "SkColorSpace.h"
 #include "SkImageInfo.h"
 #include "SkSurface.h"
+#include "stb_image_write.h"
 
 #if defined(__ANDROID__)
+#include <GLES3/gl3.h>
 #include <android/hardware_buffer.h>
 
-#include "SkColorSpace.h"
 #include "ahwb.h"
 #include "render_context.h"
 #include "include/android/GrAHardwareBufferUtils.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/gl/GrGLTypes.h"
 #endif
 
 namespace native::ui {
+
+namespace {
+
+// Maps the framework color space to the renderer (implementation detail).
+sk_sp<SkColorSpace> ToSkColorSpace(ColorSpace cs) {
+  return cs == ColorSpace::kLinearSRGB ? SkColorSpace::MakeSRGBLinear()
+                                       : SkColorSpace::MakeSRGB();
+}
+
+}  // namespace
 
 class SurfaceImpl {
 public:
@@ -41,9 +58,9 @@ Surface::Surface(SurfaceImpl* impl) : impl_(impl) {}
 
 Surface::~Surface() { delete impl_; }
 
-std::unique_ptr<Surface> Surface::Create(int width, int height) {
+std::unique_ptr<Surface> Surface::Create(int width, int height, ColorSpace color_space) {
   auto* impl = new SurfaceImpl();
-  auto info = SkImageInfo::MakeN32Premul(width, height);
+  auto info = SkImageInfo::MakeN32Premul(width, height).makeColorSpace(ToSkColorSpace(color_space));
   impl->sk_surface = SkSurfaces::Raster(info);
   if (!impl->sk_surface) {
     delete impl;
@@ -52,11 +69,32 @@ std::unique_ptr<Surface> Surface::Create(int width, int height) {
   return std::unique_ptr<Surface>(new Surface(impl));
 }
 
-std::unique_ptr<Surface> Surface::CreateFromSkSurface(sk_sp<SkSurface> sk_surface) {
+std::unique_ptr<Surface> Surface::Create(RenderContext* ctx) {
+#if defined(__ANDROID__)
+  if (!ctx || !ctx->gr || ctx->width <= 0 || ctx->height <= 0) return nullptr;
+  ctx->MakeCurrent();
+  // Encoder input surface = default framebuffer (FBO 0); GL origin is bottom-left.
+  GrGLFramebufferInfo fb_info{};
+  fb_info.fFBOID = 0;
+  fb_info.fFormat = GL_RGBA8;
+  GrBackendRenderTarget rt = GrBackendRenderTargets::MakeGL(ctx->width, ctx->height,
+                                                            /*sampleCnt=*/0, /*stencil=*/8,
+                                                            fb_info);
+  if (!rt.isValid()) return nullptr;
+  sk_sp<SkSurface> sk_surface = SkSurfaces::WrapBackendRenderTarget(
+      ctx->gr, rt, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
+      ToSkColorSpace(ctx->color_space), /*surfaceProps=*/nullptr);
   if (!sk_surface) return nullptr;
+
   auto* impl = new SurfaceImpl();
+  impl->gr = ctx->gr;
   impl->sk_surface = std::move(sk_surface);
   return std::unique_ptr<Surface>(new Surface(impl));
+#else
+  (void)ctx;
+  // TODO(android-only): host builds stub the context-backed surface.
+  return nullptr;
+#endif
 }
 
 std::unique_ptr<Surface> Surface::CreateFromBuffer(HardwareBuffer buffer,
@@ -118,7 +156,7 @@ std::unique_ptr<Surface> Surface::CreateFromBuffer(HardwareBuffer buffer,
   impl->gr = ctx->gr;
   impl->sk_surface = SkSurfaces::WrapBackendTexture(
       ctx->gr, tex, kTopLeft_GrSurfaceOrigin, /*sampleCnt=*/1, kRGBA_8888_SkColorType,
-      /*colorSpace=*/nullptr, /*surfaceProps=*/nullptr, delete_proc, image_ctx);
+      ToSkColorSpace(ctx->color_space), /*surfaceProps=*/nullptr, delete_proc, image_ctx);
   if (!impl->sk_surface) {
     delete impl;
     return nullptr;
@@ -130,14 +168,6 @@ std::unique_ptr<Surface> Surface::CreateFromBuffer(HardwareBuffer buffer,
   // TODO(android-only): host builds stub the buffer-backed surface.
   return nullptr;
 #endif
-}
-
-SkCanvas* Surface::sk_canvas() const {
-  return impl_->sk_surface->getCanvas();
-}
-
-SkSurface* Surface::sk_surface() const {
-  return impl_ ? impl_->sk_surface.get() : nullptr;
 }
 
 void Surface::Flush() {
@@ -162,6 +192,32 @@ int Surface::width() const {
 
 int Surface::height() const {
   return impl_ ? impl_->sk_surface->height() : 0;
+}
+
+bool Surface::Dump(const char* path) const {
+  if (!impl_ || !impl_->sk_surface || !path) return false;
+  SkPixmap pixmap;
+  if (!impl_->sk_surface->peekPixels(&pixmap)) {
+    std::fprintf(stderr, "FAIL: Dump peekPixels failed\n");
+    return false;
+  }
+  int w = pixmap.width(), h = pixmap.height();
+  std::vector<uint8_t> rgb(static_cast<size_t>(w) * h * 3);
+  const auto* src = static_cast<const uint8_t*>(pixmap.addr());
+  for (int i = 0; i < w * h; i++) {
+    rgb[i * 3 + 0] = src[i * 4 + 0];
+    rgb[i * 3 + 1] = src[i * 4 + 1];
+    rgb[i * 3 + 2] = src[i * 4 + 2];
+  }
+  if (!stbi_write_png(path, w, h, 3, rgb.data(), 0)) {
+    std::fprintf(stderr, "FAIL: Dump stbi_write_png\n");
+    return false;
+  }
+  return true;
+}
+
+void* Surface::Handle() const {
+  return impl_ ? static_cast<void*>(impl_->sk_surface.get()) : nullptr;
 }
 
 }  // namespace native::ui

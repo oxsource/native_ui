@@ -1,12 +1,17 @@
 #include "image.h"
 
+#include <algorithm>
 #include <cstring>
 
 #include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
+#include "SkRect.h"
+#include "SkSamplingOptions.h"
+#include "SkSurface.h"
 #include "stb_image.h"
 #define NANOSVG_IMPLEMENTATION
 #define NANOSVGRAST_IMPLEMENTATION
@@ -52,7 +57,7 @@ std::unique_ptr<Image> Image::FromEncoded(const void* data, size_t size) {
   return img;
 }
 
-static std::unique_ptr<Image> LoadSVG(const char* path) {
+std::unique_ptr<Image> Image::LoadSvg(const char* path) {
   NSVGimage* svg = nsvgParseFromFile(path, kNanosvgUnits, kNanosvgDpi);
   if (!svg) return nullptr;
 
@@ -73,7 +78,9 @@ static std::unique_ptr<Image> LoadSVG(const char* path) {
   auto sk_image = bm.asImage();
   if (!sk_image) return nullptr;
 
-  return Image::FromSkImage(sk_image);
+  auto img = std::unique_ptr<Image>(new Image());
+  img->impl_->sk_image = sk_image;
+  return img;
 }
 
 std::unique_ptr<Image> Image::FromFile(const char* path) {
@@ -84,7 +91,7 @@ std::unique_ptr<Image> Image::FromFile(const char* path) {
   if (dot) {
     auto ext = dot + 1;
     if (std::strcmp(ext, kSvgExt) == 0 || std::strcmp(ext, kSvgExtUpper) == 0) {
-      return LoadSVG(path);
+      return LoadSvg(path);
     }
   }
 
@@ -146,13 +153,6 @@ std::unique_ptr<Image> Image::FromBuffer(HardwareBuffer buffer, RenderBackend ba
 #endif
 }
 
-std::unique_ptr<Image> Image::FromSkImage(sk_sp<SkImage> sk_image) {
-  if (!sk_image) return nullptr;
-  auto img = std::unique_ptr<Image>(new Image());
-  img->impl_->sk_image = std::move(sk_image);
-  return img;
-}
-
 int Image::width() const {
   return impl_->sk_image ? impl_->sk_image->width() : 0;
 }
@@ -161,8 +161,40 @@ int Image::height() const {
   return impl_->sk_image ? impl_->sk_image->height() : 0;
 }
 
-SkImage* Image::sk_image() const {
-  return impl_->sk_image.get();
+bool Image::CopyPixels(int width, int height, size_t row_bytes, void* dst) const {
+  if (!impl_ || !impl_->sk_image || !dst) return false;
+  auto info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType,
+                                impl_->sk_image->alphaType());
+  return impl_->sk_image->readPixels(info, dst, row_bytes, 0, 0);
+}
+
+std::unique_ptr<Image> Image::Scale(int tw, int th) const {
+  if (!impl_ || !impl_->sk_image) return nullptr;
+  const SkImage* src = impl_->sk_image.get();
+  if (tw <= 0 || th <= 0) return nullptr;
+  if (src->width() <= tw && src->height() <= th) return nullptr;  // no resize needed
+
+  auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(tw, th));
+  if (!surface) return nullptr;
+  SkCanvas* canvas = surface->getCanvas();
+  float scale = std::min(static_cast<float>(tw) / src->width(),
+                         static_cast<float>(th) / src->height());
+  float dw = src->width() * scale;
+  float dh = src->height() * scale;
+  float dx = (tw - dw) / 2.0f;
+  float dy = (th - dh) / 2.0f;
+  canvas->clear(SK_ColorTRANSPARENT);
+  canvas->drawImageRect(src, SkRect::MakeXYWH(dx, dy, dw, dh), SkSamplingOptions());
+  auto snapshot = surface->makeImageSnapshot();
+  if (!snapshot) return nullptr;
+
+  auto img = std::unique_ptr<Image>(new Image());
+  img->impl_->sk_image = std::move(snapshot);
+  return img;
+}
+
+void* Image::Handle() const {
+  return impl_ ? static_cast<void*>(impl_->sk_image.get()) : nullptr;
 }
 
 }  // namespace native::ui

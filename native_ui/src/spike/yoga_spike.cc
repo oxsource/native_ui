@@ -7,7 +7,7 @@
 
 #include "yoga/Yoga.h"
 
-#include "png_writer.h"
+#include "png_helper.h"
 
 #include <cstdio>
 #include <cstring>
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
   };
   LayoutAndRender(canvas, 15, 180, YGFlexDirectionColumn, col_boxes, 3, 10);
 
-  if (!native::ui::PngWriter::Write(surface.get(), path)) {
+  if (!WritePng(surface.get(), path)) {
     return 1;
   }
 

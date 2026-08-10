@@ -8,7 +8,7 @@
 #include "container.h"
 #include "edge_insets.h"
 #include "paint.h"
-#include "png_writer.h"
+
 #include "state.h"
 #include "surface.h"
 #include "text.h"
@@ -32,7 +32,7 @@ static void RenderAndSave(ui::Container* root, const char* path) {
     root->Draw(canvas);
   }
   surface->Flush();
-  native::ui::PngWriter::Write(surface->sk_surface(), path);
+  surface->Dump(path);
 }
 
 int main() {

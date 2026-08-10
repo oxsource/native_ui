@@ -14,9 +14,11 @@
 #include "SkImage.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkTypeface.h"
 
 #if __APPLE__
@@ -61,7 +63,7 @@ public:
 };
 
 Canvas::Canvas(Surface& surface) : impl_(new CanvasImpl()) {
-  impl_->sk_canvas = surface.sk_canvas();
+  impl_->sk_canvas = static_cast<SkSurface*>(surface.Handle())->getCanvas();
   impl_->save_count = impl_->sk_canvas->save();
 }
 
@@ -70,6 +72,10 @@ Canvas::~Canvas() {
     impl_->sk_canvas->restore();
   }
   delete impl_;
+}
+
+void Canvas::Clear(Color color) {
+  impl_->sk_canvas->clear(ToSkColor(color));
 }
 
 void Canvas::DrawRect(Rect rect, const Paint& paint) {
@@ -149,18 +155,18 @@ void Canvas::DrawText(const std::string& text, Point pos,
 void Canvas::DrawPath(const Path& path, const Paint& paint) {
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
-  impl_->sk_canvas->drawPath(*path.sk_path(), sk_paint);
+  impl_->sk_canvas->drawPath(*static_cast<SkPath*>(path.Handle()), sk_paint);
 }
 
 void Canvas::DrawImage(const Image& image, Rect dest) {
-  SkImage* sk_img = image.sk_image();
+  SkImage* sk_img = static_cast<SkImage*>(image.Handle());
   if (sk_img) {
     impl_->sk_canvas->drawImageRect(sk_img, ToSkRect(dest), SkSamplingOptions());
   }
 }
 
 void Canvas::DrawImage(const Image& image, Rect src, Rect dest) {
-  SkImage* sk_img = image.sk_image();
+  SkImage* sk_img = static_cast<SkImage*>(image.Handle());
   if (sk_img) {
     impl_->sk_canvas->drawImageRect(sk_img, ToSkRect(src), ToSkRect(dest),
                                      SkSamplingOptions(), nullptr,

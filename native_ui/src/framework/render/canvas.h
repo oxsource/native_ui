@@ -20,6 +20,7 @@ public:
   explicit Canvas(Surface& surface);
   ~Canvas();
 
+  void Clear(Color color);
   void DrawRect(Rect rect, const Paint& paint);
   void DrawRoundRect(Rect rect, float radius, const Paint& paint);
   void DrawGradientRect(Rect rect, const class Gradient& gradient);

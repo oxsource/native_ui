@@ -19,7 +19,7 @@ Implement the Android-side of the `ExternalImage` widget on a **zero-copy GPU cl
 
 **Build System**: Bazel 6.5.0 (host); Android build via Bazel NDK toolchain (prerequisite, see Constraints)
 
-**Primary Dependencies**: render (Skia `SkImage`/`SkBitmap`), surface (`HardwareBuffer`, `Surface`, `SurfaceFactory`, `RenderContext`), widgets (`ExternalImage`), utils (`PngWriter`), Android NDK `<android/hardware_buffer.h>` (Android-only), Skia GPU `GrDirectContext` / `GrAHardwareBufferUtils` (Android-only), Android EGL (`<EGL/egl.h>`, `<GLES3/gl3.h>`), MediaCodec/MediaMuxer NDK native API (`<media/NdkMediaCodec.h>`, `<media/NdkMediaMuxer.h>`, `<media/NdkMediaFormat.h>` — used by the example only)
+**Primary Dependencies**: render (Skia `SkImage`/`SkBitmap`), surface (`HardwareBuffer`, `Surface`, `SurfaceFactory`, `RenderContext`), widgets (`ExternalImage`), surface (`Surface::SavePng`), Android NDK `<android/hardware_buffer.h>` (Android-only), Skia GPU `GrDirectContext` / `GrAHardwareBufferUtils` (Android-only), Android EGL (`<EGL/egl.h>`, `<GLES3/gl3.h>`), MediaCodec/MediaMuxer NDK native API (`<media/NdkMediaCodec.h>`, `<media/NdkMediaMuxer.h>`, `<media/NdkMediaFormat.h>` — used by the example only)
 
 **Storage**: N/A (transient buffers; MP4 output file for verification)
 
@@ -223,7 +223,7 @@ MediaCodec is consumed through the **native NDK C API** (`<media/NdkMediaCodec.h
    release encoder/muxer
 ```
 
-**`--live` mode (Android)**: after the single-frame loop, cycle buffers at 30 Hz for 60 s (alternating frames / animated content) to exercise the update path — the widget stays current, memory stays bounded (FR-003/FR-004, SC-002/003/004). **Diagnostics (Android)**: export the displayed frame via `PngWriter` and `AHwb::DumpPng` for pixel verification (FR-010, SC-006).
+**`--live` mode (Android)**: after the single-frame loop, cycle buffers at 30 Hz for 60 s (alternating frames / animated content) to exercise the update path — the widget stays current, memory stays bounded (FR-003/FR-004, SC-002/003/004). **Diagnostics (Android)**: export the displayed frame via `Surface::SavePng` and `AHwb::DumpPng` for pixel verification (FR-010, SC-006).
 
 **Host CI (contract + regression only)**: `external_image_test.cc` asserts the guarded-stub contract on macOS/Linux — `HardwareBuffer::FromMemory` geometry/`operator==`, `Image::FromBuffer`/`Surface::CreateFromBuffer` return `nullptr` (TODO stubs) without crashing, `ExternalImage::Draw` with no valid buffer no-ops, and 10k successive `SetBuffer` cycles show no memory growth. `Surface::Create(w,h)` raster behavior is unchanged (FR-012).
 

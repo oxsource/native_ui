@@ -2,8 +2,6 @@
 
 #include "point.h"
 
-class SkPath;
-
 namespace native::ui {
 
 class PathImpl;
@@ -25,11 +23,11 @@ public:
 
   int count_points() const;
 
-  // Internal: accessed by Canvas
-  SkPath* sk_path() const;
-
 private:
   friend class Canvas;
+  // Private (friend-only) renderer handle — opaque, not part of the public API.
+  void* Handle() const;
+
   PathImpl* impl_ = nullptr;
 };
 

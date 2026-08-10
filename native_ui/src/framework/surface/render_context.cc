@@ -34,9 +34,10 @@ const EGLint kContextAttribs[] = {
 
 }  // namespace
 
-std::unique_ptr<RenderContext> RenderContext::CreateFromMediaCodecInputSurface(void* surface,
+std::unique_ptr<RenderContext> RenderContext::CreateFromNativeWindow(void* surface,
                                                                                int width,
-                                                                               int height) {
+                                                                               int height,
+                                                                               ColorSpace cs) {
   ANativeWindow* native_window = static_cast<ANativeWindow*>(surface);
   if (!native_window || width <= 0 || height <= 0) return nullptr;
 
@@ -87,6 +88,9 @@ std::unique_ptr<RenderContext> RenderContext::CreateFromMediaCodecInputSurface(v
   ctx->display = display;
   ctx->context = egl_context;
   ctx->surface = egl_surface;
+  ctx->width = width;
+  ctx->height = height;
+  ctx->color_space = cs;
   return ctx;
 }
 
@@ -123,7 +127,8 @@ RenderContext::~RenderContext() {
 
 #else  // !defined(__ANDROID__)
 
-std::unique_ptr<RenderContext> RenderContext::CreateFromMediaCodecInputSurface(void*, int, int) {
+std::unique_ptr<RenderContext> RenderContext::CreateFromNativeWindow(void*, int, int,
+                                                                              ColorSpace) {
   // TODO(android-only): host builds stub the GPU context.
   return nullptr;
 }

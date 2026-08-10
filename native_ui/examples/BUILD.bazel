@@ -4,7 +4,6 @@ cc_binary(
     deps = [
         "@native_ui//src/framework/public:native_ui",
         "@native_ui//src/framework/surface",
-        "@native_ui//src/framework/utils",
         "@skia//:skia",
     ],
 )
@@ -18,7 +17,6 @@ cc_binary(
     deps = [
         "@native_ui//src/framework/public:native_ui",
         "@native_ui//src/framework/surface",
-        "@native_ui//src/framework/utils",
         "@skia//:skia",
     ],
 )
@@ -36,7 +34,6 @@ cc_binary(
     deps = [
         "@native_ui//src/framework/public:native_ui",
         "@native_ui//src/framework/surface",
-        "@native_ui//src/framework/utils",
         "@skia//:skia",
     ] + select({
         "@native_ui//platforms:android_arm64": ["@skia//:skia_gpu"],

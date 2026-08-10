@@ -115,7 +115,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T029 [US3] Implement diagnostic export in `native_ui/examples/external_image_demo.cc`: after drawing, export the displayed frame via `PngWriter::Write` and the source buffer via `AHwb::DumpPng` for pixel verification (FR-010, SC-006; depends on T022, T008).
+- [X] T029 [US3] Implement diagnostic export in `native_ui/examples/external_image_demo.cc`: after drawing, export the displayed frame via `Surface::SavePng` and the source buffer via `AHwb::DumpPng` for pixel verification (FR-010, SC-006; depends on T022, T008).
 - [X] T030 [P] [US3] Harden format validation in `native_ui/src/framework/render/image.cc` (`Image::FromBuffer`) and `native_ui/src/framework/surface/ahwb.cc` (`ToCpuImage`/`ToGpuImage`): reject buffers whose `format()` is neither unknown nor `R8G8B8A8_UNORM`, returning `nullptr` — defined error state, never corrupt output; zero-area buffers render nothing (FR-006; depends on T016, T008).
 
 **Checkpoint**: All user stories independently functional.

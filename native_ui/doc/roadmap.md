@@ -78,7 +78,7 @@ Phase 1 ──→ Phase 2 ──→ Phase 3 ──→ ... ──→ Phase 8 ─�
 |------|---------|
 | `src/spike/skia_spike.cc` | Minimal Skia binary: create surface, draw red rect, write PNG |
 | `src/spike/yoga_spike.cc` | Yoga+Skia combined: flexbox layout (row + column with margin), render via Skia, write PNG |
-| `src/spike/png_writer.h / png_writer.cc` | Shared utility: SkSurface → PNG encode |
+| `src/spike/png_helper.h` | Spike helper: SkSurface → PNG encode (Skia spikes only) |
 | `src/spike/BUILD.bazel` | `cc_binary` targets for `skia_spike` + `yoga_spike` |
 
 Skia spike validates:

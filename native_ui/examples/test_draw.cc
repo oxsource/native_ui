@@ -16,20 +16,10 @@ int main() {
 
   surface->Flush();
 
-  SkPixmap pm;
-  if (!surface->sk_surface()->peekPixels(&pm)) {
-    fprintf(stderr, "peekPixels FAIL\n");
+  if (!surface->Dump("/tmp/test_draw.png")) {
+    fprintf(stderr, "Dump FAIL\n");
     return 1;
   }
-
-  const auto* addr = static_cast<const uint8_t*>(pm.addr());
-  int non_black = 0;
-  for (int i = 0; i < 100 * 100; i++) {
-    if (addr[i*4+0] || addr[i*4+1] || addr[i*4+2]) non_black++;
-  }
-  fprintf(stderr, "non-black pixels: %d / 10000\n", non_black);
-  fprintf(stderr, "pixel at (15,15): %d %d %d %d\n", addr[15*4*100+15*4+0], addr[15*4*100+15*4+1], addr[15*4*100+15*4+2], addr[15*4*100+15*4+3]);
-  fprintf(stderr, "pixel at (5,5):   %d %d %d %d\n", addr[5*4*100+5*4+0], addr[5*4*100+5*4+1], addr[5*4*100+5*4+2], addr[5*4*100+5*4+3]);
-
+  fprintf(stderr, "wrote /tmp/test_draw.png\n");
   return 0;
 }

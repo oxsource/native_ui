@@ -5,6 +5,10 @@
 
 namespace native::ui {
 
+// Framework-owned color space (mapped to the renderer internally). Keeps the
+// rendering API decoupled from any Skia color-space types.
+enum class ColorSpace { kSRGB, kLinearSRGB };
+
 struct Color {
   uint8_t r = 0;
   uint8_t g = 0;

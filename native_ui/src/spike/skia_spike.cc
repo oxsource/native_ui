@@ -3,7 +3,7 @@
 #include "SkPaint.h"
 #include "SkGraphics.h"
 
-#include "png_writer.h"
+#include "png_helper.h"
 
 #include <cstdio>
 
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     paint.setColor(SK_ColorRED);
     canvas->drawRect(SkRect::MakeXYWH(50, 50, 100, 100), paint);
 
-    if (!native::ui::PngWriter::Write(surface.get(), path)) {
+    if (!WritePng(surface.get(), path)) {
         return 1;
     }
 
