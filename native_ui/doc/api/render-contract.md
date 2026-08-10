@@ -210,13 +210,21 @@ platform video/camera overlays when needed.
 ```cpp
 namespace native::ui {
 
+// Rendering backend selection for buffer-backed surfaces/images.
+// kCPU = raster (default); kGPU = Android-only GLES/EGL (requires a RenderContext).
+enum class RenderBackend { kCPU, kGPU };
+
 class Surface {
 public:
   // Create a new rendering surface
   static std::unique_ptr<Surface> Create(int width, int height);
 
-  // Create a surface from an external platform buffer
-  static std::unique_ptr<Surface> CreateFromBuffer(HardwareBuffer handle);
+  // Create a surface from an external platform buffer.
+  // kGPU requires a non-null RenderContext; falls back to kCPU, then nullptr.
+  // Android-only: host builds are guarded stubs returning nullptr.
+  static std::unique_ptr<Surface> CreateFromBuffer(HardwareBuffer buffer,
+                                                   RenderBackend backend = RenderBackend::kCPU,
+                                                   RenderContext* ctx = nullptr);
 
   ~Surface();
 
@@ -241,8 +249,12 @@ public:
   static std::unique_ptr<Image> FromEncoded(const void* data, size_t size);
   static std::unique_ptr<Image> FromFile(const char* path);
 
-  // From platform buffer (AHardwareBuffer / IOSurface / DMA-BUF fd)
-  static std::unique_ptr<Image> FromBuffer(HardwareBuffer buffer);
+  // From platform buffer (Android AHardwareBuffer; IOSurface / DMA-BUF reserved).
+  // kGPU requires a non-null RenderContext (zero-copy texture import); kCPU copies.
+  // Android-only: host builds are guarded stubs returning nullptr.
+  static std::unique_ptr<Image> FromBuffer(HardwareBuffer buffer,
+                                           RenderBackend backend = RenderBackend::kCPU,
+                                           RenderContext* ctx = nullptr);
 
   int width() const;
   int height() const;
@@ -250,6 +262,88 @@ public:
 
 }  // namespace native::ui
 ```
+
+## External Buffer Rendering (Android AHardwareBuffer)
+
+Android-only feature (min API 29). **Android is the only implemented platform**; every
+platform-specific implementation point is a guarded stub (`// TODO(android-only)` +
+immediate return) on host builds, keeping host/CI green. GPU backend = **GLES/EGL**.
+
+### HardwareBuffer (cross-platform wrapper)
+
+```cpp
+namespace native::ui {
+
+class HardwareBuffer {
+public:
+  enum class Kind { kMemory, kAHardwareBuffer, kInvalid };
+
+#if __ANDROID__
+  static HardwareBuffer FromAHardwareBuffer(void* buffer);   // non-owning wrap
+#endif
+  static HardwareBuffer FromMemory(void* pixels, size_t row_bytes, int width, int height);
+
+  bool IsValid() const;
+  Kind kind() const;
+  int width() const;      // AHardwareBuffer kind: lazily filled via AHardwareBuffer_describe
+  int height() const;
+  size_t row_bytes() const;  // stride in bytes; may exceed width*4 (row padding, FR-002)
+  int format() const;        // 0 = unknown
+  bool operator==(const HardwareBuffer&) const;  // compares the underlying handle
+
+  const void* pixels() const;  // Memory kind only
+};
+}
+```
+
+Non-owning: the producer retains the buffer (FR-011); the framework copies what it renders.
+
+### RenderBackend / RenderContext
+
+- `RenderBackend::kCPU` (default): raster — `WrapPixels` over locked buffer memory (CPU
+  `Surface`) or an owned copy (`Image`).
+- `RenderBackend::kGPU`: zero-copy GLES/EGL — `GrAHardwareBufferUtils` backend-texture
+  import. Requires a non-null `RenderContext`; falls back to kCPU otherwise.
+
+```cpp
+namespace native::ui {
+
+// GPU/EGL context bundle; single-context rule: one EGLContext hosts both texture
+// imports and the encoder-input-surface render target (zero-copy).
+struct RenderContext {
+  GrDirectContext* gr;
+  void* display;  // EGLDisplay
+  void* context;  // EGLContext
+  void* surface;  // EGLSurface — from AMediaCodec_createInputSurface (Android)
+
+  // __ANDROID__ only; nullptr on failure/host.
+  static std::unique_ptr<RenderContext> CreateFromMediaCodecInputSurface(
+      void* surface /* ANativeWindow* */, int width, int height);
+  void MakeCurrent();
+  void SwapBuffers();  // eglSwapBuffers -> presents to encoder
+  ~RenderContext();
+};
+}
+```
+
+### AHwb (Android AHardwareBuffer utility layer)
+
+`surface/ahwb.h/.cc` — `Describe`, `Lock`/`Unlock`, `Pixels` (RAII), `AllocateRgba`,
+`WriteRgba` (stride-aware), `Release`, `ToCpuImage` (owned copy), `ToGpuImage`
+(zero-copy), `DumpPng` (diagnostic). All `#if defined(__ANDROID__)`; host stubs return `-5`.
+
+### ExternalImage widget
+
+`widgets/external_image.h` — binds a `HardwareBuffer` and displays it. Rebuilds its image
+only when the bound handle changes (`operator==` guard, FR-003/FR-007). `SetBuffer` /
+`Watch(Property<HardwareBuffer>&)` drive live updates; default backend is `kCPU`.
+
+### MediaCodec (encode egress, in scope)
+
+Native NDK C API (`<media/NdkMediaCodec.h>`, `<media/NdkMediaMuxer.h>`) — no JNI.
+`AMediaCodec_createInputSurface` → `ANativeWindow*` → `RenderContext::CreateFromMediaCodecInputSurface`
+→ canvas on that surface → `SwapBuffers()` → encoder buffers → `AMediaMuxer` → MP4.
+See `specs/011-ahwb-external-image/contracts/media-codec.md` for the full contract.
 
 ## Canvas (RAII Wrapper)
 
