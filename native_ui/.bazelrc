@@ -2,7 +2,12 @@ build --cxxopt=-std=c++17
 build --host_cxxopt=-std=c++17
 build --features=visibility=hidden
 
-# Platform aliases
+# Platform aliases.
+# NOTE: mac and android resolve to the same Bazel output tree here. Explicit --cpu
+# cannot isolate them — it forces the legacy @local_config_cc suite lookup, which
+# breaks the rules_android_ndk toolchain resolution in Bazel 6. Configs are isolated
+# via the action cache (config-hash keyed); scripts resolve the android output via
+# `bazel info bazel-bin --config=android_arm64` (see scripts/lib/common.sh).
 build:macos_arm64 --platforms=//platforms:macos_arm64_platform
 build:linux_x86_64 --platforms=//platforms:linux_x86_64_platform
 

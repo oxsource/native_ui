@@ -7,7 +7,7 @@ cc_library(
     deps = [
         "@native_ui//src/framework/core",
         "@native_ui//src/framework/surface",
-        "@native_ui//third_party/stblib:stb_image",
+        "@stblib//:stb_image",
         "@nanosvg//:nanosvg",
         "@skia//:skia",
     ],

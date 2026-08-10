@@ -21,7 +21,7 @@ bazel_build --config android_arm64 \
   //src/framework/widgets:widgets \
   //examples:external_image_demo
 
-BIN="${ROOT}/bazel-bin/examples/external_image_demo"
+BIN="$(android_bin_dir)/examples/external_image_demo"
 [[ -f "${BIN}" ]] || die "build did not produce ${BIN}"
 if ! file "${BIN}" | grep -q 'ARM aarch64'; then
   die "${BIN} is not an aarch64 binary"

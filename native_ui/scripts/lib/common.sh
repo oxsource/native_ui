@@ -55,6 +55,13 @@ bazel_test() {
   (cd "${ROOT}" && bazel test "$@")
 }
 
+# Absolute path to the android_arm64 build output. mac/android share the Bazel output
+# tree here (Bazel 6 platform-toolchain restriction), so the `bazel-bin` symlink flips
+# with the last config; resolve the android output explicitly to stay robust.
+android_bin_dir() {
+  (cd "${ROOT}" && bazel info bazel-bin --config=android_arm64 2>/dev/null)
+}
+
 # --- Android NDK ------------------------------------------------------------
 # require_ndk [NDK_HOME] — echoes a usable NDK path, dies otherwise (NDK >= r25b).
 require_ndk() {

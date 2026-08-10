@@ -31,11 +31,12 @@ public:
 private:
   AndroidMediaEncoder() = default;
 
-  void* codec_ = nullptr;   // AMediaCodec*
-  void* muxer_ = nullptr;   // AMediaMuxer*
-  struct ANativeWindow* window_ = nullptr;
-  int track_index_ = -1;
-  bool muxer_started_ = false;
+  // Unused on host (stub implementation) — [[maybe_unused]] keeps the build clean.
+  [[maybe_unused]] void* codec_ = nullptr;   // AMediaCodec*
+  [[maybe_unused]] void* muxer_ = nullptr;   // AMediaMuxer*
+  [[maybe_unused]] struct ANativeWindow* window_ = nullptr;
+  [[maybe_unused]] int track_index_ = -1;
+  [[maybe_unused]] bool muxer_started_ = false;
 };
 
 }  // namespace native::ui

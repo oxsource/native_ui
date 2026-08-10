@@ -29,8 +29,8 @@ struct RenderContext {
 private:
   // Owns the GrDirectContext (sk_sp<GrDirectContext>) as an opaque pointer so the
   // header compiles on host builds where the GPU type is unavailable. Destroyed in
-  // ~RenderContext before the EGL handles.
-  void* gr_owner_ = nullptr;
+  // ~RenderContext before the EGL handles. Unused on host (factory returns nullptr).
+  [[maybe_unused]] void* gr_owner_ = nullptr;
 };
 
 }  // namespace native::ui

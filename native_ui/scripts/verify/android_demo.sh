@@ -28,7 +28,7 @@
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)/common.sh"
 
 BIN_NAME="external_image_demo"
-BIN="${ROOT}/bazel-bin/examples/${BIN_NAME}"
+BIN="$(android_bin_dir)/examples/${BIN_NAME}"
 DEVICE_TMP="/data/local/tmp"
 REMOTE_BIN="${DEVICE_TMP}/${BIN_NAME}"
 REMOTE_PNG="${DEVICE_TMP}/police.png"

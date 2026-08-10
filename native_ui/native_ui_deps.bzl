@@ -6,7 +6,7 @@ def _skia():
         urls = ["https://github.com/google/skia/archive/fdbe14582b177785e0e77c938277ef332d45636f.tar.gz"],
         sha256 = "801f902c7d867783950fd2c12f7416b55f06a8129e2247b245389b6d3c3b158a",
         strip_prefix = "skia-fdbe14582b177785e0e77c938277ef332d45636f",
-        build_file = "//third_party/skia:BUILD.bazel",
+        build_file = "//third_party:skia.BUILD",
         patch_cmds = ["find . -mindepth 2 -name BUILD.bazel -delete"],
     )
 
@@ -21,7 +21,7 @@ def _yoga():
         urls = ["https://github.com/react/yoga/archive/refs/tags/v2.0.0.tar.gz"],
         sha256 = "29eaf05191dd857f76b6db97c77cce66db3c0067c88bd5e052909386ea66b8c5",
         strip_prefix = "yoga-2.0.0",
-        build_file = "//third_party/yoga:BUILD.bazel",
+        build_file = "//third_party:yoga.BUILD",
     )
 
 def _googletest():
@@ -47,6 +47,8 @@ def _stblib():
         patch_cmds = [
             "echo '#define STB_IMAGE_WRITE_IMPLEMENTATION' > stb_image_write.c",
             "echo '#include \"stb_image_write.h\"' >> stb_image_write.c",
+            "echo '#define STB_IMAGE_IMPLEMENTATION' > stb_image_impl.c",
+            "echo '#include \"stb_image.h\"' >> stb_image_impl.c",
         ],
         sha256 = "13a99ad430e930907f5611325ec384168a958bf7610e63e60e2fd8e7b7379610",
         strip_prefix = "stb-b42009b3b9d4ca35bc703f5310eedc74f584be58",
@@ -59,7 +61,7 @@ def _nanosvg():
         urls = ["https://github.com/memononen/nanosvg/archive/239e102ec2c691f2902e20ace2ed36ee4a35cfe6.tar.gz"],
         sha256 = "2bc68bdb518d7800252042e5cad50a0ab321596f0cbf49ef2a752926329063d2",
         strip_prefix = "nanosvg-239e102ec2c691f2902e20ace2ed36ee4a35cfe6",
-        build_file = "//third_party/nanosvg:BUILD.bazel",
+        build_file = "//third_party:nanosvg.BUILD",
     )
 
 def _rules_android_ndk():

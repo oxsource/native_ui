@@ -9,3 +9,14 @@ cc_library(
     copts = ["-Wno-unused-function"],
     includes = ["."],
 )
+
+cc_library(
+    name = "stb_image",
+    srcs = ["stb_image_impl.c"],
+    hdrs = ["stb_image.h"],
+    copts = [
+        "-Wno-unused-but-set-variable",
+        "-Wno-unused-function",
+    ],
+    includes = ["."],
+)
