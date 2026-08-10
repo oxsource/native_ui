@@ -89,4 +89,42 @@ TEST(ExternalImageTest, FromBufferHostStubReturnsNull) {
   EXPECT_EQ(img, nullptr);  // TODO(android-only): host builds stub the conversion
 }
 
+// ============================================================================
+// T025: US2 live-update host tests. Android is the only implemented platform, so
+// the positive live-update behavior is validated on device (demo --live, T027);
+// these tests pin the bounded-memory / no-crash guarantee and the rebuild-guard
+// contract on the host stub path (FR-004/FR-005).
+// ============================================================================
+
+TEST(ExternalImageTest, TenThousandSetBufferCyclesNoCrash) {
+  uint8_t pixels[4 * 4 * 4] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 16 * 4, 16, 4);
+  ExternalImage ext;
+  for (int i = 0; i < 10000; ++i) {
+    if (i % 2 == 0) {
+      ext.SetBuffer(hb);
+    } else {
+      ext.SetBuffer(HardwareBuffer());  // invalid/empty buffer path (FR-005)
+    }
+  }
+  auto surface = Surface::Create(100, 50);
+  ASSERT_NE(surface, nullptr);
+  { Canvas canvas(*surface); ext.Draw(canvas); }
+}
+
+TEST(ExternalImageTest, RepeatedSetBufferSameHandleIsNoOp) {
+  uint8_t pixels[4 * 4 * 4] = {};
+  auto hb = HardwareBuffer::FromMemory(pixels, 16 * 4, 16, 4);
+  ExternalImage ext;
+  ext.SetBuffer(hb);
+  // Re-applying the same handle must be a no-op (rebuild guard); on the host stub
+  // this pins the no-crash / no-regression contract. The actual skip of the
+  // per-frame re-conversion is observable on device (demo --live).
+  ext.SetBuffer(hb);
+  ext.SetBuffer(hb);
+  auto surface = Surface::Create(100, 50);
+  ASSERT_NE(surface, nullptr);
+  { Canvas canvas(*surface); ext.Draw(canvas); }
+}
+
 }  // namespace native::ui

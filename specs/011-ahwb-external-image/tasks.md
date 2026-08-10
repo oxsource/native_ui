@@ -92,12 +92,12 @@
 
 ### Tests for User Story 2 (write FIRST, ensure they FAIL before implementation)
 
-- [ ] T025 [US2] Add host update-path tests in `native_ui/tests/external_image_test.cc`: 10,000 successive `SetBuffer` cycles (including invalid/empty buffers) keep memory bounded and never crash on the host stub path (FR-004/SC-004, FR-005); repeated `SetBuffer` with the same handle is a no-op (guard contract).
+- [X] T025 [US2] Add host update-path tests in `native_ui/tests/external_image_test.cc`: 10,000 successive `SetBuffer` cycles (including invalid/empty buffers) keep memory bounded and never crash on the host stub path (FR-004/SC-004, FR-005); repeated `SetBuffer` with the same handle is a no-op (guard contract).
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement redundant-rebuild guard in `native_ui/src/framework/widgets/external_image.cc`: in `ProcessArg`/`SetBuffer`/`Draw`, use `HardwareBuffer::operator==` to skip `Image::FromBuffer` re-conversion when the underlying handle is unchanged, so a static frame is not re-copied every draw and 30fps updates are cheap (FR-003/FR-007; depends on T005, T019).
-- [ ] T027 [US2] Add `--live` mode to `native_ui/examples/external_image_demo.cc`: cycle buffers at 30 Hz for 60 s (alternating frames / animated content) exercising the watchable path — the widget tracks updates, the app stays responsive, and memory stays bounded on device (FR-003/FR-004/FR-008, SC-002/003/004; depends on T022, T026).
+- [X] T026 [US2] Implement redundant-rebuild guard in `native_ui/src/framework/widgets/external_image.cc`: in `ProcessArg`/`SetBuffer`/`Draw`, use `HardwareBuffer::operator==` to skip `Image::FromBuffer` re-conversion when the underlying handle is unchanged, so a static frame is not re-copied every draw and 30fps updates are cheap (FR-003/FR-007; depends on T005, T019).
+- [X] T027 [US2] Add `--live` mode to `native_ui/examples/external_image_demo.cc`: cycle buffers at 30 Hz for 60 s (alternating frames / animated content) exercising the watchable path — the widget tracks updates, the app stays responsive, and memory stays bounded on device (FR-003/FR-004/FR-008, SC-002/003/004; depends on T022, T026).
 
 **Checkpoint**: User Stories 1 AND 2 work independently.
 

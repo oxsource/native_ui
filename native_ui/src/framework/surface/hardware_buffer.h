@@ -41,6 +41,7 @@ public:
   // Compares the underlying handle; used by ExternalImage to skip redundant
   // per-frame re-conversion (FR-003/FR-007).
   bool operator==(const HardwareBuffer& other) const { return handle_ == other.handle_; }
+  bool operator!=(const HardwareBuffer& other) const { return !(*this == other); }
 
   // CPU pixel pointer (Memory kind only).
   const void* pixels() const { return pixels_; }

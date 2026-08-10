@@ -25,6 +25,9 @@ private:
   void ProcessArg(HardwareBuffer tag);
   void ProcessArg(Id tag);
 
+  // Rebuilds image_ only when the bound handle changed (or no image exists yet).
+  void UpdateBuffer(HardwareBuffer buffer);
+
   HardwareBuffer buffer_;
   std::unique_ptr<native::ui::Image> image_;
   Property<HardwareBuffer>* watched_prop_ = nullptr;
