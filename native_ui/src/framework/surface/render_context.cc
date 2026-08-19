@@ -2,6 +2,7 @@
 
 #if defined(__ANDROID__)
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include <GLES3/gl3.h>
 #include <android/native_window.h>
 
@@ -101,6 +102,22 @@ void RenderContext::MakeCurrent() {
   }
 }
 
+bool RenderContext::SetPresentationTimeNs(int64_t timestamp_ns) {
+  if (!display || !surface) return false;
+  // eglPresentationTimeANDROID is the standard way to stamp a frame on a
+  // MediaCodec input surface so the encoder produces monotonic dts/pts. The
+  // function is an EGL extension resolved at runtime (see video_codec's
+  // EglSurface for the same pattern).
+  using PresentationTimeFn = EGLBoolean (*)(EGLDisplay, EGLSurface, EGLnsecsANDROID);
+  static PresentationTimeFn present =
+      reinterpret_cast<PresentationTimeFn>(
+          eglGetProcAddress("eglPresentationTimeANDROID"));
+  if (!present) return false;  // extension unavailable -> system time
+  return present(static_cast<EGLDisplay>(display),
+                 static_cast<EGLSurface>(surface),
+                 static_cast<EGLnsecsANDROID>(timestamp_ns)) == EGL_TRUE;
+}
+
 void RenderContext::SwapBuffers() {
   if (display && surface) {
     eglSwapBuffers(static_cast<EGLDisplay>(display), static_cast<EGLSurface>(surface));
@@ -133,6 +150,7 @@ std::unique_ptr<RenderContext> RenderContext::CreateFromNativeWindow(void*, int,
   return nullptr;
 }
 void RenderContext::MakeCurrent() {}
+bool RenderContext::SetPresentationTimeNs(int64_t) { return false; }
 void RenderContext::SwapBuffers() {}
 RenderContext::~RenderContext() {}
 

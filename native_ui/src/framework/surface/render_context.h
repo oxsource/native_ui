@@ -28,6 +28,12 @@ struct RenderContext {
       ColorSpace color_space = ColorSpace::kSRGB);
 
   void MakeCurrent();   // eglMakeCurrent + gr context current
+  // Set the presentation timestamp (ns) of the next buffer presented on the
+  // encoder input surface, via eglPresentationTimeANDROID. Without this the
+  // MediaCodec encoder receives frames with a stale/system timestamp and the
+  // produced packets have non-monotonic dts. Returns false when the extension
+  // is unavailable (then the system time is used). host: no-op (returns false).
+  bool SetPresentationTimeNs(int64_t timestamp_ns);
   void SwapBuffers();   // eglSwapBuffers -> presents frame to encoder
 
   ~RenderContext();
