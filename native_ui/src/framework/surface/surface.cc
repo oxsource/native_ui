@@ -97,9 +97,59 @@ std::unique_ptr<Surface> Surface::Create(RenderContext* ctx) {
 #endif
 }
 
+PixelBuffer Surface::Allocate(int width, int height, PixelFormat format) {
+  PixelBuffer pb;
+  if (width <= 0 || height <= 0) return pb;
+  if (format != PixelFormat::kRGBA && format != PixelFormat::kBGRA) return pb;
+  pb.width = width;
+  pb.height = height;
+  pb.format = format;
+  pb.row_bytes = 0;  // tightly packed (width * 4)
+  pb.data.assign(static_cast<size_t>(width) * static_cast<size_t>(height) * 4,
+                 0);
+  return pb;
+}
+
+std::unique_ptr<Surface> Surface::CreateFromPixels(PixelBuffer& pb) {
+  if (pb.empty()) return nullptr;
+
+  void* pixels = pb.data.data();  // WrapPixels takes a writable void*
+  const int width = pb.width;
+  const int height = pb.height;
+  const PixelFormat format = pb.format;
+  size_t row_bytes = pb.row_bytes;
+
+  SkColorType ct;
+  switch (format) {
+    case PixelFormat::kRGBA:
+      ct = kRGBA_8888_SkColorType;
+      break;
+    case PixelFormat::kBGRA:
+      ct = kBGRA_8888_SkColorType;
+      break;
+    default:
+      return nullptr;
+  }
+  if (row_bytes == 0) row_bytes = static_cast<size_t>(width) * 4;
+
+  // WrapPixels is zero-copy: the raster surface points at the caller's buffer
+  // and does not own it. The caller must keep the buffer alive while the
+  // surface is used. sRGB, premultiplied alpha (matches Image decode output).
+  auto info = SkImageInfo::Make(width, height, ct, kPremul_SkAlphaType,
+                                SkColorSpace::MakeSRGB());
+  auto* impl = new SurfaceImpl();
+  impl->sk_surface =
+      SkSurfaces::WrapPixels(info, pixels, row_bytes);
+  if (!impl->sk_surface) {
+    delete impl;
+    return nullptr;
+  }
+  return std::unique_ptr<Surface>(new Surface(impl));
+}
+
 std::unique_ptr<Surface> Surface::CreateFromBuffer(HardwareBuffer buffer,
-                                                   RenderBackend backend,
-                                                   RenderContext* ctx) {
+                                                    RenderBackend backend,
+                                                    RenderContext* ctx) {
   if (!buffer.IsValid()) return nullptr;
 
 #if defined(__ANDROID__)
