@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "hardware_buffer.h"
-#include "surface.h"  // RenderBackend, RenderContext
+#include "src/framework/surface/hardware_buffer.h"
+#include "src/framework/surface/surface.h"  // RenderBackend, RenderContext
 
 namespace native::ui {
 

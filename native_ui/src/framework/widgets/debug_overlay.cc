@@ -1,7 +1,7 @@
-#include "debug_overlay.h"
-#include "canvas.h"
-#include "event_types.h"
-#include "paint.h"
+#include "src/framework/widgets/debug_overlay.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/widgets/event_types.h"
+#include "src/framework/render/paint.h"
 
 #ifndef NDEBUG
 

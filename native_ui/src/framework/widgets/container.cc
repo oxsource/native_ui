@@ -1,6 +1,6 @@
-#include "container.h"
-#include "canvas.h"
-#include "paint.h"
+#include "src/framework/widgets/container.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
 
 namespace native::ui {
 

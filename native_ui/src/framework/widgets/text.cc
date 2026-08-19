@@ -1,6 +1,6 @@
-#include "text.h"
-#include "canvas.h"
-#include "paint.h"
+#include "src/framework/widgets/text.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
 
 #include "SkFont.h"
 #include "SkFontMgr.h"

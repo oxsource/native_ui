@@ -1,5 +1,5 @@
 #pragma once
 
-#include "state.h"
-#include "property.h"
-#include "property_base.h"
+#include "src/framework/state/state.h"
+#include "src/framework/state/property.h"
+#include "src/framework/state/property_base.h"

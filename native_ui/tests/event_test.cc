@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
-#include "button.h"
-#include "container.h"
-#include "dispatch_result.h"
-#include "event.h"
-#include "event_types.h"
-#include "hit_tester.h"
-#include "stack.h"
+#include "src/framework/widgets/button.h"
+#include "src/framework/widgets/container.h"
+#include "src/framework/event/dispatch_result.h"
+#include "src/framework/event/event.h"
+#include "src/framework/widgets/event_types.h"
+#include "src/framework/event/hit_tester.h"
+#include "src/framework/widgets/stack.h"
 
 namespace native::ui {
 

@@ -1,4 +1,4 @@
-#include "style.h"
+#include "src/framework/widgets/style.h"
 
 #include <mutex>
 

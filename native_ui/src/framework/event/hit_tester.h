@@ -1,7 +1,7 @@
 #pragma once
 
-#include "widget.h"
-#include "point.h"
+#include "src/framework/widgets/widget.h"
+#include "src/framework/core/point.h"
 
 namespace native::ui {
 

@@ -3,9 +3,9 @@
 #include <memory>
 #include <string>
 
-#include "glide.h"
-#include "style.h"
-#include "widget.h"
+#include "src/framework/widgets/glide.h"
+#include "src/framework/widgets/style.h"
+#include "src/framework/widgets/widget.h"
 
 namespace native::ui {
 

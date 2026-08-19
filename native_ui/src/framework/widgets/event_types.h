@@ -1,6 +1,6 @@
 #pragma once
 
-#include "point.h"
+#include "src/framework/core/point.h"
 
 namespace native::ui {
 

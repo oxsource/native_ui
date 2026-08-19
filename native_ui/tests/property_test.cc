@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "state.h"
-#include "property.h"
+#include "src/framework/state/state.h"
+#include "src/framework/state/property.h"
 
 namespace native::ui {
 

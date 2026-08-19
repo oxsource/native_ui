@@ -3,9 +3,9 @@
 #include <functional>
 #include <vector>
 
-#include "dispatch_result.h"
-#include "event_types.h"
-#include "hit_tester.h"
+#include "src/framework/event/dispatch_result.h"
+#include "src/framework/widgets/event_types.h"
+#include "src/framework/event/hit_tester.h"
 
 namespace native::ui {
 

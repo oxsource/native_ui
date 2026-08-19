@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "rect.h"
-#include "point.h"
+#include "src/framework/core/rect.h"
+#include "src/framework/core/point.h"
 
 namespace native::ui {
 

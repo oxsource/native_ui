@@ -1,10 +1,10 @@
-#include "canvas.h"
+#include "src/framework/render/canvas.h"
 
-#include "gradient.h"
-#include "image.h"
-#include "paint.h"
-#include "path.h"
-#include "surface.h"
+#include "src/framework/core/gradient.h"
+#include "src/framework/render/image.h"
+#include "src/framework/render/paint.h"
+#include "src/framework/render/path.h"
+#include "src/framework/surface/surface.h"
 
 #include "SkBlurTypes.h"
 #include "SkCanvas.h"

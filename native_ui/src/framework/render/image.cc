@@ -1,4 +1,4 @@
-#include "image.h"
+#include "src/framework/render/image.h"
 
 #include <algorithm>
 #include <cstring>
@@ -21,8 +21,8 @@
 #if defined(__ANDROID__)
 #include <android/hardware_buffer.h>
 
-#include "ahwb.h"
-#include "render_context.h"
+#include "src/framework/surface/ahwb.h"
+#include "src/framework/surface/render_context.h"
 #endif
 
 namespace native::ui {

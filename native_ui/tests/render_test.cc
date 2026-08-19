@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
-#include "canvas.h"
-#include "paint.h"
-#include "path.h"
-#include "image.h"
-#include "surface.h"
-#include "hardware_buffer.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
+#include "src/framework/render/path.h"
+#include "src/framework/render/image.h"
+#include "src/framework/surface/surface.h"
+#include "src/framework/surface/hardware_buffer.h"
 
 namespace native::ui {
 

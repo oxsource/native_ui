@@ -4,7 +4,7 @@
 #include <mutex>
 #include <vector>
 
-#include "property.h"
+#include "src/framework/state/property.h"
 
 namespace native::ui {
 
@@ -37,4 +37,4 @@ private:
 
 }  // namespace native::ui
 
-#include "property_inl.h"
+#include "src/framework/state/property_inl.h"

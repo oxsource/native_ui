@@ -1,4 +1,4 @@
-#include "gradient.h"
+#include "src/framework/core/gradient.h"
 
 namespace native::ui {
 

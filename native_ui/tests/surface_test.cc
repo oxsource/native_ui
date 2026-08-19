@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "surface.h"
-#include "hardware_buffer.h"
+#include "src/framework/surface/surface.h"
+#include "src/framework/surface/hardware_buffer.h"
 
 namespace native::ui {
 

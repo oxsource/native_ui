@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "hardware_buffer.h"
-#include "canvas.h"
-#include "widget.h"
+#include "src/framework/surface/hardware_buffer.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/widgets/widget.h"
 
 namespace native::ui {
 

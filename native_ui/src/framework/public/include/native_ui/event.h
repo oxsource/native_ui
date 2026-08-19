@@ -1,5 +1,5 @@
 #pragma once
 
-#include "event.h"
-#include "hit_tester.h"
-#include "dispatch_result.h"
+#include "src/framework/event/event.h"
+#include "src/framework/event/hit_tester.h"
+#include "src/framework/event/dispatch_result.h"

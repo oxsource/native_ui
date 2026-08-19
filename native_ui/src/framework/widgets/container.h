@@ -3,9 +3,9 @@
 #include <memory>
 #include <vector>
 
-#include "widget.h"
-#include "flex_layout.h"
-#include "layout_result.h"
+#include "src/framework/widgets/widget.h"
+#include "src/framework/layout/flex_layout.h"
+#include "src/framework/layout/layout_result.h"
 
 namespace native::ui {
 

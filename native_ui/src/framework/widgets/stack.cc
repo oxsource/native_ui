@@ -1,5 +1,5 @@
-#include "stack.h"
-#include "canvas.h"
+#include "src/framework/widgets/stack.h"
+#include "src/framework/render/canvas.h"
 
 namespace native::ui {
 

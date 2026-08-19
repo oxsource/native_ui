@@ -1,6 +1,6 @@
 #pragma once
 
-#include "canvas.h"
-#include "paint.h"
-#include "path.h"
-#include "image.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
+#include "src/framework/render/path.h"
+#include "src/framework/render/image.h"

@@ -1,5 +1,5 @@
-#include "widget.h"
-#include "event_types.h"
+#include "src/framework/widgets/widget.h"
+#include "src/framework/widgets/event_types.h"
 
 namespace native::ui {
 

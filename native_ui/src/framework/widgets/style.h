@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "color.h"
-#include "edge_insets.h"
-#include "gradient.h"
-#include "point.h"
+#include "src/framework/core/color.h"
+#include "src/framework/core/edge_insets.h"
+#include "src/framework/core/gradient.h"
+#include "src/framework/core/point.h"
 
 namespace native::ui {
 

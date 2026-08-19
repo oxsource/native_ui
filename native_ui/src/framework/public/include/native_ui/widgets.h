@@ -1,9 +1,9 @@
 #pragma once
 
-#include "widget.h"
-#include "container.h"
-#include "text.h"
-#include "button.h"
-#include "image_widget.h"
-#include "external_image.h"
-#include "stack.h"
+#include "src/framework/widgets/widget.h"
+#include "src/framework/widgets/container.h"
+#include "src/framework/widgets/text.h"
+#include "src/framework/widgets/button.h"
+#include "src/framework/widgets/image_widget.h"
+#include "src/framework/widgets/external_image.h"
+#include "src/framework/widgets/stack.h"

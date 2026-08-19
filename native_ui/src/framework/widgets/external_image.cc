@@ -1,7 +1,7 @@
-#include "external_image.h"
+#include "src/framework/widgets/external_image.h"
 
-#include "canvas.h"
-#include "image.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/image.h"
 
 namespace native::ui {
 

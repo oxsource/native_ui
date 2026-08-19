@@ -1,4 +1,4 @@
-#include "glide.h"
+#include "src/framework/widgets/glide.h"
 
 #include <atomic>
 #include <cstdio>
@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "lru_cache.h"
+#include "src/framework/widgets/lru_cache.h"
 
 namespace native::ui {
 

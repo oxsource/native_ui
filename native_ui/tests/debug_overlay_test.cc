@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include "canvas.h"
-#include "container.h"
-#include "debug_overlay.h"
-#include "event_types.h"
-#include "surface.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/widgets/container.h"
+#include "src/framework/widgets/debug_overlay.h"
+#include "src/framework/widgets/event_types.h"
+#include "src/framework/surface/surface.h"
 
 namespace native::ui {
 

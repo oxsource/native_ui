@@ -1,7 +1,7 @@
 #ifndef NATIVE_UI_WIDGET_INL_H
 #define NATIVE_UI_WIDGET_INL_H
 
-#include "state.h"
+#include "src/framework/state/state.h"
 
 namespace native::ui {
 

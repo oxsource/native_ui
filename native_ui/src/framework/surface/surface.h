@@ -2,12 +2,12 @@
 
 #include <memory>
 
-#include "color.h"
-#include "hardware_buffer.h"
+#include "src/framework/core/color.h"
+#include "src/framework/surface/hardware_buffer.h"
 
 namespace native::ui {
 
-class RenderContext;
+struct RenderContext;
 class SurfaceImpl;
 
 // Rendering backend selection for buffer-backed surfaces/images. kCPU is the

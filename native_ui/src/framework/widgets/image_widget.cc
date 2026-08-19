@@ -1,6 +1,6 @@
-#include "image_widget.h"
-#include "canvas.h"
-#include "paint.h"
+#include "src/framework/widgets/image_widget.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
 
 #include <cmath>
 

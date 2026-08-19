@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "glide.h"
-#include "image.h"
+#include "src/framework/widgets/glide.h"
+#include "src/framework/render/image.h"
 
 namespace native::ui {
 

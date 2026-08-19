@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "image.h"
+#include "src/framework/render/image.h"
 
 namespace native::ui {
 

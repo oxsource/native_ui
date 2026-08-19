@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "color.h"
-#include "point.h"
+#include "src/framework/core/color.h"
+#include "src/framework/core/point.h"
 
 namespace native::ui {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "point.h"
-#include "size.h"
+#include "src/framework/core/point.h"
+#include "src/framework/core/size.h"
 
 namespace native::ui {
 

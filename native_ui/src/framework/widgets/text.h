@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "widget.h"
-#include "style.h"
+#include "src/framework/widgets/widget.h"
+#include "src/framework/widgets/style.h"
 
 namespace native::ui {
 

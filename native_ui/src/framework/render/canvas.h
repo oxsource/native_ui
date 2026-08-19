@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <string>
 
-#include "color.h"
-#include "point.h"
-#include "rect.h"
+#include "src/framework/core/color.h"
+#include "src/framework/core/point.h"
+#include "src/framework/core/rect.h"
 
 namespace native::ui {
 

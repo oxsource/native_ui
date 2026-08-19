@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
-#include "size.h"
-#include "color.h"
-#include "edge_insets.h"
-#include "rect.h"
+#include "src/framework/core/size.h"
+#include "src/framework/core/color.h"
+#include "src/framework/core/edge_insets.h"
+#include "src/framework/core/rect.h"
 
 namespace native::ui {
 

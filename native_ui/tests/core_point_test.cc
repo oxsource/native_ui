@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "point.h"
+#include "src/framework/core/point.h"
 
 namespace native::ui {
 

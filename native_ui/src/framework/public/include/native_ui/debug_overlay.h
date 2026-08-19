@@ -1,3 +1,3 @@
 #pragma once
 
-#include "debug_overlay.h"
+#include "src/framework/widgets/debug_overlay.h"

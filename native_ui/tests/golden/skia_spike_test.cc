@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "canvas.h"
-#include "paint.h"
-#include "surface.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
+#include "src/framework/surface/surface.h"
 
 namespace native::ui {
 

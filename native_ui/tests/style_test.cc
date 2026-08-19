@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "style.h"
+#include "src/framework/widgets/style.h"
 
 namespace native::ui {
 

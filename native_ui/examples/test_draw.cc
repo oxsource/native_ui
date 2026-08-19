@@ -1,7 +1,7 @@
 #include <cstdio>
-#include "canvas.h"
-#include "paint.h"
-#include "surface.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/render/paint.h"
+#include "src/framework/surface/surface.h"
 
 int main() {
   auto surface = native::ui::Surface::Create(100, 100);

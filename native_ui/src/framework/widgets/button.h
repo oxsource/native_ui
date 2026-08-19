@@ -3,7 +3,7 @@
 #include <functional>
 #include <string>
 
-#include "text.h"
+#include "src/framework/widgets/text.h"
 
 namespace native::ui {
 

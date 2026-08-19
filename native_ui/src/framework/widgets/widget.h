@@ -4,13 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "edge_insets.h"
-#include "gradient.h"
-#include "point.h"
-#include "property.h"
-#include "rect.h"
-#include "size.h"
-#include "style.h"
+#include "src/framework/core/edge_insets.h"
+#include "src/framework/core/gradient.h"
+#include "src/framework/core/point.h"
+#include "src/framework/state/property.h"
+#include "src/framework/core/rect.h"
+#include "src/framework/core/size.h"
+#include "src/framework/widgets/style.h"
 
 namespace native::ui {
 
@@ -116,4 +116,4 @@ private:
 
 }  // namespace native::ui
 
-#include "widget_inl.h"
+#include "src/framework/widgets/widget_inl.h"

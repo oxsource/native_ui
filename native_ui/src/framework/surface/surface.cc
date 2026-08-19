@@ -1,4 +1,4 @@
-#include "surface.h"
+#include "src/framework/surface/surface.h"
 
 #include <cstdio>
 #include <vector>
@@ -13,8 +13,8 @@
 #include <GLES3/gl3.h>
 #include <android/hardware_buffer.h>
 
-#include "ahwb.h"
-#include "render_context.h"
+#include "src/framework/surface/ahwb.h"
+#include "src/framework/surface/render_context.h"
 #include "include/android/GrAHardwareBufferUtils.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"

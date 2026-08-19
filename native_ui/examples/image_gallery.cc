@@ -5,16 +5,16 @@
 #include <thread>
 #include <vector>
 
-#include "canvas.h"
-#include "container.h"
-#include "edge_insets.h"
-#include "glide.h"
-#include "image_widget.h"
-#include "paint.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/widgets/container.h"
+#include "src/framework/core/edge_insets.h"
+#include "src/framework/widgets/glide.h"
+#include "src/framework/widgets/image_widget.h"
+#include "src/framework/render/paint.h"
 
-#include "style.h"
-#include "surface.h"
-#include "text.h"
+#include "src/framework/widgets/style.h"
+#include "src/framework/surface/surface.h"
+#include "src/framework/widgets/text.h"
 
 namespace ui = native::ui;
 

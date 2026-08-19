@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "state.h"
-#include "widget.h"
+#include "src/framework/state/state.h"
+#include "src/framework/widgets/widget.h"
 
 namespace native::ui {
 

@@ -1,7 +1,7 @@
-#include "button.h"
-#include "canvas.h"
-#include "event_types.h"
-#include "paint.h"
+#include "src/framework/widgets/button.h"
+#include "src/framework/render/canvas.h"
+#include "src/framework/widgets/event_types.h"
+#include "src/framework/render/paint.h"
 
 #include "SkFont.h"
 #include "SkFontMgr.h"

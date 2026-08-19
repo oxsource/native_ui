@@ -1,6 +1,6 @@
-#include "surface_factory.h"
+#include "src/framework/surface/surface_factory.h"
 
-#include "surface.h"
+#include "src/framework/surface/surface.h"
 
 namespace native::ui {
 
