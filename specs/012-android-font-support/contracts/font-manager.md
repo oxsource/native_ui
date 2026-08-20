@@ -1,6 +1,6 @@
 # Contract: FontManager — External Font Registration Interface
 
-**Scope**: The developer-facing interface to register fonts by **file path** (`RegisterFont`), designate a **default font** (implicit first-registered + explicit `SetDefaultFont`), and the internal resolution rule (`Resolve`) that feeds text measurement and drawing. Effective on **all supported platforms** (Android 10+/API 29+, macOS, Linux) through one identical API.
+**Scope**: The developer-facing interface to register fonts by **file path** (`RegisterFont`), designate a **default font** (implicit first-registered + explicit `SetDefaultFont`), and the internal resolution rule (`Resolve`) that feeds text measurement and drawing. Effective on **all supported platforms** (Android 10+/API 29+, macOS, Linux) through one identical API. **Public header**: external consumers include `<native_ui/font.h>` (aggregated by `<native_ui/render.h>`).
 
 ## Public API
 
@@ -10,6 +10,29 @@ namespace native::ui {
 class FontManager {
 public:
   static FontManager& Default();                 // process-wide singleton (like Glide::Default / Style::Default)
+
+  // -- Family-name constants --
+  // kDefaultFontFamily ("") = unset → framework default font (FR-013).
+  // System names are suggested identifiers external code may reference; they
+  // resolve through the normal registered-family/fallback path.
+  static constexpr const char* kDefaultFontFamily = "";       // unset → default font
+  static constexpr const char* kSansSerifFamily  = "sans-serif";
+  static constexpr const char* kSerifFamily      = "serif";
+  static constexpr const char* kMonospaceFamily  = "monospace";
+
+  // -- Common font-size constants (logical px; default size is 16) --
+  static constexpr float kFontSizeCaption    = 12.0f;
+  static constexpr float kFontSizeBody       = 14.0f;
+  static constexpr float kFontSizeBodyLarge  = 16.0f;  // default when unset
+  static constexpr float kFontSizeTitle      = 20.0f;
+  static constexpr float kFontSizeHeadline   = 24.0f;
+  static constexpr float kFontSizeDisplay    = 32.0f;
+  static constexpr float kFontSizeHero       = 48.0f;
+
+  // -- Common font-weight constants (property range 100–900) --
+  static constexpr int kFontWeightRegular = 400;
+  static constexpr int kFontWeightMedium  = 500;
+  static constexpr int kFontWeightBold    = 700;
 
   // -- Registration (spec FR-001/002) --
   // Registers a font file under a family name. weight ∈ [100,900], default 400.

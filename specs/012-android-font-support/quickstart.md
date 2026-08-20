@@ -5,7 +5,7 @@
 ## 1. Register a font by file path
 
 ```cpp
-#include "src/framework/render/font_manager.h"
+#include <native_ui/font.h>   // public header — FontManager + Font + constants
 
 // Any font file reachable by the process (.ttf/.otf). Works identically on
 // Android (API 29+), macOS, and Linux.
@@ -21,9 +21,10 @@ if (!ok) {
 Register multiple weight variants of the same family:
 
 ```cpp
-auto& fm = native::ui::FontManager::Default();
-fm.RegisterFont("appfont", "/data/fonts/my-app-regular.ttf", 400);
-fm.RegisterFont("appfont", "/data/fonts/my-app-bold.ttf", 700);
+namespace ui = native::ui;
+auto& fm = ui::FontManager::Default();
+fm.RegisterFont("appfont", "/data/fonts/my-app-regular.ttf", ui::FontManager::kFontWeightRegular);
+fm.RegisterFont("appfont", "/data/fonts/my-app-bold.ttf",    ui::FontManager::kFontWeightBold);
 ```
 
 `FontWeight(...)` picks the matching variant; when no exact weight is
@@ -35,12 +36,19 @@ registered, the nearest registered weight of that family is used (FR-004).
 using namespace native::ui;
 
 // Constructor tags:
-Text(Content("Hello"), FontFamily("appfont"), FontWeight(700), FontSize(24));
+Text(Content("Hello"), FontFamily("appfont"), FontWeight(kFontWeightBold),
+     FontSize(kFontSizeHeadline));
 
 // Applied Style (identical effect):
 Style s;
-s.setFontFamily("appfont").setFontWeight(400).setPriority(StylePriority::kInstance);
+s.setFontFamily("appfont").setFontWeight(kFontWeightRegular)
+ .setPriority(StylePriority::kInstance);
 textWidget->ApplyStyle(s);
+
+// Sizing/weight shortcuts via the FontManager constants:
+FontSize(FontManager::kFontSizeBody)      // 14
+FontSize(FontManager::kFontSizeBodyLarge) // 16 (default)
+FontWeight(FontManager::kFontWeightMedium) // 500
 ```
 
 ## 3. Default font (first registered, or explicit)

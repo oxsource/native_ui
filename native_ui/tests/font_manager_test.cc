@@ -248,5 +248,26 @@ TEST_F(FontManagerTest, CorruptFileRejected) {
   remove(path.c_str());
 }
 
+// Public API constants: default-family sentinel + suggested system family
+// names, common font sizes/weights compile to the documented values.
+TEST_F(FontManagerTest, PublicConstants) {
+  EXPECT_STREQ(FontManager::kDefaultFontFamily, "");
+  EXPECT_STREQ(FontManager::kSansSerifFamily, "sans-serif");
+  EXPECT_STREQ(FontManager::kSerifFamily, "serif");
+  EXPECT_STREQ(FontManager::kMonospaceFamily, "monospace");
+
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeCaption, 12.0f);
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeBody, 14.0f);
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeBodyLarge, 16.0f);
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeTitle, 20.0f);
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeHeadline, 24.0f);
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeDisplay, 32.0f);
+  EXPECT_FLOAT_EQ(FontManager::kFontSizeHero, 48.0f);
+
+  EXPECT_EQ(FontManager::kFontWeightRegular, 400);
+  EXPECT_EQ(FontManager::kFontWeightMedium, 500);
+  EXPECT_EQ(FontManager::kFontWeightBold, 700);
+}
+
 }  // namespace
 }  // namespace native::ui

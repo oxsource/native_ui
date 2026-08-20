@@ -17,6 +17,29 @@ struct FontManagerInternal;  // render-internal bridge (defined in .internal.h)
 
 class FontManager {
 public:
+  // ── Font family name constants ──────────────────────────────────────────
+  // Empty family = unset → framework default font (FR-013). The system names
+  // are suggested, widely-used family identifiers external code may reference;
+  // they resolve through the normal registered-family/fallback path.
+  static constexpr const char* kDefaultFontFamily = "";      // unset → default font
+  static constexpr const char* kSansSerifFamily = "sans-serif";
+  static constexpr const char* kSerifFamily = "serif";
+  static constexpr const char* kMonospaceFamily = "monospace";
+
+  // ── Common font-size constants (logical px; default size is 16) ─────────
+  static constexpr float kFontSizeCaption = 12.0f;
+  static constexpr float kFontSizeBody = 14.0f;
+  static constexpr float kFontSizeBodyLarge = 16.0f;  // default when unset
+  static constexpr float kFontSizeTitle = 20.0f;
+  static constexpr float kFontSizeHeadline = 24.0f;
+  static constexpr float kFontSizeDisplay = 32.0f;
+  static constexpr float kFontSizeHero = 48.0f;
+
+  // ── Common font-weight constants (property range 100–900) ───────────────
+  static constexpr int kFontWeightRegular = 400;
+  static constexpr int kFontWeightMedium = 500;
+  static constexpr int kFontWeightBold = 700;
+
   static FontManager& Default();
 
   // Registers a font file under a family name (weight 100–900, default 400).

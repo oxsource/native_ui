@@ -2,10 +2,10 @@
 #include <memory>
 #include <string>
 
+#include "native_ui/font.h"
 #include "src/framework/widgets/container.h"
 #include "src/framework/core/edge_insets.h"
 #include "src/framework/render/canvas.h"
-#include "src/framework/render/font_manager.h"
 #include "src/framework/render/paint.h"
 #include "src/framework/surface/surface.h"
 #include "src/framework/widgets/text.h"
@@ -28,7 +28,9 @@ int main(int argc, char** argv) {
   // A text widget referencing the registered family, plus a default-family one.
   auto text = std::make_unique<ui::Text>(
       ui::Content{"External font: Roboto"},
-      ui::FontFamily{"demo"}, ui::FontWeight{700}, ui::FontSize{32},
+      ui::FontFamily{ui::FontManager::kDefaultFontFamily},
+      ui::FontWeight{ui::FontManager::kFontWeightBold},
+      ui::FontSize{ui::FontManager::kFontSizeHeadline},
       ui::TextColor{ui::Color{220, 60, 40}},
       ui::TextAlign{ui::TextAlign::kCenter});
 
