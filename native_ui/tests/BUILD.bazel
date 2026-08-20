@@ -113,6 +113,18 @@ cc_test(
         "@native_ui//src/framework/render",
         "@com_google_googletest//:gtest_main",
     ],
+    data = ["@native_ui//tests/assets/fonts:fonts"],
+)
+
+cc_test(
+    name = "font_manager_test",
+    srcs = ["font_manager_test.cc"],
+    deps = [
+        "@native_ui//src/framework/render",
+        "@native_ui//src/framework/surface",
+        "@com_google_googletest//:gtest_main",
+    ],
+    data = ["@native_ui//tests/assets/fonts:fonts"],
 )
 
 cc_test(

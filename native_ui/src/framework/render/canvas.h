@@ -6,6 +6,7 @@
 #include "src/framework/core/color.h"
 #include "src/framework/core/point.h"
 #include "src/framework/core/rect.h"
+#include "src/framework/render/font_manager.h"
 
 namespace native::ui {
 
@@ -25,6 +26,16 @@ public:
   void DrawRoundRect(Rect rect, float radius, const Paint& paint);
   void DrawGradientRect(Rect rect, const class Gradient& gradient);
   void DrawShadow(Rect rect, float radius, Point offset, Color color);
+  // Measures text with the resolved font (same typeface as DrawText, FR-008).
+  // Returns glyph bounds relative to the baseline origin.
+  Rect MeasureText(const std::string& text, const Font& font);
+
+  // Draws text using the font resolved from family/weight/size (FR-003/FR-008).
+  void DrawText(const std::string& text, Point pos, const Paint& paint,
+                const Font& font);
+
+  // Scalar convenience — resolves via an unset (default) family, size only.
+  // Kept so debug_overlay.cc keeps compiling unchanged (FR-012).
   void DrawText(const std::string& text, Point pos, const Paint& paint,
                 float font_size = 16.0f);
   void DrawPath(const Path& path, const Paint& paint);

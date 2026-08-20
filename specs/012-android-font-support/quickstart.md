@@ -13,7 +13,8 @@ bool ok = native::ui::FontManager::Default().RegisterFont(
     "appfont", "/data/fonts/my-app.ttf");        // weight defaults to 400
 
 if (!ok) {
-  logs(native::ui::FontManager::Default().last_error());  // missing/corrupt file
+  std::fprintf(stderr, "register failed: %s\n",
+               native::ui::FontManager::Default().last_error().c_str());
 }
 ```
 
@@ -24,6 +25,9 @@ auto& fm = native::ui::FontManager::Default();
 fm.RegisterFont("appfont", "/data/fonts/my-app-regular.ttf", 400);
 fm.RegisterFont("appfont", "/data/fonts/my-app-bold.ttf", 700);
 ```
+
+`FontWeight(...)` picks the matching variant; when no exact weight is
+registered, the nearest registered weight of that family is used (FR-004).
 
 ## 2. Use it on any Text/Button
 

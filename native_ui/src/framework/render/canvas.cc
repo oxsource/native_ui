@@ -1,6 +1,7 @@
 #include "src/framework/render/canvas.h"
 
 #include "src/framework/core/gradient.h"
+#include "src/framework/render/font_manager_internal.h"
 #include "src/framework/render/image.h"
 #include "src/framework/render/paint.h"
 #include "src/framework/render/path.h"
@@ -9,7 +10,7 @@
 #include "SkBlurTypes.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
-#include "SkFontMgr.h"
+#include "SkFontTypes.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkMaskFilter.h"
@@ -20,10 +21,6 @@
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
-
-#if __APPLE__
-#include "ports/SkFontMgr_mac_ct.h"
-#endif
 
 namespace native::ui {
 
@@ -137,19 +134,34 @@ void Canvas::DrawShadow(Rect rect, float radius, Point offset, Color color) {
   impl_->sk_canvas->drawRoundRect(r, radius, radius, shadow_paint);
 }
 
-void Canvas::DrawText(const std::string& text, Point pos,
-                       const Paint& paint, float font_size) {
+Rect Canvas::MeasureText(const std::string& text, const Font& font) {
+  if (text.empty()) return Rect{};
+  sk_sp<SkTypeface> tf = FontManagerInternal::ResolveTypeface(font);
+  if (!tf) return Rect{};
+  const float size = font.size > 0.0f ? font.size : 16.0f;
+  SkFont sk_font(tf, size);
+  SkRect bounds;
+  sk_font.measureText(text.c_str(), text.size(), SkTextEncoding::kUTF8, &bounds);
+  return Rect{bounds.fLeft, bounds.fTop, bounds.width(), bounds.height()};
+}
+
+void Canvas::DrawText(const std::string& text, Point pos, const Paint& paint,
+                      const Font& font) {
   if (text.empty()) return;
   SkPaint sk_paint;
   ApplyPaint(sk_paint, paint);
-#if __APPLE__
-  static sk_sp<SkFontMgr> font_mgr = SkFontMgr_New_CoreText(nullptr);
-  sk_sp<SkTypeface> tf = font_mgr->matchFamilyStyle(nullptr, SkFontStyle());
-  SkFont font(tf, font_size);
-#else
-  SkFont font(nullptr, font_size);
-#endif
-  impl_->sk_canvas->drawString(text.c_str(), pos.x, pos.y, font, sk_paint);
+  sk_sp<SkTypeface> tf = FontManagerInternal::ResolveTypeface(font);
+  if (!tf) return;
+  const float size = font.size > 0.0f ? font.size : 16.0f;
+  SkFont sk_font(tf, size);
+  impl_->sk_canvas->drawString(text.c_str(), pos.x, pos.y, sk_font, sk_paint);
+}
+
+void Canvas::DrawText(const std::string& text, Point pos, const Paint& paint,
+                      float font_size) {
+  Font font;
+  font.size = font_size;
+  DrawText(text, pos, paint, font);
 }
 
 void Canvas::DrawPath(const Path& path, const Paint& paint) {

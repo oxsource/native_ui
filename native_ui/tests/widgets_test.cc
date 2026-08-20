@@ -1,12 +1,16 @@
 #include "gtest/gtest.h"
 #include "src/framework/widgets/button.h"
 #include "src/framework/render/canvas.h"
+#include "src/framework/render/font_manager.h"
 #include "src/framework/widgets/container.h"
 #include "src/framework/widgets/external_image.h"
 #include "src/framework/widgets/image_widget.h"
 #include "src/framework/widgets/stack.h"
 #include "src/framework/surface/surface.h"
 #include "src/framework/widgets/text.h"
+
+#include <cstdlib>
+#include <string>
 
 namespace native::ui {
 
@@ -63,6 +67,35 @@ TEST(TextTest, DataBindingRedrawOnChange) {
   state->name = "updated";
   state->Flush();
   EXPECT_TRUE(t.needs_draw());
+}
+
+// US1: a Text with a registered FontFamily renders without crashing and draws
+// through the same FontManager at draw time (FR-003/FR-008).
+TEST(TextTest, RegisteredFamilyRenders) {
+  std::string path = std::getenv("TEST_SRCDIR")
+                         ? std::string(std::getenv("TEST_SRCDIR")) +
+                               "/native_ui/tests/assets/fonts/roboto_regular.ttf"
+                         : "tests/assets/fonts/roboto_regular.ttf";
+  FontManager::Default().Clear();
+  ASSERT_TRUE(
+      FontManager::Default().RegisterFont("demo", path, 400));
+
+  Text t(Content{"Hi"}, FontFamily{"demo"}, FontSize{24});
+  auto surface = Surface::Create(100, 50);
+  ASSERT_NE(surface, nullptr);
+  {
+    Canvas canvas(*surface);
+    t.Draw(canvas);
+  }
+  EXPECT_FALSE(t.needs_draw());
+
+  // Empty-family reference render also draws (default font), no crash.
+  Text unset(Content{"Hi"}, FontSize{24});
+  {
+    Canvas canvas(*surface);
+    unset.Draw(canvas);
+  }
+  FontManager::Default().Clear();
 }
 
 // ============================================================================

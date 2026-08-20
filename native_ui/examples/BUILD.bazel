@@ -50,3 +50,13 @@ cc_binary(
         "//conditions:default": [],
     }),
 )
+
+cc_binary(
+    name = "font_demo",
+    srcs = ["font_demo.cc"],
+    deps = [
+        "@native_ui//src/framework/public:native_ui",
+        "@native_ui//src/framework/surface",
+        "@skia//:skia",
+    ],
+)

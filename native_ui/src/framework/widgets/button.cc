@@ -3,15 +3,6 @@
 #include "src/framework/widgets/event_types.h"
 #include "src/framework/render/paint.h"
 
-#include "SkFont.h"
-#include "SkFontMgr.h"
-#include "SkFontTypes.h"
-#include "SkRect.h"
-#include "SkTypeface.h"
-#if __APPLE__
-#include "ports/SkFontMgr_mac_ct.h"
-#endif
-
 namespace native::ui {
 
 void Button::ProcessArg(Label tag) { content_ = std::move(tag.value); }
@@ -51,20 +42,17 @@ void Button::Draw(Canvas& canvas) {
     fg.SetColor(s.text_color());
     float size = s.font_size() > 0.0f ? s.font_size() : 16.0f;
 
-    // Measure text width for horizontal centering
-#if __APPLE__
-    static sk_sp<SkFontMgr> font_mgr = SkFontMgr_New_CoreText(nullptr);
-    sk_sp<SkTypeface> tf = font_mgr->matchFamilyStyle(nullptr, SkFontStyle());
-    SkFont sk_font(tf, size);
-#else
-    SkFont sk_font(nullptr, size);
-#endif
-    SkRect text_bounds;
-    sk_font.measureText(text.c_str(), text.size(), SkTextEncoding::kUTF8, &text_bounds);
-    float tx = (bb.width - text_bounds.width()) / 2.0f - text_bounds.left();
+    // Font descriptor from style (FR-003); same typeface measures & draws.
+    Font font;
+    font.family = s.font_family();
+    font.weight = s.font_weight();
+    font.size = size;
+
+    Rect text_bounds = canvas.MeasureText(text, font);
+    float tx = (bb.width - text_bounds.width) / 2.0f - text_bounds.x;
     float ty = (bb.height - size) / 2.0f + size;
 
-    canvas.DrawText(text, Point{tx, ty}, fg, size);
+    canvas.DrawText(text, Point{tx, ty}, fg, font);
   }
 
   // Dim if disabled

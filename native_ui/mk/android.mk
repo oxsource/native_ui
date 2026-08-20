@@ -10,9 +10,10 @@ $(call register_target,android-diff)
 $(call register_target,android-view)
 $(call register_target,android-results)
 $(call register_target,android-demo-live)
+$(call register_target,android-font-demo)
 $(call register_target,android-verify)
 
-.PHONY: android-build android-demo android-pull android-list android-diff android-view android-results android-demo-live android-verify
+.PHONY: android-build android-demo android-pull android-list android-diff android-view android-results android-demo-live android-font-demo android-verify
 
 android-build: ## Android arm64 cross-build of libs + demo (no device; needs ANDROID_NDK_HOME)
 	bash $(V)/android_build.sh
@@ -39,6 +40,9 @@ android-results: ## Pull + diff + view the latest results
 
 android-demo-live: ## Live-update perf run, 30 Hz / 60 s, prints frame ms + VmRSS (T034)
 	bash $(V)/android_demo.sh all --live
+
+android-font-demo: ## Font device closed loop: build + push font/bin + run + pull PNG (feature 012)
+	bash $(V)/android_font_demo.sh all
 
 android-verify: ## Full device validation = android-build + android-demo
 	bash $(V)/android_build.sh && bash $(V)/android_demo.sh all

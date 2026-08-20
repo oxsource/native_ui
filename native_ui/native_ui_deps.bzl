@@ -64,6 +64,25 @@ def _nanosvg():
         build_file = "//third_party:nanosvg.BUILD",
     )
 
+def _freetype():
+    # FreeType 2.13.2 — C font rasterizer required by Skia's FreeType port
+    # (SkFontHost_FreeType / SkTypeface_FreeType) and the custom font manager,
+    # so that registered font files render real glyphs on Android/Linux.
+    http_archive(
+        name = "freetype",
+        urls = ["https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-2.tar.gz"],
+        sha256 = "427201f5d5151670d05c1f5b45bef5dda1f2e7dd971ef54f0feaaa7ffd2ab90c",
+        strip_prefix = "freetype-VER-2-13-2",
+        build_file = "//third_party:freetype.BUILD",
+        # The shipped (non-GNU-make) ftmodule.h registers the SVG renderer, whose
+        # class (ft_svg_renderer_class) is only compiled with FT_CONFIG_OPTION_USE_SVG
+        # (needs librsvg). We exclude src/svg/*.c, so drop that registration line to
+        # keep the FT_Init_FreeType module table consistent with the compiled modules.
+        patch_cmds = [
+            "sed -i.bak '/ft_svg_renderer_class/d' include/freetype/config/ftmodule.h && rm -f include/freetype/config/ftmodule.h.bak",
+        ],
+    )
+
 def _rules_android_ndk():
     # External NDK rules that support NDK r25b+ with Bazel 6.5+. Verified working
     # in the atlas project (tools/platform_setup.sh + WORKSPACE). android_ndk_repository
@@ -89,5 +108,7 @@ def native_ui_setup():
         _googletest()
     if not native.existing_rule("nanosvg"):
         _nanosvg()
+    if not native.existing_rule("freetype"):
+        _freetype()
     if not native.existing_rule("rules_android_ndk"):
         _rules_android_ndk()

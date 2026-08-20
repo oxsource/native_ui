@@ -28,9 +28,9 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 **Purpose**: Vendor the FreeType dependency and test font assets required by every later phase.
 
-- [ ] T001 Add `freetype` http_archive (FreeType 2.13.2, sha256-pinned) to `native_ui/native_ui_deps.bzl`
-- [ ] T002 [P] Create `native_ui/third_party/freetype.BUILD` — `cc_library(name = "freetype")` compiling FreeType sources with `FT2_BUILD_LIBRARY`, freetype2 include path exported, no `FT_CONFIG_OPTION_USE_PNG/ZLIB/BZIP2` (self-contained)
-- [ ] T003 [P] Vendor test font assets under `native_ui/tests/assets/fonts/` (Apache-2.0, sourced from pinned Skia `resources/fonts`): `Roboto-Regular.ttf`, `Roboto-Bold.ttf`, and one distinct display font (e.g. `NotoSansDisplay-Regular.ttf`) — used for host metric assertions
+- [X] T001 Add `freetype` http_archive (FreeType 2.13.2, sha256-pinned) to `native_ui/native_ui_deps.bzl`
+- [X] T002 [P] Create `native_ui/third_party/freetype.BUILD` — `cc_library(name = "freetype")` compiling FreeType sources with `FT2_BUILD_LIBRARY`, freetype2 include path exported, no `FT_CONFIG_OPTION_USE_PNG/ZLIB/BZIP2` (self-contained)
+- [X] T003 [P] Vendor test font assets under `native_ui/tests/assets/fonts/` (Apache-2.0, sourced from pinned Skia `resources/fonts`): `Roboto-Regular.ttf`, `Roboto-Bold.ttf`, and one distinct display font (e.g. `NotoSansDisplay-Regular.ttf`) — used for host metric assertions
 
 ---
 
@@ -40,13 +40,13 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Un-exclude Skia FreeType/custom ports in `native_ui/third_party/skia.BUILD` — remove `SkFontHost_FreeType*.cpp`, `SkTypeface_FreeType.cpp`, `SkFontMgr_custom*.cpp` from the `srcs` glob exclusions; add `@freetype//:freetype` to the `skia` cc_library deps with required include dirs and `SK_FREETYPE_MINIMUM_RUNTIME_VERSION` define if needed by the ports
-- [ ] T005 [P] Create `native_ui/src/framework/render/font_manager.h` — public `struct Font{std::string family; int weight; float size;}` and `class FontManager` (singleton `Default()`, `RegisterFont`, `SetDefaultFont`, `HasDefaultFont`, `last_error`, `Clear`, internal `Resolve`) per `contracts/font-manager.md`
-- [ ] T006 [P] Implement `native_ui/src/framework/render/font_manager.cc` — registry/cache/default members, per-platform `SkFontMgr` construction (`__APPLE__`→CoreText;`__ANDROID__`→CustomDirectory(`/system/fonts`);else→CustomDirectory(empty-dir)), `makeFromData(SkData::MakeFromFileName(path))` load, exact-weight `Resolve`, `|cache|≤|registry|+1` invariant
-- [ ] T007 Modify `native_ui/src/framework/render/BUILD.bazel` — ensure `font_manager.cc/.h` build into `//src/framework/render:render` (glob covers *.cc; confirm `@skia//:skia` dep present)
-- [ ] T008 [P] Add `Rect MeasureText(const std::string&, const Font&)` and `void DrawText(..., const Font&)` declarations to `native_ui/src/framework/render/canvas.h`; keep the existing scalar `float font_size` overload
-- [ ] T009 Implement the new overloads in `native_ui/src/framework/render/canvas.cc` — resolve typeface ONCE via `FontManager::Default().Resolve(family,weight)` used by both `measureText` and `drawString` (FR-008); scalar overload delegates to `Font{size}`
-- [ ] T010 Verify host build green: `bazel build //src/framework/render` from `native_ui/` — FreeType links, macOS behavior unchanged (FR-012/SC-005 gate)
+- [X] T004 Un-exclude Skia FreeType/custom ports in `native_ui/third_party/skia.BUILD` — remove `SkFontHost_FreeType*.cpp`, `SkTypeface_FreeType.cpp`, `SkFontMgr_custom*.cpp` from the `srcs` glob exclusions; add `@freetype//:freetype` to the `skia` cc_library deps with required include dirs and `SK_FREETYPE_MINIMUM_RUNTIME_VERSION` define if needed by the ports
+- [X] T005 [P] Create `native_ui/src/framework/render/font_manager.h` — public `struct Font{std::string family; int weight; float size;}` and `class FontManager` (singleton `Default()`, `RegisterFont`, `SetDefaultFont`, `HasDefaultFont`, `last_error`, `Clear`, internal `Resolve`) per `contracts/font-manager.md`
+- [X] T006 [P] Implement `native_ui/src/framework/render/font_manager.cc` — registry/cache/default members, per-platform `SkFontMgr` construction (`__APPLE__`→CoreText;`__ANDROID__`→CustomDirectory(`/system/fonts`);else→CustomDirectory(empty-dir)), `makeFromData(SkData::MakeFromFileName(path))` load, exact-weight `Resolve`, `|cache|≤|registry|+1` invariant
+- [X] T007 Modify `native_ui/src/framework/render/BUILD.bazel` — ensure `font_manager.cc/.h` build into `//src/framework/render:render` (glob covers *.cc; confirm `@skia//:skia` dep present)
+- [X] T008 [P] Add `Rect MeasureText(const std::string&, const Font&)` and `void DrawText(..., const Font&)` declarations to `native_ui/src/framework/render/canvas.h`; keep the existing scalar `float font_size` overload
+- [X] T009 Implement the new overloads in `native_ui/src/framework/render/canvas.cc` — resolve typeface ONCE via `FontManager::Default().Resolve(family,weight)` used by both `measureText` and `drawString` (FR-008); scalar overload delegates to `Font{size}`
+- [X] T010 Verify host build green: `bazel build //src/framework/render` from `native_ui/` — FreeType links, macOS behavior unchanged (FR-012/SC-005 gate)
 
 **Checkpoint**: Foundation ready — user story implementation can now begin.
 
@@ -62,16 +62,16 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 > **These tests are written FIRST and must FAIL before implementation (red-green).**
 
-- [ ] T011 [P] [US1] Add SC-001 test to `native_ui/tests/font_manager_test.cc`: `RegisterFont("demo", Roboto-Regular, 400)` → `MeasureText("Hello", Font{"demo",400,24}).width() > 0` (today 0)
-- [ ] T012 [P] [US1] Add SC-006/FR-013 test to `native_ui/tests/font_manager_test.cc`: first successful registration → `HasDefaultFont()` true; empty-family `MeasureText` > 0 and metrics match default family
-- [ ] T013 [P] [US1] Add FR-014/FR-010 tests to `native_ui/tests/font_manager_test.cc`: `SetDefaultFont` re-points default (invalid family → false + `last_error`, default unchanged); re-register same (family,weight) → refreshed metrics
-- [ ] T014 [P] [US1] Add widget tests to `native_ui/tests/widgets_test.cc`: `Text(Content("Hi"), FontFamily("demo"))` with registered font draws without crash + non-empty measure; tag render ≡ `ApplyStyle(Style{fontFamily("demo")})` render (FR-009)
+- [X] T011 [P] [US1] Add SC-001 test to `native_ui/tests/font_manager_test.cc`: `RegisterFont("demo", Roboto-Regular, 400)` → `MeasureText("Hello", Font{"demo",400,24}).width() > 0` (today 0)
+- [X] T012 [P] [US1] Add SC-006/FR-013 test to `native_ui/tests/font_manager_test.cc`: first successful registration → `HasDefaultFont()` true; empty-family `MeasureText` > 0 and metrics match default family
+- [X] T013 [P] [US1] Add FR-014/FR-010 tests to `native_ui/tests/font_manager_test.cc`: `SetDefaultFont` re-points default (invalid family → false + `last_error`, default unchanged); re-register same (family,weight) → refreshed metrics
+- [X] T014 [P] [US1] Add widget tests to `native_ui/tests/widgets_test.cc`: `Text(Content("Hi"), FontFamily("demo"))` with registered font draws without crash + non-empty measure; tag render ≡ `ApplyStyle(Style{fontFamily("demo")})` render (FR-009)
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Rewrite `Text::Draw` in `native_ui/src/framework/widgets/text.cc` — build `Font{family, weight, font_size}` from `style()`, use `canvas.MeasureText`/`canvas.DrawText`, DELETE the `#if __APPLE__` SkFont blocks (keep centering math using returned bounds)
-- [ ] T016 [P] [US1] Rewrite `Button::Draw` in `native_ui/src/framework/widgets/button.cc` — same Font-descriptor pattern, remove `#if __APPLE__` block
-- [ ] T017 [US1] Add `font_manager_test` cc_test target to `native_ui/tests/BUILD.bazel` (deps: `//src/framework/render` + gtest; `data = ["assets/fonts/Roboto-Regular.ttf", "assets/fonts/Roboto-Bold.ttf", "assets/fonts/NotoSansDisplay-Regular.ttf"]`); ensure tests call `FontManager::Default().Clear()` for isolation
+- [X] T015 [US1] Rewrite `Text::Draw` in `native_ui/src/framework/widgets/text.cc` — build `Font{family, weight, font_size}` from `style()`, use `canvas.MeasureText`/`canvas.DrawText`, DELETE the `#if __APPLE__` SkFont blocks (keep centering math using returned bounds)
+- [X] T016 [P] [US1] Rewrite `Button::Draw` in `native_ui/src/framework/widgets/button.cc` — same Font-descriptor pattern, remove `#if __APPLE__` block
+- [X] T017 [US1] Add `font_manager_test` cc_test target to `native_ui/tests/BUILD.bazel` (deps: `//src/framework/render` + gtest; `data = ["assets/fonts/Roboto-Regular.ttf", "assets/fonts/Roboto-Bold.ttf", "assets/fonts/NotoSansDisplay-Regular.ttf"]`); ensure tests call `FontManager::Default().Clear()` for isolation
 
 **Checkpoint**: At this point, User Story 1 is fully functional and independently testable (MVP).
 
@@ -85,12 +85,12 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Add SC-002 test to `native_ui/tests/font_manager_test.cc`: register `demo`@400(Roboto-Regular) + `demo`@700(Roboto-Bold) → `MeasureText("Hello", Font{"demo",700,24}).width() > MeasureText("Hello", Font{"demo",400,24}).width()` in the expected direction
-- [ ] T019 [P] [US2] Add FR-004 tests to `native_ui/tests/font_manager_test.cc`: register only 400 & 900, request 500 → 400 selected; register single-variant family, request any weight → that file used, no crash
+- [X] T018 [P] [US2] Add SC-002 test to `native_ui/tests/font_manager_test.cc`: register `demo`@400(Roboto-Regular) + `demo`@700(Roboto-Bold) → `MeasureText("Hello", Font{"demo",700,24}).width() > MeasureText("Hello", Font{"demo",400,24}).width()` in the expected direction
+- [X] T019 [P] [US2] Add FR-004 tests to `native_ui/tests/font_manager_test.cc`: register only 400 & 900, request 500 → 400 selected; register single-variant family, request any weight → that file used, no crash
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement nearest-weight resolution in `Resolve` in `native_ui/src/framework/render/font_manager.cc` — exact match first; else min `|Δweight|` (tie → lower); single variant if family has one; `weight<=0` normalized to 400
+- [X] T020 [US2] Implement nearest-weight resolution in `Resolve` in `native_ui/src/framework/render/font_manager.cc` — exact match first; else min `|Δweight|` (tie → lower); single variant if family has one; `weight<=0` normalized to 400
 
 **Checkpoint**: At this point, User Stories 1 AND 2 both work independently.
 
@@ -104,12 +104,12 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 ### Tests for User Story 3
 
-- [ ] T021 [P] [US3] Add SC-003/FR-006 test to `native_ui/tests/font_manager_test.cc`: missing/corrupt path → `RegisterFont` returns false, `last_error()` non-empty, default entry unchanged; unknown family + default registered → resolves to default metrics (FR-007)
-- [ ] T022 [P] [US3] Add FR-012/SC-005 regression test in `native_ui/tests/font_manager_test.cc`: no registration at all → `MeasureText` with empty family renders no-op empty, no crash (platform-default path unchanged)
+- [X] T021 [P] [US3] Add SC-003/FR-006 test to `native_ui/tests/font_manager_test.cc`: missing/corrupt path → `RegisterFont` returns false, `last_error()` non-empty, default entry unchanged; unknown family + default registered → resolves to default metrics (FR-007)
+- [X] T022 [P] [US3] Add FR-012/SC-005 regression test in `native_ui/tests/font_manager_test.cc`: no registration at all → `MeasureText` with empty family renders no-op empty, no crash (platform-default path unchanged)
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Harden error handling in `native_ui/src/framework/render/font_manager.cc` — load failure sets `last_error_`, never crashes, family falls back to default; `SetDefaultFont` on unknown family → false + error; `Resolve` never returns null (default or no-op empty typeface)
+- [X] T023 [US3] Harden error handling in `native_ui/src/framework/render/font_manager.cc` — load failure sets `last_error_`, never crashes, family falls back to default; `SetDefaultFont` on unknown family → false + error; `Resolve` never returns null (default or no-op empty typeface)
 
 **Checkpoint**: All user stories now independently functional.
 
@@ -119,9 +119,9 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 **Purpose**: On-device proof of registered-font rendering (FR-005), reusing the feature-011 device tooling.
 
-- [ ] T024 [P] Create `native_ui/examples/font_demo.cc` — `RegisterFont("demo", <pushed path>)` → build `Text(Content(...), FontFamily("demo"))` in a container → draw onto `Surface::Create(w,h)` → `Surface::Dump` PNG (mirrors `external_image_demo.cc` loop, no codec)
-- [ ] T025 [P] Add `font_demo` cc_binary to `native_ui/examples/BUILD.bazel` (deps: `//src/framework/public:native_ui`, surface; `data`: a font asset)
-- [ ] T026 Add `android-font-demo` make target in `native_ui/mk/` reusing `android_build.sh`/`android_demo.sh` pattern — build `//examples:font_demo`, push binary+font to device, run, pull PNG
+- [X] T024 [P] Create `native_ui/examples/font_demo.cc` — `RegisterFont("demo", <pushed path>)` → build `Text(Content(...), FontFamily("demo"))` in a container → draw onto `Surface::Create(w,h)` → `Surface::Dump` PNG (mirrors `external_image_demo.cc` loop, no codec)
+- [X] T025 [P] Add `font_demo` cc_binary to `native_ui/examples/BUILD.bazel` (deps: `//src/framework/public:native_ui`, surface; `data`: a font asset)
+- [X] T026 Add `android-font-demo` make target in `native_ui/mk/` reusing `android_build.sh`/`android_demo.sh` pattern — build `//examples:font_demo`, push binary+font to device, run, pull PNG
 
 ---
 
@@ -129,10 +129,10 @@ Repository root for Bazel targets: `native_ui/`. Feature paths:
 
 **Purpose**: Full-suite validation and documentation consistency across all stories.
 
-- [ ] T027 [P] Run full host suite from `native_ui/`: `bazel test //tests/...` — all green; existing text/no-crash/snapshot tests unchanged (FR-012/SC-005)
-- [ ] T028 [P] Run `bazel build //examples:font_demo` for `android_arm64` (`--config android_arm64`) to confirm the device demo cross-compiles
-- [ ] T029 [P] Verify `AGENTS.md` SPECKIT block points at `specs/012-android-font-support/plan.md` and `contracts/font-manager.md`; keep `quickstart.md` examples consistent with the shipped API
-- [ ] T030 Update `specs/012-android-font-support/quickstart.md` if signature/behavior details changed during implementation
+- [X] T027 [P] Run full host suite from `native_ui/`: `bazel test //tests/...` — all green; existing text/no-crash/snapshot tests unchanged (FR-012/SC-005)
+- [X] T028 [P] Run `bazel build //examples:font_demo` for `android_arm64` (`--config android_arm64`) to confirm the device demo cross-compiles
+- [X] T029 [P] Verify `AGENTS.md` SPECKIT block points at `specs/012-android-font-support/plan.md` and `contracts/font-manager.md`; keep `quickstart.md` examples consistent with the shipped API
+- [X] T030 Update `specs/012-android-font-support/quickstart.md` if signature/behavior details changed during implementation
 
 ---
 
