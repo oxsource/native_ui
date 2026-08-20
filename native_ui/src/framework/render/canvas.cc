@@ -165,6 +165,15 @@ void Canvas::DrawImage(const Image& image, Rect dest) {
   }
 }
 
+void Canvas::DrawImage1to1(const Image& image, Point dest_top_left) {
+  SkImage* sk_img = static_cast<SkImage*>(image.Handle());
+  if (sk_img) {
+    // drawImage() blits the pixels at their own size with no filtering — the
+    // fast path for a pre-scaled image that already matches the target size.
+    impl_->sk_canvas->drawImage(sk_img, dest_top_left.x, dest_top_left.y);
+  }
+}
+
 void Canvas::DrawImage(const Image& image, Rect src, Rect dest) {
   SkImage* sk_img = static_cast<SkImage*>(image.Handle());
   if (sk_img) {
@@ -180,6 +189,10 @@ void Canvas::ClipRect(Rect rect) {
 
 void Canvas::Translate(Point offset) {
   impl_->sk_canvas->translate(offset.x, offset.y);
+}
+
+void Canvas::Scale(float sx, float sy) {
+  impl_->sk_canvas->scale(sx, sy);
 }
 
 void Canvas::Save() {
