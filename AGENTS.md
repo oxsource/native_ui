@@ -1,7 +1,10 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/011-ahwb-external-image/plan.md
+at specs/012-android-font-support/plan.md
+For external font registration (RegisterFont by file path, default font) and
+Canvas text integration contracts, see:
+- specs/012-android-font-support/contracts/font-manager.md
 For Android AHardwareBuffer utility and CPU/GPU render backend contracts, see:
 - specs/011-ahwb-external-image/contracts/ahwb.md
 - specs/011-ahwb-external-image/contracts/render-backend.md
