@@ -1,35 +1,25 @@
-name: Release
+name: version
 
 on:
   push:
     tags:
-      - 'v*'  # e.g. v0.1.0, v1.2.3
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   release:
-    name: Build & Publish
+    name: source tarball
     runs-on: ubuntu-22.04
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Build shared library
-        run: bazel build //src/framework/public:native_ui_shared
-
-      - name: Extract changelog
-        id: changelog
+      - name: Build source tarball
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create Release
+          git archive --format=tar.gz \
+            --prefix="native_ui-${{ github.ref_name }}/" \
+            -o "native_ui-${{ github.ref_name }}.tar.gz" HEAD
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: native_ui ${{ github.ref_name }}
-          body_path: CHANGELOG.md
-          files: |
-            bazel-bin/src/framework/public/libnative_ui_shared.so
-            bazel-bin/src/framework/public/libnative_ui_shared.dylib
-          draft: false
-          prerelease: false
+          files: "native_ui-${{ github.ref_name }}.tar.gz"
